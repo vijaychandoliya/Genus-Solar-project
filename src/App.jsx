@@ -6,11 +6,22 @@ import Overview from "./pages/overview.jsx";
 import Alarms from "./pages/alarms.jsx";
 import Sites from "./pages/sites.jsx";
 import Assets from "./pages/assets.jsx";
+import Reports from "./pages/reports.jsx";
+import AdminUsers from "./pages/admin-users.jsx";
+import AdminOrganisation from "./pages/admin-organisation.jsx";
 import Placeholder from "./pages/placeholder.jsx";
 import { NAV } from "./components/organisms/shell.jsx";
 
 /** Screens built for real. Everything else in NAV falls through to Placeholder. */
-const BUILT = new Set(["/overview", "/alarms", "/sites", "/assets"]);
+const BUILT = new Set([
+  "/overview",
+  "/alarms",
+  "/sites",
+  "/assets",
+  "/reports",
+  "/admin/users",
+  "/admin/organisation",
+]);
 
 /** Every remaining nav destination, flattened, so no rail item is a dead link. */
 const ROUTES = NAV.flatMap((n) =>
@@ -27,6 +38,9 @@ export default function App() {
           <Route path="/alarms" element={<Alarms />} />
           <Route path="/sites" element={<Sites />} />
           <Route path="/assets" element={<Assets />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/organisation" element={<AdminOrganisation />} />
           {ROUTES.map((r) => (
             <Route key={r.to} path={r.to} element={<Placeholder title={r.label} to={r.to} />} />
           ))}

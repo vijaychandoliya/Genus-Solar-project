@@ -465,6 +465,16 @@ export const SYSTEM_ACCOUNTS = [
   { name: "Aditya Raj Tiwari - 11125", role: "Field surveyor", source: "Site survey" },
 ];
 
+/** Every account paired with what it has actually done, in scope. */
+export function accountsFor(nodeId) {
+  const rows = surveysFor(nodeId);
+  return SYSTEM_ACCOUNTS.map((a) => ({
+    ...a,
+    id: a.name,
+    surveysInScope: rows.filter((r) => r.employee === a.name).length,
+  }));
+}
+
 /** Latest submission timestamp in scope, or null if the scope has none. */
 export function latestSubmission(node) {
   const rows = SURVEY_ROWS.filter((r) => rowIsUnder(r, node.id));
