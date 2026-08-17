@@ -145,7 +145,16 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
         contrastText: s["text/on-brand"],
       },
 
-      background: { default: s["surface/base"], paper: s["surface/raised"] },
+      // The reference "Dashboard Template" screen in the Genus Design System
+      // (Figma node 271:445) is unambiguous and consistent across every panel
+      // in it: the page canvas is `surface/canvas`, and every card, the
+      // sidebar, and the operational table all sit on `surface/raised` — not
+      // `surface/base`, which this file had bound to the page instead. That
+      // swap is what made panels read as barely distinct from the page in
+      // dark mode; `surface/base` (Neutral-900, #242424) and `surface/raised`
+      // (Neutral-800, #333333) are only one ramp step apart, while
+      // `surface/canvas` (Neutral-950, #141414) and `surface/raised` are two.
+      background: { default: s["surface/canvas"], paper: s["surface/raised"] },
       text: {
         primary: s["text/primary"],
         secondary: s["text/secondary"],
@@ -288,7 +297,16 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
 
       MuiDrawer: {
         styleOverrides: {
-          paper: { backgroundColor: s["surface/canvas"], borderColor: s["border/subtle"] },
+          // Figma's own admin shell floats the sidebar as an elevated panel
+          // on `surface/raised` — the same surface every card uses, not the
+          // page's own `surface/canvas`. The border follows the same dark-mode
+          // fix as `panelBorder()`: `border/subtle` on `surface/raised` is a
+          // literal colour match in dark mode, so it uses `border/default`
+          // there instead.
+          paper: {
+            backgroundColor: s["surface/raised"],
+            borderColor: dark ? s["border/default"] : s["border/subtle"],
+          },
         },
       },
 

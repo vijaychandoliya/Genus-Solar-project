@@ -257,6 +257,40 @@ default. Caught by checking the KPI strip against the known real total (9), not 
 
 ---
 
+## 3d-1 · Surface roles — verified against Figma's own reference screen
+
+`panelBorder(t)` (§3d0) fixed the border-vs-fill collision, but there was a second, larger defect
+underneath it: **`background.default` and the sidebar were bound to the wrong surface tokens.**
+
+Found by pulling Figma node `271:445` — "Dashboard Template / Desktop", a full composed example
+screen in the Genus Design System, not just the isolated component swatches. Every panel in it
+(`Chart / Work order throughput`, `Chart / Asset health`, `Panel / Needs attention`,
+`Desktop / Operational table`, `Desktop / Navigation` — five independent, consistent
+data points) binds to `surface/raised`. `Desktop / Main content` — the page itself — binds to
+`surface/canvas`.
+
+This repo had it backwards: the page was `surface/base` and the sidebar was `surface/canvas`.
+`surface/base` and `surface/raised` are only one Neutral ramp step apart in dark mode (#242424 vs
+#333333, 1.23:1) — visibly close before a border is even drawn. `surface/canvas` and
+`surface/raised` are two steps apart (#141414 vs #333333, 1.46:1) — the gap Figma's own reference
+actually uses.
+
+**The rule now:** `background.default` = `surface/canvas`. Every panel, card, KPI tile, table and
+**the sidebar** = `surface/raised` — the sidebar is an elevated panel floating on the canvas, at
+the same level as a card, not a distinct third surface. In light mode both resolve to white, so
+this is invisible there (verified: page/sidebar/card all measured `#ffffff` after the change) —
+the fix is purely a dark-mode correction, achieved by binding the *right* token rather than
+inventing a new value.
+
+> **The reference screen's own top bar uses brand navy (`blue-900 #002940`), not a neutral surface
+> token at all.** That was treated as one example skin's opinionated choice, not a rule to copy —
+> the general layout docs already in this repo specify `surface/canvas` for the top bar, and the
+> two are now consistent with each other (top bar and page share one plane; panels float above it).
+> If a navy admin-shell skin is wanted later, that is a deliberate choice to make explicitly, not a
+> side effect of fixing the surface roles.
+
+---
+
 ## 3d0 · `panelBorder(t)` — the dark-mode border/fill collision
 
 **`border/subtle`, `surface/subtle` and `surface/raised` are the SAME hex in dark mode** —
