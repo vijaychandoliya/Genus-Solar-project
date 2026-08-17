@@ -40,6 +40,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0906107, lng: 83.7253975, accuracy: 3.04 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "02/2014",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Ladder",
@@ -62,6 +63,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0886304, lng: 83.7220671, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "04/2022",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Ladder",
@@ -104,6 +106,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0889188, lng: 83.7219191, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "08/2017",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Ladder",
@@ -126,6 +129,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0888929, lng: 83.721925, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "04/2015",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Ladder",
@@ -149,6 +153,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0888846, lng: 83.7218979, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "04/2018",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Ladder",
@@ -171,6 +176,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.0904258, lng: 83.7223091, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "03/2020",
     shadowFree: "Yes",
     earlyLateShadow: "Yes",
     access: "Ladder",
@@ -193,6 +199,7 @@ const RAW_SURVEYS = [
     geo: { lat: 25.003962, lng: 83.4244552, accuracy: 3.16 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "08/2019",
     shadowFree: "No",
     earlyLateShadow: "Yes",
     access: "Ladder",
@@ -215,6 +222,7 @@ const RAW_SURVEYS = [
     geo: { lat: 24.9966848, lng: 83.4283026, accuracy: 3 },
     rooftopAvailable: "Yes",
     roofTopStatus: "RCC Roof",
+    constructYear: "08/2025",
     shadowFree: "No",
     earlyLateShadow: "No",
     access: "Manual Arrangement",
@@ -256,6 +264,14 @@ function verdictReasons(row) {
   return r;
 }
 
+/** "08/2019" → years elapsed to now. Null when no rooftop was surveyed. */
+function roofAgeYears(mmYYYY) {
+  if (!mmYYYY) return null;
+  const [mm, yyyy] = mmYYYY.split("/").map(Number);
+  const built = new Date(yyyy, mm - 1, 1);
+  return (Date.now() - built.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+}
+
 export const SURVEY_ROWS = RAW_SURVEYS.map((row, i) => ({
   id: `survey-${i + 1}`,
   ...row,
@@ -264,6 +280,7 @@ export const SURVEY_ROWS = RAW_SURVEYS.map((row, i) => ({
   submittedOn: parseIndianDate(row.submittedOn),
   verdict: computeVerdict(row),
   verdictReasons: verdictReasons(row),
+  roofAgeYears: roofAgeYears(row.constructYear),
   photos: 10, // all ten evidence slots populated in every one of the 9 rows
 }));
 
@@ -285,6 +302,38 @@ export function surveyedCount(nodeId) {
 /** The individual survey records in scope — the Sites screen's row detail. */
 export function surveysFor(nodeId) {
   return SURVEY_ROWS.filter((r) => rowIsUnder(r, nodeId));
+}
+
+/* ── feasibility / asset condition — the Assets screen ────────────────────
+   Framed around the physical rooftop condition data already committed in
+   SURVEY_ROWS (roof age, structure/earthing distances, orientation) rather
+   than the individual consumer master rows. The master has 9,673 real names
+   and phone numbers; bundling that into a public client build is a real
+   privacy exposure, not a shortcut worth taking for a demo table.         */
+
+/** Count of surveys per verdict, in scope. */
+export function feasibilityMix(nodeId) {
+  const rows = surveysFor(nodeId);
+  const counts = new Map();
+  for (const r of rows) counts.set(r.verdict, (counts.get(r.verdict) ?? 0) + 1);
+  return [...counts.entries()].map(([name, value]) => ({ name, value }));
+}
+
+/** Count of surveys per roof orientation, in scope. */
+export function orientationMix(nodeId) {
+  const rows = surveysFor(nodeId).filter((r) => r.orientation);
+  const counts = new Map();
+  for (const r of rows) counts.set(r.orientation, (counts.get(r.orientation) ?? 0) + 1);
+  return [...counts.entries()].map(([name, value]) => ({ name, value }));
+}
+
+/** Mean of a numeric field across surveys in scope that have it. */
+export function meanOf(nodeId, field) {
+  const values = surveysFor(nodeId)
+    .map((r) => r[field])
+    .filter((v) => typeof v === "number" && !Number.isNaN(v));
+  if (!values.length) return null;
+  return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
 /**
