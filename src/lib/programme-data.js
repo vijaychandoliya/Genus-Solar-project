@@ -282,6 +282,11 @@ export function surveyedCount(nodeId) {
   return SURVEY_ROWS.filter((r) => rowIsUnder(r, nodeId)).length;
 }
 
+/** The individual survey records in scope — the Sites screen's row detail. */
+export function surveysFor(nodeId) {
+  return SURVEY_ROWS.filter((r) => rowIsUnder(r, nodeId));
+}
+
 /**
  * Coverage %, or the honest reason it cannot be one.
  *
