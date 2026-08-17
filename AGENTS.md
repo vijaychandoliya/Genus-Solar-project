@@ -257,6 +257,35 @@ default. Caught by checking the KPI strip against the known real total (9), not 
 
 ---
 
+## 3d0 · `panelBorder(t)` — the dark-mode border/fill collision
+
+**`border/subtle`, `surface/subtle` and `surface/raised` are the SAME hex in dark mode** —
+`#333333`, Neutral-800, in Figma's own alias table. Any box that fills with `surface.subtle` or
+`surface.raised` and borders with `t.palette.border.subtle` directly gets a **1.00:1 contrast
+ratio** — not just low, literally invisible, because the border is drawn in the exact colour of its
+own fill. This is why six KPI tiles read as one merged block in dark mode, and it was silently
+affecting every outlined panel, tag and tile in the app, not only the one someone happened to
+notice first.
+
+**Fix once, at `src/lib/theme.js`: `panelBorder(t)`.** Returns `border.default` in dark mode (a
+full ramp step lighter — `#474747`, giving a real 1.36:1 edge) and `border.subtle` unchanged in
+light mode, where the pairing was never a problem. `MuiPaper`'s own `outlined` styleOverride uses
+it, which covers every `Panel`/`WsSection`/`WsTable`/`EChartCard`/`KpiTile` for free — but `sx`
+wins over a component's styleOverrides in MUI's cascade, so **anywhere a `Box` hand-rolls a border
+around a `surface.subtle`/`surface.raised` fill via `sx`, it must call `panelBorder(t)` directly**,
+not `t.palette.border.subtle`. Fixed at every such site found by search: `WsContext`, `WsTag`, the
+sidebar's hierarchy-picker box, `TileDeck`'s unselected tab card, and two spots in the gallery.
+
+> **Verified, not eyeballed.** Measured via `getComputedStyle` before and after: dark mode was
+> `bg #333333 / border #333333` → ratio **1.00:1**. After the fix: `bg #333333 / border #474747` →
+> ratio **1.36:1**. Light mode measured unchanged (`#ffffff` / `#e0e0e0`).
+>
+> **When adding a new tinted box:** if its background is `surface.subtle` or `surface.raised`,
+> its border is `panelBorder(t)`, never `t.palette.border.subtle` directly — grep for
+> `t.palette.border.subtle` near a `surface.subtle`/`surface.raised` background before shipping.
+
+---
+
 ## 3d · The KPI scorecard — from Figma, not invented
 
 Figma Genus Design System, node `246:11` / `254:53` ("09 Dashboard and KPI composition"). Two

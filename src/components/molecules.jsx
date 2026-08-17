@@ -30,7 +30,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { IconTile, SectionLabel } from "./atoms.jsx";
 import { METRICS } from "../lib/bands.js";
 import { exInt, exNum, withUnit } from "../lib/format.js";
-import { focusRing, TARGET_MIN } from "../lib/theme.js";
+import { focusRing, panelBorder, TARGET_MIN } from "../lib/theme.js";
 
 /* ── MetricInfo ───────────────────────────────────────────────────────────
    Opens on hover OR focus, and pins on click. Hover-only fails WCAG 1.4.13 and
@@ -589,7 +589,7 @@ export function TileDeck({ items = [], value, onChange, idPrefix = "deck", sx })
               minWidth: 0,
               font: "inherit",
               p: 0,
-              borderColor: selected ? t.palette.primary.main : t.palette.border.subtle,
+              borderColor: selected ? t.palette.primary.main : panelBorder(t),
               borderWidth: selected ? 2 : 1,
               backgroundColor: selected
                 ? alpha(t.palette.primary.main, t.palette.mode === "dark" ? 0.16 : 0.06)

@@ -8,6 +8,7 @@
 import { Box, Typography, Tooltip, Button, alpha } from "@mui/material";
 import { BAND_LABEL } from "../lib/bands.js";
 import { exInt, exNum, withUnit } from "../lib/format.js";
+import { panelBorder } from "../lib/theme.js";
 
 /* ── Numeral ──────────────────────────────────────────────────────────────
    A formatted numeral contains no spaces, so it is never allowed to shrink or
@@ -238,7 +239,7 @@ export function WsTag({ label, sx }) {
         ...t.typography.subtitle2,
         color: t.palette.text.secondary,
         backgroundColor: t.palette.surface.subtle,
-        border: `1px solid ${t.palette.border.subtle}`,
+        border: `1px solid ${panelBorder(t)}`,
         borderRadius: `${t.shape.borderRadius / 2}px`,
         paddingInline: 0.75,
         paddingBlock: 0.125,

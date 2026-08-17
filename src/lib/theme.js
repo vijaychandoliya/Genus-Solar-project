@@ -205,7 +205,15 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
           // MUI paints an alpha-white overlay on dark elevated paper. That fights
           // the token system, and pinned table cells stop being opaque.
           root: { backgroundImage: "none", backgroundColor: s["surface/raised"] },
-          outlined: { borderColor: s["border/subtle"] },
+          // `border/subtle` and `surface/raised` are the SAME colour in dark
+          // mode (#333333, Neutral-800 — Figma's own alias table, not a typo
+          // here). A card's border and its fill being identical is a 1.00:1
+          // contrast ratio — the edge is literally invisible, which is why
+          // every outlined panel (KPI tiles most visibly, six side by side)
+          // read as one merged block instead of six cards. `border/default`
+          // is a full ramp step lighter and reads as a real edge in both
+          // modes without touching the token values themselves.
+          outlined: { borderColor: dark ? s["border/default"] : s["border/subtle"] },
         },
       },
 
@@ -298,6 +306,21 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
     },
   });
 }
+
+/**
+ * The border colour for a box whose FILL is `surface.subtle` or
+ * `surface.raised` — never `t.palette.border.subtle` directly for that case.
+ *
+ * In dark mode, `border/subtle`, `surface/subtle` and `surface/raised` are
+ * all the same Neutral-800 hex (#333333) in Figma's own alias table. A
+ * border drawn in the same colour as its own fill is a 1.00:1 contrast
+ * ratio — genuinely invisible, not just subtle — which is why outlined
+ * panels and tinted tags read as one merged block in dark mode. This picks
+ * `border/default` (a full ramp step lighter) in dark mode instead, and
+ * leaves light mode untouched, where `border/subtle` (#e0e0e0) against white
+ * or `surface/subtle` (#f0f0f0) was never a problem.
+ */
+export const panelBorder = (t) => (t.palette.mode === "dark" ? t.palette.border.default : t.palette.border.subtle);
 
 /**
  * The focus treatment, for anywhere a custom control needs it explicitly.

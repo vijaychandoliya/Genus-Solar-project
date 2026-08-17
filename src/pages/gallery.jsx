@@ -28,6 +28,7 @@ import { GenusMark, GenusWordmark, GenusLockup, brandColors } from "../component
 import { primitives, semantic, type } from "../lib/tokens.js";
 import { METRICS, bandFor, BAND_ORDER } from "../lib/bands.js";
 import { SURVEY_ROWS as SURVEY_ROWS_REAL } from "../lib/programme-data.js";
+import { panelBorder } from "../lib/theme.js";
 import { useState } from "react";
 
 /** A 48 V-class 15S LFP pack — enough nameplate to unlock the battery bands. */
@@ -85,7 +86,7 @@ function Section({ title, note, children }) {
       )}
       <Box
         sx={(t) => ({
-          border: `1px solid ${t.palette.border.subtle}`,
+          border: `1px solid ${panelBorder(t)}`,
           borderRadius: `${t.shape.borderRadius}px`,
           backgroundColor: t.palette.surface.raised,
           p: 2.5,
@@ -207,7 +208,7 @@ export default function Gallery() {
                 minWidth: 150,
                 borderRadius: `${t.shape.borderRadius / 2}px`,
                 backgroundColor: t.palette.surface[surface],
-                border: `1px solid ${t.palette.border.subtle}`,
+                border: `1px solid ${panelBorder(t)}`,
               })}
             >
               <GenusWordmark height={18} />

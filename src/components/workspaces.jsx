@@ -21,6 +21,7 @@ import { Panel } from "./molecules.jsx";
 import { DataTable } from "./data-table.jsx";
 import { StatusChip, GridEmptyOverlay } from "./atoms.jsx";
 import { exInt } from "../lib/format.js";
+import { panelBorder } from "../lib/theme.js";
 
 /* ── WsPage ──────────────────────────────────────────────────────────────── */
 
@@ -97,7 +98,7 @@ export function WsContext({ items = [], chips = [], sx }) {
         px: 2,
         py: 1.25,
         minWidth: 0,
-        border: `1px solid ${t.palette.border.subtle}`,
+        border: `1px solid ${panelBorder(t)}`,
         borderRadius: `${t.shape.borderRadius}px`,
         backgroundColor: t.palette.surface.subtle,
         ...sx,

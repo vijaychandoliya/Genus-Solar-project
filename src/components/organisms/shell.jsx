@@ -60,7 +60,7 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import { useSettings } from "../../lib/settings.jsx";
 import { useHierarchy, LEVEL_LABEL } from "../../lib/hierarchy.jsx";
 import { layout } from "../../lib/tokens.js";
-import { focusRing } from "../../lib/theme.js";
+import { focusRing, panelBorder } from "../../lib/theme.js";
 import { exInt } from "../../lib/format.js";
 import { SectionLabel } from "../atoms.jsx";
 import { GenusLockup, GenusMark } from "../brand.jsx";
@@ -196,7 +196,7 @@ function HierarchyPicker({ compact, onPick }) {
           sx={(t) => ({
             maxHeight: 260,
             overflowY: "auto",
-            border: `1px solid ${t.palette.border.subtle}`,
+            border: `1px solid ${panelBorder(t)}`,
             borderRadius: `${t.shape.borderRadius / 2}px`,
             backgroundColor: t.palette.surface.subtle,
             p: 0.5,
