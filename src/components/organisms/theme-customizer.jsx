@@ -532,7 +532,10 @@ export function ThemeCustomizer({ open, onClose }) {
                 key={o.id}
                 label={o.label}
                 selected={s.layout === o.id}
-                onSelect={() => s.set({ layout: o.id })}
+                // Clear the hamburger's own rail-collapse whenever a layout is
+                // explicitly chosen here, so switching layouts never leaves a
+                // stale "hidden" rail behind from a previous Default session.
+                onSelect={() => s.set({ layout: o.id, collapsed: false })}
               >
                 <Preview variant={o.preview} />
               </OptionCard>

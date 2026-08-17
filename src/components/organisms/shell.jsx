@@ -575,8 +575,16 @@ export function WsShell({ children }) {
   // temporary drawer — a horizontal nav with 8 nodes does not fit a phone.
   const horizontal = settings.layout === "horizontal" && permanent;
   const mini = settings.layout === "mini" && permanent;
+  // The hamburger's own collapse, ONLY meaningful for the Default layout. It
+  // hides the rail entirely — full canvas — which is a different thing from
+  // "Mini": Mini is a chosen, persistent icon-only rail (a Layout option in
+  // the customizer); this is the Default layout's rail being toggled shut.
+  // They used to be the same setting, which meant clicking the hamburger
+  // while on Default silently switched the whole app into Mini instead of
+  // just hiding the rail.
+  const collapsed = settings.layout === "default" && settings.collapsed && permanent;
   const railWidth = mini ? layout.miniWidth : layout.drawerWidth;
-  const showRail = !horizontal;
+  const showRail = !horizontal && !collapsed;
 
   return (
     <Box sx={{ display: "flex", minHeight: "100%", backgroundColor: "background.default" }}>
@@ -656,13 +664,30 @@ export function WsShell({ children }) {
             {!horizontal && (
               <IconButton
                 edge="start"
-                onClick={() =>
-                  permanent ? settings.set({ layout: mini ? "default" : "mini" }) : setNavOpen(true)
-                }
+                onClick={() => {
+                  if (!permanent) {
+                    setNavOpen(true);
+                    return;
+                  }
+                  // Mini is a chosen layout — the hamburger's job there is to
+                  // leave Mini, not to hide the rail on top of it.
+                  if (settings.layout === "mini") {
+                    settings.set({ layout: "default", collapsed: false });
+                    return;
+                  }
+                  // Default layout — toggle the rail fully open/shut.
+                  settings.set({ collapsed: !settings.collapsed });
+                }}
                 aria-label={
-                  permanent ? (mini ? "Expand navigation" : "Collapse navigation") : "Open navigation"
+                  !permanent
+                    ? "Open navigation"
+                    : settings.layout === "mini"
+                      ? "Expand navigation"
+                      : collapsed
+                        ? "Show navigation"
+                        : "Hide navigation"
                 }
-                aria-expanded={permanent ? !mini : navOpen}
+                aria-expanded={permanent ? !(mini || collapsed) : navOpen}
               >
                 <MenuIcon />
               </IconButton>

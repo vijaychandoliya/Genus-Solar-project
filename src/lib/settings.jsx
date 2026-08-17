@@ -23,6 +23,12 @@ const KEY = "genus-settings";
 
 const DEFAULTS = {
   layout: "default", // "default" | "horizontal" | "mini"
+  // The top-bar hamburger's own collapse, independent of `layout`. Only
+  // meaningful when layout === "default": it hides the rail entirely so the
+  // canvas takes the full width. It is NOT the same thing as choosing the
+  // "Mini" layout (an icon-only rail) — see AGENTS.md on why those were
+  // wrongly conflated into one setting originally.
+  collapsed: false,
   direction: "ltr", // "ltr" | "rtl"
   mode: "system", // "light" | "dark" | "system"
   scheme: "default", // any key in tokens.schemes

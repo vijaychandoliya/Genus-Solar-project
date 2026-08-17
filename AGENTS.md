@@ -257,6 +257,28 @@ default. Caught by checking the KPI strip against the known real total (9), not 
 
 ---
 
+## 3a-3 · Hide-the-rail vs. Mini — two different settings, not one
+
+The top-bar hamburger used to write straight into `settings.layout`, toggling it between
+`"default"` and `"mini"`. That conflated two different user intents: **hiding the Default rail so
+the canvas takes full width** is not the same action as **choosing the Mini layout** (a persistent,
+icon-only rail, picked from the theme customizer). Clicking the hamburger while on Default was
+silently switching the whole app into Mini instead of just hiding the rail.
+
+Fixed with a second, independent setting: `collapsed` (default `false`), only meaningful when
+`layout === "default"`. The hamburger's behaviour now branches on the *current* layout:
+
+| Current layout | Hamburger click does |
+|---|---|
+| `default` | Toggles `collapsed` — hides/shows the rail; canvas takes the full width when hidden |
+| `mini` | Sets `layout: "default", collapsed: false` — leaves Mini entirely, back to the full rail |
+| `horizontal` | Hamburger is not shown — there is no rail to toggle |
+
+Picking a layout from the customizer always clears `collapsed: false` too, so switching layouts
+never leaves a stale hidden-rail state behind from a previous Default session.
+
+---
+
 ## 3d-1 · Surface roles — verified against Figma's own reference screen
 
 `panelBorder(t)` (§3d0) fixed the border-vs-fill collision, but there was a second, larger defect
