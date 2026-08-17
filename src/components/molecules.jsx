@@ -325,6 +325,205 @@ export function KpiStrip({ items = [], sx }) {
   );
 }
 
+/* ── KpiTile / KpiDeck ────────────────────────────────────────────────────
+   Figma Genus Design System, "09 Dashboard and KPI composition" (node
+   246:11 / 254:53). This is the scorecard pattern — individually carded
+   tiles, each stating its own tone, delta and freshness — as distinct from
+   KpiStrip's single shared-surface "one reading" above.
+
+   The component's own Figma description: "Metric value stays primary; delta
+   includes direction and meaning; freshness is always visible." That last
+   clause is not decorative — a card with no freshness caption is not this
+   component, because a number with no stated age is not trustworthy on an
+   operational dashboard. `freshness` is REQUIRED, not optional.
+
+   `tone` reuses the theme's existing status slots — Figma's own
+   Neutral/Positive/Attention map onto info/good/warning, so no new tokens
+   were needed. `delta` is optional: fabricating a period-over-period change
+   with no historical comparison to draw it from would be worse than omitting
+   the line the spec shows, so a tile with nothing real to compare against
+   simply skips it.                                                          */
+
+const KPI_TONE = {
+  info: { bg: "status/info/background", fg: "status/info/foreground" },
+  good: { bg: "status/success/background", fg: "status/success/foreground" },
+  warning: { bg: "status/warning/background", fg: "status/warning/foreground" },
+  // Not in Figma's three tones — added for a metric this dataset genuinely
+  // cannot compute yet. Flat, no tint, so it reads as absent rather than as
+  // a fourth real status alongside info/good/warning.
+  neutral: { bg: null, fg: "text.tertiary" },
+};
+
+function toneColors(t, tone) {
+  const key = KPI_TONE[tone] ? tone : "info";
+  if (key === "neutral") {
+    return { bg: t.palette.surface.subtle, fg: t.palette.text.tertiary };
+  }
+  const slot = { info: "info", good: "good", warning: "warning" }[key];
+  return { bg: t.palette.band[slot].bg, fg: t.palette.band[slot].fg };
+}
+
+export function KpiTile({
+  label,
+  value,
+  unit,
+  dp = 0,
+  tone = "info",
+  icon,
+  delta,
+  deltaMeaning,
+  deltaGood = true,
+  freshness,
+  notConfigured,
+  sx,
+}) {
+  const formatted =
+    notConfigured || value === null || value === undefined
+      ? "—"
+      : typeof value === "number"
+        ? withUnit(dp > 0 ? exNum(value, dp) : exInt(value), unit)
+        : String(value);
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
+        minHeight: 160,
+        p: 2,
+        minWidth: 0,
+        ...sx,
+      }}
+    >
+      <Stack direction="row" sx={{ alignItems: "center", gap: 1, minWidth: 0 }}>
+        {/* Genus Label/M — 12/600/16, tracking 0. Not one of MUI's own
+            Typography variants, so it is set directly rather than through a
+            variant name that would silently fall back to body defaults. */}
+        <Typography
+          component="span"
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            color: "text.secondary",
+            fontWeight: 600,
+            fontSize: 12,
+            lineHeight: "16px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </Typography>
+        {icon && (
+          <Box
+            aria-hidden
+            sx={(t) => {
+              const c = toneColors(t, notConfigured ? "neutral" : tone);
+              return {
+                width: 28,
+                height: 28,
+                flexShrink: 0,
+                display: "grid",
+                placeItems: "center",
+                borderRadius: `${t.shape.borderRadius}px`,
+                backgroundColor: c.bg,
+                color: c.fg,
+                "& svg": { fontSize: 20 },
+              };
+            }}
+          >
+            {icon}
+          </Box>
+        )}
+      </Stack>
+
+      <Typography
+        variant="h4"
+        dir="ltr"
+        sx={(t) => ({
+          fontVariantNumeric: "tabular-nums",
+          unicodeBidi: "isolate",
+          whiteSpace: "nowrap",
+          color: notConfigured ? t.palette.text.tertiary : t.palette.text.primary,
+          fontStyle: notConfigured ? "italic" : "normal",
+        })}
+      >
+        {formatted}
+      </Typography>
+
+      {delta !== undefined && !notConfigured && (
+        <Stack direction="row" sx={{ alignItems: "center", gap: 0.25, minWidth: 0 }}>
+          <Box
+            component="span"
+            aria-hidden
+            sx={(t) => ({
+              display: "inline-flex",
+              color: toneColors(t, tone).fg,
+              "& svg": { fontSize: 16 },
+            })}
+          >
+            {Number(delta) < 0 ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+          </Box>
+          <Typography
+            variant="body2"
+            sx={(t) => ({
+              color: toneColors(t, tone).fg,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              minWidth: 0,
+            })}
+          >
+            {`${Number(delta) > 0 ? "+" : ""}${exNum(Number(delta), 1)}%`}
+            {deltaMeaning ? ` · ${deltaMeaning}` : ""}
+          </Typography>
+        </Stack>
+      )}
+
+      <Typography
+        variant="overline"
+        sx={{
+          color: "text.tertiary",
+          mt: delta !== undefined && !notConfigured ? 0 : "auto",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {freshness}
+      </Typography>
+    </Paper>
+  );
+}
+
+/**
+ * The deck grid — Figma's own three breakpoints: 4-up desktop (24px gap),
+ * 2-up compact (24px gap), 2-up mobile (16px gap, narrower cards). Unlike the
+ * page-level "everything collapses to one column at xs" rule, THIS component
+ * stays 2-up even on the smallest breakpoint Figma tested — a deliberate,
+ * documented exception in the same source design system, not an oversight.
+ */
+export function KpiDeck({ children, sx }) {
+  return (
+    <Box
+      role="group"
+      aria-label="Key figures"
+      sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", md: "repeat(4, minmax(0, 1fr))" },
+        gap: { xs: 2, sm: 3 },
+        minWidth: 0,
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 /* ── TileDeck ─────────────────────────────────────────────────────────────
    Navigation, so it is a real tablist: one tab stop for the whole deck,
    arrows to move, Home/End to jump, and the pane aria-labelledby its tile.

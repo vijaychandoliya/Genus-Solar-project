@@ -398,4 +398,47 @@ export function childRollups(node) {
   }));
 }
 
+/* ── system accounts — the real "Total Users" number ──────────────────────
+   No user table exists in either extract. What exists is the "Created By" /
+   "Employee ID" values stamped on every row: one bulk-import admin account in
+   the master, two field-survey accounts in the survey extract. That is a
+   real, if small, count of accounts that have actually touched this data —
+   not the same claim as "registered platform users", stated as such below.  */
+
+export const SYSTEM_ACCOUNTS = [
+  { name: "Admin - 11111", role: "Bulk import", source: "Consumer master" },
+  { name: "Deepak Kumar - 11126", role: "Field surveyor", source: "Site survey" },
+  { name: "Aditya Raj Tiwari - 11125", role: "Field surveyor", source: "Site survey" },
+];
+
+/** Latest submission timestamp in scope, or null if the scope has none. */
+export function latestSubmission(node) {
+  const rows = SURVEY_ROWS.filter((r) => rowIsUnder(r, node.id));
+  if (!rows.length) return null;
+  return rows.reduce((max, r) => (r.submittedOn > max ? r.submittedOn : max), rows[0].submittedOn);
+}
+
+/**
+ * The consumer master's own latest upload batch — real, from `Created On`.
+ * The extract arrived in 8 batches on one day; this is the last of them.
+ */
+export const MASTER_UPLOADED_AT = parseIndianDate("04-08-2026 14:14:45");
+
+/**
+ * Device fleet — GTI / BMS / UPS / general asset counts.
+ *
+ * Neither CSV contains a device record of any kind. This is not a
+ * placeholder waiting to be filled with a plausible number — it is a
+ * genuine absence, matching docs/dashboard-ia.md Q7 ("device telemetry
+ * schema — outstanding"). Every consumer here is a signature CANDIDATE for
+ * one rooftop installation once commissioned (stage 9 of 9); none exist yet.
+ * Render these as `notConfigured`, never as 0 or an invented count.
+ */
+export const DEVICE_FLEET = {
+  devices: { notConfigured: true, reason: "No device registry exists in the source extracts yet" },
+  gti: { notConfigured: true, reason: "No GTI telemetry schema has arrived yet" },
+  bms: { notConfigured: true, reason: "No BMS telemetry schema has arrived yet" },
+  ups: { notConfigured: true, reason: "This programme is single-phase rooftop solar — no UPS fleet is specified" },
+};
+
 export { HIERARCHY };

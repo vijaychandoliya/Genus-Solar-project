@@ -8,8 +8,19 @@
  */
 import { useMemo } from "react";
 import { Typography, Tooltip } from "@mui/material";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutlineOutlined";
+import GroupsIcon from "@mui/icons-material/Groups";
+import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
+import DonutLargeIcon from "@mui/icons-material/DonutLarge";
+import BuildCircleOutlinedIcon from "@mui/icons-material/BuildCircleOutlined";
+import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import DevicesOtherOutlinedIcon from "@mui/icons-material/DevicesOtherOutlined";
+import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
+import BatteryChargingFullOutlinedIcon from "@mui/icons-material/BatteryChargingFullOutlined";
+import PowerOutlinedIcon from "@mui/icons-material/PowerOutlined";
 import { WsPage, WsContext, WsSection, WsSplit, WsTable, wsCols } from "../components/workspaces.jsx";
-import { KpiStrip } from "../components/molecules.jsx";
+import { KpiDeck, KpiTile } from "../components/molecules.jsx";
 import { EChartCard, rankedBarOption, funnelOption } from "../components/charts.jsx";
 import { BandedValue, NotConfigured } from "../components/atoms.jsx";
 import { useHierarchy, LEVEL_LABEL } from "../lib/hierarchy.jsx";
@@ -19,9 +30,17 @@ import {
   submissionsByDay,
   childRollups,
   coverageInfo,
+  latestSubmission,
+  SYSTEM_ACCOUNTS,
+  MASTER_UPLOADED_AT,
+  DEVICE_FLEET,
 } from "../lib/programme-data.js";
 import { bandFor } from "../lib/bands.js";
-import { exInt, toDmy } from "../lib/format.js";
+import { exInt, toDmy, ageFrom } from "../lib/format.js";
+
+/** Band → KpiTile tone. Bands are for dense grid cells; a hero KPI card can
+ *  carry colour freely, so "normal" maps to a real green here, not to none. */
+const BAND_TO_TONE = { normal: "good", watch: "warning", warning: "warning", critical: "warning" };
 
 function CoverageCell({ node }) {
   const { pct, reason } = coverageInfo(node);
@@ -52,6 +71,12 @@ export default function Overview() {
 
   const rows = [...children].sort((a, b) => b.registered - a.registered);
 
+  const lastSubmission = latestSubmission(node);
+  const submissionFreshness = lastSubmission
+    ? `Latest submission ${ageFrom(lastSubmission)}`
+    : "No surveys in scope";
+  const masterFreshness = `Snapshot · master uploaded ${toDmy(MASTER_UPLOADED_AT)}`;
+
   return (
     <WsPage
       title="Overview"
@@ -68,31 +93,95 @@ export default function Overview() {
         />
       }
     >
-      <KpiStrip
-        items={[
-          { label: "Registered", value: registered, note: "Consumer master, this scope" },
-          { label: "Surveyed", value: surveyed, note: "Site survey extract, this scope" },
-          {
-            label: "Coverage",
-            value: coverage.pct,
-            unit: coverage.pct === null ? undefined : "%",
-            dp: coverage.pct !== null && coverage.pct < 1 ? 1 : 0,
-            metricId: "coverage_pct",
-            note: coverage.reason ?? "Surveyed ÷ registered",
-          },
-          {
-            label: "With conditions",
-            value: withConditions,
-            note: surveyed ? `of ${exInt(surveyed)} surveyed feasible` : "No surveys in scope",
-          },
-          {
-            label: "Needs revisit",
-            value: conditions,
-            note: "Rooftop = No, but roof evidence recorded",
-          },
-          { label: "Open exceptions", value: exceptions.length, note: "Unmatched, contradictory, outlier" },
-        ]}
-      />
+      <WsSection title="Programme" note="Every figure computed from the two source extracts" padded={false}>
+        <KpiDeck sx={{ p: 2 }}>
+          <KpiTile
+            label="Registered"
+            value={registered}
+            icon={<PeopleOutlineIcon />}
+            tone="info"
+            freshness={masterFreshness}
+          />
+          <KpiTile
+            label="Surveyed"
+            value={surveyed}
+            icon={<FactCheckOutlinedIcon />}
+            tone="info"
+            freshness={submissionFreshness}
+          />
+          <KpiTile
+            label="Coverage"
+            value={coverage.pct}
+            unit={coverage.pct === null ? undefined : "%"}
+            dp={coverage.pct !== null && coverage.pct < 1 ? 1 : 0}
+            icon={<DonutLargeIcon />}
+            tone={BAND_TO_TONE[bandFor("coverage_pct", coverage.pct)] ?? "info"}
+            notConfigured={coverage.pct === null}
+            freshness={coverage.reason ?? "Surveyed ÷ registered, this scope"}
+          />
+          <KpiTile
+            label="With conditions"
+            value={withConditions}
+            icon={<BuildCircleOutlinedIcon />}
+            tone={withConditions > 0 ? "warning" : "good"}
+            freshness={submissionFreshness}
+          />
+          <KpiTile
+            label="Needs revisit"
+            value={conditions}
+            icon={<ReportProblemOutlinedIcon />}
+            tone={conditions > 0 ? "warning" : "good"}
+            freshness={submissionFreshness}
+          />
+          <KpiTile
+            label="Open exceptions"
+            value={exceptions.length}
+            icon={<ErrorOutlineIcon />}
+            tone={exceptions.length > 0 ? "warning" : "good"}
+            freshness="Derived from the two source extracts"
+          />
+        </KpiDeck>
+      </WsSection>
+
+      <WsSection
+        title="Users & devices"
+        note="Total Users is real — the accounts that touched this data. The device fleet below has no schema yet and is shown as such, not as zero."
+        padded={false}
+      >
+        <KpiDeck sx={{ p: 2 }}>
+          <KpiTile
+            label="Total users"
+            value={SYSTEM_ACCOUNTS.length}
+            icon={<GroupsIcon />}
+            tone="info"
+            freshness="Admin + 2 field surveyors, from the extracts"
+          />
+          <KpiTile
+            label="Devices"
+            icon={<DevicesOtherOutlinedIcon />}
+            notConfigured
+            freshness={DEVICE_FLEET.devices.reason}
+          />
+          <KpiTile
+            label="GTI system"
+            icon={<BoltOutlinedIcon />}
+            notConfigured
+            freshness={DEVICE_FLEET.gti.reason}
+          />
+          <KpiTile
+            label="BMS devices"
+            icon={<BatteryChargingFullOutlinedIcon />}
+            notConfigured
+            freshness={DEVICE_FLEET.bms.reason}
+          />
+          <KpiTile
+            label="UPS devices"
+            icon={<PowerOutlinedIcon />}
+            notConfigured
+            freshness={DEVICE_FLEET.ups.reason}
+          />
+        </KpiDeck>
+      </WsSection>
 
       <WsSection title="Pipeline" note="Nine stage gates — most are unstarted for this scope" padded={false}>
         <EChartCard

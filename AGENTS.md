@@ -257,6 +257,53 @@ default. Caught by checking the KPI strip against the known real total (9), not 
 
 ---
 
+## 3d · The KPI scorecard — from Figma, not invented
+
+Figma Genus Design System, node `246:11` / `254:53` ("09 Dashboard and KPI composition"). Two
+distinct patterns exist there and both are implemented — do not merge them:
+
+| Pattern | Component | Figma node | Use when |
+|---|---|---|---|
+| Passive strip, one shared surface | `KpiStrip` | `235:6` | Figures are one reading of a related system — not individually cardable |
+| Individually carded scorecard | `KpiTile` + `KpiDeck` | `246:11` / `254:53` | Each figure earns its own tone, delta and freshness |
+
+`KpiTile` reproduces the tile exactly: label + tone-tinted 28px icon plate in the header row, the
+value in `Heading/2` (32/600, −0.4 tracking — already the theme's `h4` variant), an optional
+tone-coloured delta with an arrow *and* a meaning phrase, and a freshness caption.
+
+**Freshness is not optional — it is the component's own stated rule:** *"Metric value stays
+primary; delta includes direction and meaning; freshness is always visible."* A `KpiTile` with no
+`freshness` prop is not this component. Every dashboard number needs a stated age or provenance.
+
+**`tone` reuses existing status tokens** — Figma's Neutral/Positive/Attention map onto
+`info`/`good`/`warning`, so no new tokens were added. A fourth tone, `neutral`, was added *outside*
+the Figma spec for a metric this dataset genuinely cannot compute — flat, no tint, so it reads as
+absent rather than as a fourth real status alongside the other three.
+
+**`delta` is optional, deliberately.** Figma's reference always shows one, but fabricating a
+period-over-period change with no historical comparison to draw it from would be worse than simply
+omitting the line the spec shows. None of this app's KPI tiles show a delta today, because the
+dataset is a single snapshot with no prior period to compare against — that is an honest gap, not a
+bug to paper over with an invented number.
+
+**The deck grid is 2-up even on the smallest breakpoint Figma tested** (`260:323`, mobile, 171px
+cards, 16px gap) — not the page-level "collapse to one column at xs" rule. That is a deliberate,
+documented exception in the same source design system for this specific component, not an
+oversight to "fix" back to one column.
+
+**A KPI tile is not a dense grid cell — colour there is not zero-sum the way it is in a table.**
+`bandFor()`'s `normal → no colour` rule (§2) is for high-density grids where every cell competes for
+the same attention budget. A handful of hero KPI cards already each command a card boundary's worth
+of attention, so `BAND_TO_TONE` in `overview.jsx` maps `normal → good` (a real green), not to none.
+
+**"Not configured" is a tile state, not a zero.** `src/lib/programme-data.js`'s `DEVICE_FLEET`
+records that no device, GTI, BMS or UPS record exists in either source extract — this dataset is a
+rooftop-solar rollout programme, not yet a device fleet. `KpiTile`'s `notConfigured` prop renders an
+em dash in italic `text.tertiary` with a neutral icon plate and states the reason in the freshness
+slot, rather than printing `0` for a schema gap or inventing a plausible-looking count.
+
+---
+
 ## 4 · MUI v9
 
 The `*Props` escape hatches are gone; they are named slots now. Passing the old ones leaks unknown
