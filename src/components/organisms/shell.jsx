@@ -177,26 +177,37 @@ function HierarchyPicker({ compact, onPick }) {
     );
   };
 
-  if (compact) return null;
-
   return (
-    <Box sx={{ px: 1, pb: 1 }}>
-      <SectionLabel sx={{ px: 1, pt: 1, pb: 0.5 }}>Hierarchy</SectionLabel>
+    <Collapse in={!compact} timeout={240} unmountOnExit={false}>
       <Box
         sx={(t) => ({
-          maxHeight: 260,
-          overflowY: "auto",
-          border: `1px solid ${t.palette.border.subtle}`,
-          borderRadius: `${t.shape.borderRadius / 2}px`,
-          backgroundColor: t.palette.surface.subtle,
-          p: 0.5,
+          px: 1,
+          pb: 1,
+          opacity: compact ? 0 : 1,
+          transform: compact ? "translateY(8px)" : "translateY(0)",
+          transition: t.transitions.create(["opacity", "transform"], {
+            easing: t.transitions.easing.sharp,
+            duration: t.transitions.duration.standard,
+          }),
         })}
       >
-        <List dense disablePadding>
-          {renderNode(root)}
-        </List>
+        <SectionLabel sx={{ px: 1, pt: 1, pb: 0.5 }}>Hierarchy</SectionLabel>
+        <Box
+          sx={(t) => ({
+            maxHeight: 260,
+            overflowY: "auto",
+            border: `1px solid ${t.palette.border.subtle}`,
+            borderRadius: `${t.shape.borderRadius / 2}px`,
+            backgroundColor: t.palette.surface.subtle,
+            p: 0.5,
+          })}
+        >
+          <List dense disablePadding>
+            {renderNode(root)}
+          </List>
+        </Box>
       </Box>
-    </Box>
+    </Collapse>
   );
 }
 
@@ -220,23 +231,87 @@ function SidebarContent({ mini, onNavigate }) {
   const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`);
 
   return (
-    <Stack sx={{ height: "100%", minHeight: 0 }}>
-      <Stack
-        direction="row"
-        sx={{
+    <Stack sx={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
+      <Box
+        sx={(t) => ({
+          display: "flex",
           alignItems: "center",
           px: mini ? 0 : 2,
           justifyContent: mini ? "center" : "flex-start",
           minHeight: { xs: layout.topBarXs, sm: layout.topBarSm },
           flexShrink: 0,
-        }}
+          overflow: "hidden",
+          transition: t.transitions.create(["padding", "justify-content"], {
+            easing: t.transitions.easing.sharp,
+            duration: t.transitions.duration.standard,
+          }),
+        })}
       >
-        <GenusLockup product="Solar" subtitle="SBPDCL rooftop programme" compact={mini} />
-      </Stack>
+        <Box
+          sx={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: mini ? "center" : "flex-start",
+            width: "100%",
+            minWidth: 0,
+          }}
+        >
+          {/* Compact mark */}
+          <Box
+            sx={(t) => ({
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 32,
+              height: 32,
+              opacity: mini ? 1 : 0,
+              transform: mini ? "scale(1)" : "scale(0.85)",
+              position: mini ? "relative" : "absolute",
+              pointerEvents: mini ? "auto" : "none",
+              transition: t.transitions.create(["opacity", "transform"], {
+                easing: t.transitions.easing.sharp,
+                duration: t.transitions.duration.short,
+              }),
+            })}
+          >
+            <GenusMark size={28} />
+          </Box>
+
+          {/* Expanded wordmark + label */}
+          <Box
+            sx={(t) => ({
+              minWidth: 0,
+              opacity: mini ? 0 : 1,
+              transform: mini ? "translateX(-12px)" : "translateX(0)",
+              position: mini ? "absolute" : "relative",
+              pointerEvents: mini ? "none" : "auto",
+              transition: t.transitions.create(["opacity", "transform"], {
+                easing: t.transitions.easing.sharp,
+                duration: t.transitions.duration.standard,
+              }),
+            })}
+          >
+            <GenusLockup product="Solar" subtitle="SBPDCL rooftop programme" compact={false} />
+          </Box>
+        </Box>
+      </Box>
       <Divider />
 
-      {!mini && (
-        <Box sx={{ p: 1.5, pb: 1, flexShrink: 0 }}>
+      <Collapse in={!mini} timeout={240} unmountOnExit={false}>
+        <Box
+          sx={(t) => ({
+            p: 1.5,
+            pb: 1,
+            flexShrink: 0,
+            opacity: mini ? 0 : 1,
+            transform: mini ? "translateY(-6px)" : "translateY(0)",
+            transition: t.transitions.create(["opacity", "transform"], {
+              easing: t.transitions.easing.sharp,
+              duration: t.transitions.duration.standard,
+            }),
+          })}
+        >
           <TextField
             size="small"
             fullWidth
@@ -255,9 +330,9 @@ function SidebarContent({ mini, onNavigate }) {
             }}
           />
         </Box>
-      )}
+      </Collapse>
 
-      <Box sx={{ flex: 1, overflowY: "auto", minHeight: 0, px: 1 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", minHeight: 0, px: 1 }}>
         <List dense disablePadding>
           {items.map((item) => {
             const Icon = item.icon;
@@ -282,7 +357,12 @@ function SidebarContent({ mini, onNavigate }) {
                   borderRadius: `${t.shape.borderRadius / 2}px`,
                   mb: 0.25,
                   minHeight: 38,
+                  px: mini ? 1 : 1.5,
                   justifyContent: mini ? "center" : "flex-start",
+                  transition: t.transitions.create(["padding", "background-color", "justify-content"], {
+                    easing: t.transitions.easing.sharp,
+                    duration: t.transitions.duration.standard,
+                  }),
                   "&.Mui-selected": {
                     backgroundColor: alpha(t.palette.primary.main, t.palette.mode === "dark" ? 0.2 : 0.09),
                     "& .MuiListItemText-primary": { fontWeight: 600, color: t.palette.primary.main },
@@ -291,40 +371,63 @@ function SidebarContent({ mini, onNavigate }) {
                   ...focusRing(t),
                 })}
               >
-                <ListItemIcon sx={{ minWidth: mini ? 0 : 34, color: "text.secondary" }}>
+                <ListItemIcon
+                  sx={(t) => ({
+                    minWidth: mini ? 0 : 34,
+                    color: "text.secondary",
+                    justifyContent: "center",
+                    transition: t.transitions.create(["min-width", "color"], {
+                      easing: t.transitions.easing.sharp,
+                      duration: t.transitions.duration.standard,
+                    }),
+                  })}
+                >
                   <Icon sx={{ fontSize: 19 }} />
                 </ListItemIcon>
-                {!mini && (
-                  <>
-                    <ListItemText primary={item.label} slotProps={{ primary: { variant: "body2", noWrap: true } }} />
-                    {item.badge ? (
-                      <Chip
-                        size="small"
-                        label={item.badge}
-                        sx={(t) => ({
-                          height: 18,
-                          backgroundColor: t.palette.band.critical.bg,
-                          color: t.palette.band.critical.fg,
-                        })}
-                      />
-                    ) : null}
-                    {hasKids && (expanded ? <ExpandLess sx={{ fontSize: 16 }} /> : <ExpandMore sx={{ fontSize: 16 }} />)}
-                  </>
-                )}
+
+                <Box
+                  sx={(t) => ({
+                    display: "flex",
+                    alignItems: "center",
+                    flex: 1,
+                    minWidth: 0,
+                    opacity: mini ? 0 : 1,
+                    transform: mini ? "translateX(-10px)" : "translateX(0)",
+                    maxWidth: mini ? 0 : 200,
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    pointerEvents: mini ? "none" : "auto",
+                    transition: t.transitions.create(["opacity", "transform", "max-width"], {
+                      easing: t.transitions.easing.sharp,
+                      duration: t.transitions.duration.standard,
+                    }),
+                  })}
+                >
+                  <ListItemText primary={item.label} slotProps={{ primary: { variant: "body2", noWrap: true } }} />
+                  {item.badge ? (
+                    <Chip
+                      size="small"
+                      label={item.badge}
+                      sx={(t) => ({
+                        height: 18,
+                        ml: 0.5,
+                        backgroundColor: t.palette.band.critical.bg,
+                        color: t.palette.band.critical.fg,
+                      })}
+                    />
+                  ) : null}
+                  {hasKids && (expanded ? <ExpandLess sx={{ fontSize: 16, ml: "auto" }} /> : <ExpandMore sx={{ fontSize: 16, ml: "auto" }} />)}
+                </Box>
               </ListItemButton>
             );
 
             return (
               <Box key={item.id}>
-                {mini ? (
-                  <Tooltip title={item.label} placement="right">
-                    <span>{row}</span>
-                  </Tooltip>
-                ) : (
-                  row
-                )}
-                {hasKids && !mini && (
-                  <Collapse in={Boolean(expanded)} unmountOnExit>
+                <Tooltip title={mini ? item.label : ""} placement="right" disableHoverListener={!mini}>
+                  <span>{row}</span>
+                </Tooltip>
+                {hasKids && (
+                  <Collapse in={Boolean(expanded) && !mini} unmountOnExit timeout={240}>
                     <List dense disablePadding sx={{ pl: 3.5 }}>
                       {item.children.map((c) => (
                         <ListItemButton
@@ -500,19 +603,39 @@ export function WsShell({ children }) {
         // `permanent`, not MUI's `lg` (1200). Between 1180 and 1200 the drawer
         // was permanent while nothing reserved room for it, so it sat on top of
         // the content.
-        <Box component="nav" sx={{ width: permanent ? railWidth : 0, flexShrink: 0 }}>
+        <Box
+          component="nav"
+          sx={(t) => ({
+            width: permanent ? railWidth : 0,
+            flexShrink: 0,
+            transition: permanent
+              ? t.transitions.create("width", {
+                  easing: t.transitions.easing.sharp,
+                  duration: t.transitions.duration.standard,
+                })
+              : undefined,
+          })}
+        >
           <Drawer
             variant={permanent ? "permanent" : "temporary"}
             open={permanent ? true : navOpen}
             onClose={() => setNavOpen(false)}
             ModalProps={{ keepMounted: true }}
-            sx={{
+            sx={(t) => ({
               "& .MuiDrawer-paper": {
                 width: permanent ? railWidth : layout.drawerWidth,
                 boxSizing: "border-box",
-                borderInlineEnd: (t) => `1px solid ${t.palette.border.subtle}`,
+                borderInlineEnd: `1px solid ${t.palette.border.subtle}`,
+                overflowX: "hidden",
+                whiteSpace: "nowrap",
+                transition: permanent
+                  ? t.transitions.create("width", {
+                      easing: t.transitions.easing.sharp,
+                      duration: t.transitions.duration.standard,
+                    })
+                  : undefined,
               },
-            }}
+            })}
           >
             <SidebarContent mini={mini} onNavigate={() => setNavOpen(false)} />
           </Drawer>
