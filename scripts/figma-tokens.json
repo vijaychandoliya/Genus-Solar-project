@@ -1,0 +1,149 @@
+{
+  "$meta": {
+    "source": "Figma — Genus Design System",
+    "fileKey": "Hp8Qa76b0R6DTuFwYrnLWE",
+    "page": "02 Foundations — Color (node 19:51)",
+    "extractedOn": "2026-08-17",
+    "how": "get_variable_defs for primitive hexes and the type ramp; get_design_context on node 51:10 (06 Semantic colors) for the light/dark alias table",
+    "rule": "This file is the Figma export. src/tokens.css and src/lib/tokens.js are GENERATED from it by scripts/build-tokens.mjs. Never hand-edit the generated files; re-extract and regenerate instead."
+  },
+
+  "primitives": {
+    "blue": {
+      "50": "#eef6fc", "100": "#d5e5f6", "200": "#aacbed", "300": "#80b2df",
+      "400": "#5598d0", "500": "#0467b2", "600": "#2a7fc1", "700": "#00517d",
+      "800": "#003d5e", "900": "#002940", "950": "#001522"
+    },
+    "orange": {
+      "50": "#fff6ef", "100": "#fce2cd", "200": "#f9c69a", "300": "#f6aa68",
+      "400": "#f28e36", "500": "#ee7304", "600": "#d96a00", "700": "#ad5600",
+      "800": "#824000", "900": "#572a00", "950": "#2b1200"
+    },
+    "neutral": {
+      "50": "#f7f7f7", "100": "#f0f0f0", "200": "#e0e0e0", "300": "#c7c7c7",
+      "400": "#a3a3a3", "500": "#808080", "600": "#616161", "700": "#474747",
+      "800": "#333333", "900": "#242424", "950": "#141414"
+    },
+    "success": { "100": "#dff6dd", "500": "#107c10", "700": "#0b6a0b" },
+    "warning": { "100": "#fff4ce", "500": "#f0a000", "700": "#8a3707" },
+    "danger":  { "100": "#fde7e9", "500": "#d13438", "700": "#a4262c" },
+    "info":    { "100": "#deecf9", "500": "#0078d4", "700": "#005ba1" },
+    "white": "#ffffff",
+    "black": "#000000"
+  },
+
+  "semantic": {
+    "$note": "Values are ALIASES into primitives, exactly as the Figma 06 Semantic colors page documents them. The resolver in build-tokens.mjs dereferences them per mode.",
+
+    "surface/canvas":   { "light": "white",       "dark": "neutral.950" },
+    "surface/base":     { "light": "neutral.50",  "dark": "neutral.900" },
+    "surface/raised":   { "light": "white",       "dark": "neutral.800" },
+    "surface/subtle":   { "light": "neutral.100", "dark": "neutral.800" },
+    "surface/overlay":  { "light": "white",       "dark": "neutral.900" },
+
+    "text/primary":     { "light": "neutral.950", "dark": "white" },
+    "text/secondary":   { "light": "neutral.700", "dark": "neutral.300" },
+    "text/tertiary":    { "light": "neutral.600", "dark": "neutral.400" },
+    "text/disabled":    { "light": "neutral.400", "dark": "neutral.600" },
+    "text/on-brand":    { "light": "white",       "dark": "white" },
+
+    "border/default":   { "light": "neutral.300", "dark": "neutral.700" },
+    "border/subtle":    { "light": "neutral.200", "dark": "neutral.800" },
+    "border/strong":    { "light": "neutral.500", "dark": "neutral.400" },
+
+    "action/primary/rest":    { "light": "blue.500",   "dark": "blue.400" },
+    "action/primary/hover":   { "light": "blue.600",   "dark": "blue.300" },
+    "action/primary/pressed": { "light": "blue.700",   "dark": "blue.200" },
+    "action/accent/rest":     { "light": "orange.500", "dark": "orange.400" },
+    "action/accent/hover":    { "light": "orange.600", "dark": "orange.300" },
+    "action/accent/pressed":  { "light": "orange.700", "dark": "orange.200" },
+
+    "focus/ring":       { "light": "blue.500", "dark": "blue.300" },
+
+    "status/success/foreground": { "light": "success.700", "dark": "success.100" },
+    "status/success/background": { "light": "success.100", "dark": "success.700" },
+    "status/warning/foreground": { "light": "warning.700", "dark": "warning.100" },
+    "status/warning/background": { "light": "warning.100", "dark": "warning.700" },
+    "status/danger/foreground":  { "light": "danger.700",  "dark": "danger.100" },
+    "status/danger/background":  { "light": "danger.100",  "dark": "danger.700" },
+    "status/info/foreground":    { "light": "info.700",    "dark": "info.100" },
+    "status/info/background":    { "light": "info.100",    "dark": "info.700" }
+  },
+
+  "type": {
+    "$note": "Inter. This ramp is the authority — 10/12/14/16/18/20/28/32/56 at weights 400/500/600/700. Sizes 24 and 40 do not exist in this system; do not introduce them.",
+    "fontFamily": "Inter",
+    "styles": {
+      "display/xl":  { "size": 56, "weight": 700, "lineHeight": 64, "tracking": -1.2 },
+      "heading/2":   { "size": 32, "weight": 600, "lineHeight": 40, "tracking": -0.4 },
+      "heading/3":   { "size": 28, "weight": 600, "lineHeight": 36, "tracking": -0.2 },
+      "title/l":     { "size": 20, "weight": 600, "lineHeight": 28, "tracking": 0 },
+      "title/m":     { "size": 18, "weight": 600, "lineHeight": 24, "tracking": 0 },
+      "body/l":      { "size": 16, "weight": 400, "lineHeight": 24, "tracking": 0 },
+      "body/m":      { "size": 14, "weight": 400, "lineHeight": 20, "tracking": 0 },
+      "body/s":      { "size": 12, "weight": 400, "lineHeight": 16, "tracking": 0 },
+      "label/l":     { "size": 14, "weight": 600, "lineHeight": 20, "tracking": 0 },
+      "label/m":     { "size": 12, "weight": 600, "lineHeight": 16, "tracking": 0 },
+      "label/s":     { "size": 10, "weight": 500, "lineHeight": 12, "tracking": 0.2 },
+      "data/mono":   { "size": 14, "weight": 400, "lineHeight": 20, "tracking": 0 }
+    }
+  },
+
+  "schemes": {
+    "$provenance": "MIXED PROVENANCE. `default` and `sunset` are the real Figma blue and orange ramps. The other seven are GENERATED in build-tokens.mjs from a base hue, using one monotonic lightness curve, because the design file has not published a colour-scheme foundation page. Replace them when it does.",
+    "$rule": "A scheme changes the BRAND HUE ONLY. Neutrals, surfaces, text, borders and the status ramps never change — a colour scheme must not be able to break contrast or restyle a warning.",
+
+    "default": { "label": "Default", "ramp": "blue" },
+    "sunset": { "label": "Sunset", "ramp": "orange" },
+    "indigo": { "label": "Indigo", "base": "#4c6ef5" },
+    "violet": { "label": "Violet", "base": "#7c3aed" },
+    "forest": { "label": "Forest", "base": "#3f8f4f" },
+    "periwinkle": { "label": "Periwinkle", "base": "#6b74d6" },
+    "teal": { "label": "Teal", "base": "#2f9e9e" },
+    "emerald": { "label": "Emerald", "base": "#2e9464" },
+    "slate": { "label": "Slate", "base": "#41787d" }
+  },
+
+  "fonts": {
+    "$provenance": "Inter is the design-system face and the default. The alternates are a shell preference, not a design-system choice — they change the body face only, never the ramp.",
+    "inter": { "label": "Inter", "stack": "\"Inter\", system-ui, sans-serif" },
+    "system": { "label": "System", "stack": "system-ui, -apple-system, \"Segoe UI\", sans-serif" },
+    "dmsans": { "label": "DM Sans", "stack": "\"DM Sans\", \"Inter\", sans-serif" },
+    "publicsans": { "label": "Public Sans", "stack": "\"Public Sans\", \"Inter\", sans-serif" },
+    "nunito": { "label": "Nunito Sans", "stack": "\"Nunito Sans\", \"Inter\", sans-serif" },
+    "roboto": { "label": "Roboto", "stack": "\"Roboto\", \"Inter\", sans-serif" },
+    "serif": { "label": "Serif", "stack": "Georgia, \"Times New Roman\", serif" }
+  },
+
+  "nonFigma": {
+    "$provenance": "NOT from Figma. The colour page is the only foundations page published so far. These come from docs/admin-layout-guide.md, where every value was measured from the Genus WFM source. Replace with Figma values when the spacing/radius/elevation/motion foundation pages ship.",
+
+    "spacing": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
+
+    "radius": { "control": 4, "surface": 8, "pill": 999 },
+
+    "motion": {
+      "fast": 120,
+      "medium": 190,
+      "slow": 280,
+      "easing": "cubic-bezier(0.2, 0, 0, 1)"
+    },
+
+    "layout": {
+      "drawerWidth": 280,
+      "miniWidth": 76,
+      "topBarXs": 64,
+      "topBarSm": 72,
+      "contentPadXs": 16,
+      "contentPadSm": 24,
+      "contentMaxWidth": 1280,
+      "footerMinHeight": 52,
+      "settingsPanel": 400,
+      "assistantPanel": 440,
+      "targetMin": 24,
+      "rowCondensed": 40,
+      "rowRegular": 48,
+      "rowRelaxed": 56
+    }
+  }
+}

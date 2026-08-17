@@ -1,0 +1,247 @@
+/**
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Source:    Figma "Genus Design System" Hp8Qa76b0R6DTuFwYrnLWE
+ *            02 Foundations — Color (node 19:51)
+ * Extracted: 2026-08-17
+ * Generator: scripts/build-tokens.mjs  (npm run tokens)
+ *
+ * Colour and type are Figma's. Spacing, radius, motion and layout are NOT — see
+ * the nonFigma.$provenance note in scripts/figma-tokens.json.
+ */
+
+/* ── primitives — mode-independent ─────────────────────────────────────── */
+:root {
+  --genus-blue-50: #eef6fc;
+  --genus-blue-100: #d5e5f6;
+  --genus-blue-200: #aacbed;
+  --genus-blue-300: #80b2df;
+  --genus-blue-400: #5598d0;
+  --genus-blue-500: #0467b2;
+  --genus-blue-600: #2a7fc1;
+  --genus-blue-700: #00517d;
+  --genus-blue-800: #003d5e;
+  --genus-blue-900: #002940;
+  --genus-blue-950: #001522;
+  --genus-orange-50: #fff6ef;
+  --genus-orange-100: #fce2cd;
+  --genus-orange-200: #f9c69a;
+  --genus-orange-300: #f6aa68;
+  --genus-orange-400: #f28e36;
+  --genus-orange-500: #ee7304;
+  --genus-orange-600: #d96a00;
+  --genus-orange-700: #ad5600;
+  --genus-orange-800: #824000;
+  --genus-orange-900: #572a00;
+  --genus-orange-950: #2b1200;
+  --genus-neutral-50: #f7f7f7;
+  --genus-neutral-100: #f0f0f0;
+  --genus-neutral-200: #e0e0e0;
+  --genus-neutral-300: #c7c7c7;
+  --genus-neutral-400: #a3a3a3;
+  --genus-neutral-500: #808080;
+  --genus-neutral-600: #616161;
+  --genus-neutral-700: #474747;
+  --genus-neutral-800: #333333;
+  --genus-neutral-900: #242424;
+  --genus-neutral-950: #141414;
+  --genus-success-100: #dff6dd;
+  --genus-success-500: #107c10;
+  --genus-success-700: #0b6a0b;
+  --genus-warning-100: #fff4ce;
+  --genus-warning-500: #f0a000;
+  --genus-warning-700: #8a3707;
+  --genus-danger-100: #fde7e9;
+  --genus-danger-500: #d13438;
+  --genus-danger-700: #a4262c;
+  --genus-info-100: #deecf9;
+  --genus-info-500: #0078d4;
+  --genus-info-700: #005ba1;
+  --genus-white: #ffffff;
+  --genus-black: #000000;
+
+/* ── scales ─────────────────────────────────────────────────────────────── */
+  --genus-font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --genus-font-display-xl-size: 56px;
+  --genus-font-display-xl-weight: 700;
+  --genus-font-display-xl-line: 64px;
+  --genus-font-display-xl-tracking: -1.2px;
+  --genus-font-heading-2-size: 32px;
+  --genus-font-heading-2-weight: 600;
+  --genus-font-heading-2-line: 40px;
+  --genus-font-heading-2-tracking: -0.4px;
+  --genus-font-heading-3-size: 28px;
+  --genus-font-heading-3-weight: 600;
+  --genus-font-heading-3-line: 36px;
+  --genus-font-heading-3-tracking: -0.2px;
+  --genus-font-title-l-size: 20px;
+  --genus-font-title-l-weight: 600;
+  --genus-font-title-l-line: 28px;
+  --genus-font-title-l-tracking: 0px;
+  --genus-font-title-m-size: 18px;
+  --genus-font-title-m-weight: 600;
+  --genus-font-title-m-line: 24px;
+  --genus-font-title-m-tracking: 0px;
+  --genus-font-body-l-size: 16px;
+  --genus-font-body-l-weight: 400;
+  --genus-font-body-l-line: 24px;
+  --genus-font-body-l-tracking: 0px;
+  --genus-font-body-m-size: 14px;
+  --genus-font-body-m-weight: 400;
+  --genus-font-body-m-line: 20px;
+  --genus-font-body-m-tracking: 0px;
+  --genus-font-body-s-size: 12px;
+  --genus-font-body-s-weight: 400;
+  --genus-font-body-s-line: 16px;
+  --genus-font-body-s-tracking: 0px;
+  --genus-font-label-l-size: 14px;
+  --genus-font-label-l-weight: 600;
+  --genus-font-label-l-line: 20px;
+  --genus-font-label-l-tracking: 0px;
+  --genus-font-label-m-size: 12px;
+  --genus-font-label-m-weight: 600;
+  --genus-font-label-m-line: 16px;
+  --genus-font-label-m-tracking: 0px;
+  --genus-font-label-s-size: 10px;
+  --genus-font-label-s-weight: 500;
+  --genus-font-label-s-line: 12px;
+  --genus-font-label-s-tracking: 0.2px;
+  --genus-font-data-mono-size: 14px;
+  --genus-font-data-mono-weight: 400;
+  --genus-font-data-mono-line: 20px;
+  --genus-font-data-mono-tracking: 0px;
+  --genus-space-0: 0px;
+  --genus-space-1: 4px;
+  --genus-space-2: 8px;
+  --genus-space-3: 12px;
+  --genus-space-4: 16px;
+  --genus-space-5: 20px;
+  --genus-space-6: 24px;
+  --genus-space-8: 32px;
+  --genus-space-10: 40px;
+  --genus-space-12: 48px;
+  --genus-space-16: 64px;
+  --genus-radius-control: 4px;
+  --genus-radius-surface: 8px;
+  --genus-radius-pill: 999px;
+  --genus-motion-fast: 120ms;
+  --genus-motion-medium: 190ms;
+  --genus-motion-slow: 280ms;
+  --genus-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+/* ── semantic — light ───────────────────────────────────────────────────── */
+  --genus-surface-canvas: #ffffff;
+  --genus-surface-base: #f7f7f7;
+  --genus-surface-raised: #ffffff;
+  --genus-surface-subtle: #f0f0f0;
+  --genus-surface-overlay: #ffffff;
+  --genus-text-primary: #141414;
+  --genus-text-secondary: #474747;
+  --genus-text-tertiary: #616161;
+  --genus-text-disabled: #a3a3a3;
+  --genus-text-on-brand: #ffffff;
+  --genus-border-default: #c7c7c7;
+  --genus-border-subtle: #e0e0e0;
+  --genus-border-strong: #808080;
+  --genus-action-primary-rest: #0467b2;
+  --genus-action-primary-hover: #2a7fc1;
+  --genus-action-primary-pressed: #00517d;
+  --genus-action-accent-rest: #ee7304;
+  --genus-action-accent-hover: #d96a00;
+  --genus-action-accent-pressed: #ad5600;
+  --genus-focus-ring: #0467b2;
+  --genus-status-success-foreground: #0b6a0b;
+  --genus-status-success-background: #dff6dd;
+  --genus-status-warning-foreground: #8a3707;
+  --genus-status-warning-background: #fff4ce;
+  --genus-status-danger-foreground: #a4262c;
+  --genus-status-danger-background: #fde7e9;
+  --genus-status-info-foreground: #005ba1;
+  --genus-status-info-background: #deecf9;
+}
+
+/* ── semantic — dark, explicit ──────────────────────────────────────────── */
+:root[data-mode="dark"] {
+  --genus-surface-canvas: #141414;
+  --genus-surface-base: #242424;
+  --genus-surface-raised: #333333;
+  --genus-surface-subtle: #333333;
+  --genus-surface-overlay: #242424;
+  --genus-text-primary: #ffffff;
+  --genus-text-secondary: #c7c7c7;
+  --genus-text-tertiary: #a3a3a3;
+  --genus-text-disabled: #616161;
+  --genus-text-on-brand: #ffffff;
+  --genus-border-default: #474747;
+  --genus-border-subtle: #333333;
+  --genus-border-strong: #a3a3a3;
+  --genus-action-primary-rest: #5598d0;
+  --genus-action-primary-hover: #80b2df;
+  --genus-action-primary-pressed: #aacbed;
+  --genus-action-accent-rest: #f28e36;
+  --genus-action-accent-hover: #f6aa68;
+  --genus-action-accent-pressed: #f9c69a;
+  --genus-focus-ring: #80b2df;
+  --genus-status-success-foreground: #dff6dd;
+  --genus-status-success-background: #0b6a0b;
+  --genus-status-warning-foreground: #fff4ce;
+  --genus-status-warning-background: #8a3707;
+  --genus-status-danger-foreground: #fde7e9;
+  --genus-status-danger-background: #a4262c;
+  --genus-status-info-foreground: #deecf9;
+  --genus-status-info-background: #005ba1;
+  color-scheme: dark;
+}
+
+/* ── semantic — dark, following the OS when mode is "system" ────────────── */
+@media (prefers-color-scheme: dark) {
+  :root[data-mode="system"] {
+    --genus-surface-canvas: #141414;
+    --genus-surface-base: #242424;
+    --genus-surface-raised: #333333;
+    --genus-surface-subtle: #333333;
+    --genus-surface-overlay: #242424;
+    --genus-text-primary: #ffffff;
+    --genus-text-secondary: #c7c7c7;
+    --genus-text-tertiary: #a3a3a3;
+    --genus-text-disabled: #616161;
+    --genus-text-on-brand: #ffffff;
+    --genus-border-default: #474747;
+    --genus-border-subtle: #333333;
+    --genus-border-strong: #a3a3a3;
+    --genus-action-primary-rest: #5598d0;
+    --genus-action-primary-hover: #80b2df;
+    --genus-action-primary-pressed: #aacbed;
+    --genus-action-accent-rest: #f28e36;
+    --genus-action-accent-hover: #f6aa68;
+    --genus-action-accent-pressed: #f9c69a;
+    --genus-focus-ring: #80b2df;
+    --genus-status-success-foreground: #dff6dd;
+    --genus-status-success-background: #0b6a0b;
+    --genus-status-warning-foreground: #fff4ce;
+    --genus-status-warning-background: #8a3707;
+    --genus-status-danger-foreground: #fde7e9;
+    --genus-status-danger-background: #a4262c;
+    --genus-status-info-foreground: #deecf9;
+    --genus-status-info-background: #005ba1;
+    color-scheme: dark;
+  }
+}
+
+/* ── base ───────────────────────────────────────────────────────────────── */
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--genus-font-family);
+  background: var(--genus-surface-base);
+  color: var(--genus-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: var(--genus-blue-100);
+  color: var(--genus-blue-900);
+}
+:root[data-mode="dark"] ::selection {
+  background: var(--genus-blue-800);
+  color: var(--genus-blue-50);
+}
