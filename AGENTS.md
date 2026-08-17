@@ -231,6 +231,32 @@ which is what the browser chrome around it does too. `index.html` pairs it with 
 
 ---
 
+## 3c · Programme data — the first real screen
+
+`src/lib/programme-data.js` is the canonical derivation of every number the Overview screen shows.
+`RAW_SURVEYS` transcribes the 9 rows of the site-survey extract field for field; everything else —
+verdicts, pipeline counts, exceptions, the run-rate trend — is a pure computation over that
+transcription against the rules in `docs/dashboard-ia.md` §3.2 and §7.
+
+**Recompute verdicts from the rules — never hand-type one.** An earlier draft of the gallery
+hand-typed 9 verdicts and got 5 wrong (marked "Feasible" for rows that fail the shadow-free test).
+The gallery now imports `SURVEY_ROWS` from this module so the two can never drift apart.
+
+**A ratio needs both sides from the same population — `coverageInfo(node)` enforces it.** Coverage
+returns `{ pct: null, reason }` rather than a number whenever:
+- `registered === 0` for the scope (division by zero), or
+- the scope spans more than one circle (`node.level === "discom"` in this 2-circle dataset) — Jamui
+  has 0 surveys and Sasaram has 0 registered consumers, so dividing one circle's surveys by the
+  other's registrations would print a confident, meaningless 0.09% instead of an honest dash.
+
+**The discom root needs an explicit path check.** `rowIsUnder(row, nodeId)` tests whether `nodeId`
+appears in a survey row's `[circle, district, subdivision, section, panchayat]` chain — but the
+discom root sits *above* that chain, never *in* it. Without `nodeId === HIERARCHY.id` as a special
+case, every scope-aware figure read 0 at the top of the tree, which is where the app opens by
+default. Caught by checking the KPI strip against the known real total (9), not by inspection.
+
+---
+
 ## 4 · MUI v9
 
 The `*Props` escape hatches are gone; they are named slots now. Passing the old ones leaks unknown

@@ -63,7 +63,7 @@ import { layout } from "../../lib/tokens.js";
 import { focusRing } from "../../lib/theme.js";
 import { exInt } from "../../lib/format.js";
 import { SectionLabel } from "../atoms.jsx";
-import { GenusLockup } from "../brand.jsx";
+import { GenusLockup, GenusMark } from "../brand.jsx";
 import { ThemeCustomizer } from "./theme-customizer.jsx";
 
 /* ── navigation ───────────────────────────────────────────────────────────

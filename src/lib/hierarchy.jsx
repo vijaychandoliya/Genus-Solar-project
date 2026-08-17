@@ -27,6 +27,15 @@ export const LEVEL_LABEL = {
   panchayat: "Panchayat",
 };
 
+/**
+ * Sum `registered` across a node's panchayat leaves. Pure, and independent of
+ * the provider — dashboards need to roll up nodes that are not the currently
+ * selected scope (a sibling to rank against, a child to break out in a chart).
+ */
+export function rollupRegistered(node) {
+  return (node.registered ?? 0) + (node.children ?? []).reduce((a, c) => a + rollupRegistered(c), 0);
+}
+
 /** Depth-first index of every node, keyed by id, each carrying its ancestry. */
 function indexTree(root) {
   const byId = new Map();
@@ -55,11 +64,7 @@ export function HierarchyProvider({ children }) {
   const node = INDEX.get(nodeId) ?? INDEX.get(HIERARCHY.id);
 
   /** Rolled-up registered consumers for the selected node and everything under it. */
-  const registered = useMemo(() => {
-    const sum = (n) =>
-      (n.registered ?? 0) + (n.children ?? []).reduce((a, c) => a + sum(c), 0);
-    return sum(node);
-  }, [node]);
+  const registered = useMemo(() => rollupRegistered(node), [node]);
 
   const select = useCallback((id) => setNodeId(id), []);
 

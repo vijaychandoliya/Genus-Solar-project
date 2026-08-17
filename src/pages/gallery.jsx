@@ -27,23 +27,29 @@ import { EChartCard, rankedBarOption, trendOption, funnelOption } from "../compo
 import { GenusMark, GenusWordmark, GenusLockup, brandColors } from "../components/brand.jsx";
 import { primitives, semantic, type } from "../lib/tokens.js";
 import { METRICS, bandFor, BAND_ORDER } from "../lib/bands.js";
+import { SURVEY_ROWS as SURVEY_ROWS_REAL } from "../lib/programme-data.js";
 import { useState } from "react";
 
 /** A 48 V-class 15S LFP pack — enough nameplate to unlock the battery bands. */
 const NAMEPLATE = { chemistry: "LFP", series_count: 15, rated_capacity_ah: 100 };
 
-/** Real rows from Solar PV Site Survey.csv, shaped as the app will hold them. */
-const SURVEY_ROWS = [
-  { id: 1, consumer: "AMAJAD SAH", number: "225304750594", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible", photos: 10, accuracy: 3.04 },
-  { id: 2, consumer: "SANGEETA DEVI", number: "225304751666", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible", photos: 10, accuracy: 3 },
-  { id: 3, consumer: "LAKHAN CHOUDHARY", number: "225304751591", panchayat: "GHATAON", roof: "—", orientation: "—", verdict: "Needs revisit", photos: 10, accuracy: 3 },
-  { id: 4, consumer: "VINOD MALAH", number: "225304751526", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible", photos: 10, accuracy: 3 },
-  { id: 5, consumer: "BINDU DEVI", number: "225304751319", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible", photos: 10, accuracy: 3 },
-  { id: 6, consumer: "LAGAN CHAUDHARY", number: "225304751508", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible", photos: 10, accuracy: 3 },
-  { id: 7, consumer: "UMA DEVI", number: "225304751689", panchayat: "GHATAON", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible w/ conditions", photos: 10, accuracy: 3 },
-  { id: 8, consumer: "DHUKHANI DHOBI", number: "22510032765", panchayat: "BADHAUNA", roof: "RCC Roof", orientation: "North-South", verdict: "Feasible w/ conditions", photos: 10, accuracy: 3.16 },
-  { id: 9, consumer: "LACHCHHOO BAHELIYA", number: "225102131443", panchayat: "BADHAUNA", roof: "RCC Roof", orientation: "East-West", verdict: "Feasible w/ conditions", photos: 10, accuracy: 3 },
-];
+/**
+ * The 9 real survey rows, one source of truth shared with the Overview page.
+ * Earlier drafts of this gallery hand-typed verdicts and got 5 of 9 wrong —
+ * marking rows "Feasible" that fail the shadow-free test in the rule. Now
+ * imported, so the gallery can never drift from what the app actually computes.
+ */
+const SURVEY_ROWS = SURVEY_ROWS_REAL.map((r, i) => ({
+  id: i + 1,
+  consumer: r.consumerName,
+  number: r.consumerNumber,
+  panchayat: r.panchayatName,
+  roof: r.roofTopStatus ?? "—",
+  orientation: r.orientation ?? "—",
+  verdict: r.verdict,
+  photos: r.photos,
+  accuracy: r.geo.accuracy,
+}));
 
 function DeckDemo() {
   const [tile, setTile] = useState("attention");

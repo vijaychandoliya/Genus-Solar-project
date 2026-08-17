@@ -2,13 +2,17 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { HierarchyProvider } from "./lib/hierarchy.jsx";
 import { WsShell } from "./components/organisms/shell.jsx";
 import Gallery from "./pages/gallery.jsx";
+import Overview from "./pages/overview.jsx";
 import Placeholder from "./pages/placeholder.jsx";
 import { NAV } from "./components/organisms/shell.jsx";
 
-/** Every nav destination, flattened, so no rail item is a dead link. */
+/** Screens built for real. Everything else in NAV falls through to Placeholder. */
+const BUILT = new Set(["/overview"]);
+
+/** Every remaining nav destination, flattened, so no rail item is a dead link. */
 const ROUTES = NAV.flatMap((n) =>
   n.to ? [{ to: n.to, label: n.label }] : n.children.map((c) => ({ to: c.to, label: `${n.label} — ${c.label}` })),
-);
+).filter((r) => !BUILT.has(r.to));
 
 export default function App() {
   return (
@@ -16,6 +20,7 @@ export default function App() {
       <WsShell>
         <Routes>
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/overview" element={<Overview />} />
           {ROUTES.map((r) => (
             <Route key={r.to} path={r.to} element={<Placeholder title={r.label} to={r.to} />} />
           ))}
