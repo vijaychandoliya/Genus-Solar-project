@@ -21,12 +21,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  TextField,
   useTheme,
   alpha,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ContentCopyIcon from "@mui/icons-material/ContentCopyOutlined";
 import { IconTile, SectionLabel } from "./atoms.jsx";
 import { METRICS } from "../lib/bands.js";
 import { exInt, exNum, withUnit } from "../lib/format.js";
@@ -723,5 +725,142 @@ export function FormDialog({
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+/* ── JsonPayloadDialog ────────────────────────────────────────────────────
+   Every telemetry row in the source DMS carries a `JSON` action, and it earns
+   its place: the decoded columns are an interpretation, and an engineer
+   diffing firmware behaviour needs the bytes the device actually sent.
+
+   Notes that are not obvious:
+   · The payload is rendered as TEXT in a <pre>, never parsed-and-restyled. A
+     pretty-printer that reorders keys or drops an unrecognised field destroys
+     the exact thing this dialog exists to show.
+   · `dir="ltr"` + `unicodeBidi: isolate` on the block. A JSON payload under RTL
+     otherwise renders its braces and colons mirrored — see AGENTS.md §8.
+   · Copy is the only action. There is nothing here to save or submit, so a
+     Cancel/Save pair would be two wrong affordances.                        */
+
+export function JsonPayloadDialog({ open, onClose, title = "Raw payload", subtitle, payload }) {
+  const [copied, setCopied] = useState(false);
+
+  const text =
+    typeof payload === "string" ? payload : payload == null ? "" : JSON.stringify(payload, null, 2);
+
+  const copy = useCallback(() => {
+    navigator.clipboard?.writeText(text).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      },
+      () => setCopied(false),
+    );
+  }, [text]);
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle sx={{ typography: "h5", pb: subtitle ? 0.5 : undefined }}>
+        {title}
+        {subtitle && (
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.25 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </DialogTitle>
+      <DialogContent dividers>
+        {text ? (
+          <Box
+            component="pre"
+            dir="ltr"
+            tabIndex={0}
+            sx={(t) => ({
+              m: 0,
+              p: 1.75,
+              maxHeight: 460,
+              overflow: "auto",
+              unicodeBidi: "isolate",
+              backgroundColor: t.palette.surface.subtle,
+              border: `1px solid ${panelBorder(t)}`,
+              borderRadius: `${t.shape.borderRadius / 2}px`,
+              ...t.typography.body2,
+              fontFamily:
+                'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+              whiteSpace: "pre",
+              ...focusRing(t),
+            })}
+          >
+            {text}
+          </Box>
+        ) : (
+          <Typography variant="body2" sx={{ color: "text.secondary", py: 3, textAlign: "center" }}>
+            This row carries no stored payload. Raw messages are retained only for the streams the
+            gateway forwards verbatim.
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        {text && (
+          <Button onClick={copy} variant="text" startIcon={<ContentCopyIcon />} sx={{ mr: "auto" }}>
+            {copied ? "Copied" : "Copy"}
+          </Button>
+        )}
+        <Button onClick={onClose} variant="contained">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+/* ── WsDateRange ──────────────────────────────────────────────────────────
+   docs/ia-and-screen-plan.md §7.6's date filter, finally built.
+
+   `<input type="date">` is used deliberately over a JS date picker: it is
+   keyboard-accessible, localised by the OS, and free. What it is NOT is
+   dd-mm-yyyy — it renders in the browser's locale and submits ISO. That is
+   accepted here because the alternative is a custom picker, and §8's
+   dd-mm-yyyy rule governs DISPLAY of data, which every table cell still does
+   through toDmy().
+
+   The invalid-range case is stated on the field rather than silently swapped.
+   Auto-correcting a reversed range hides a mistake the reader wants to know
+   they made.                                                                */
+
+export function WsDateRange({
+  start,
+  end,
+  onChange,
+  startLabel = "Start date",
+  endLabel = "End date",
+  disabled = false,
+  sx,
+}) {
+  const reversed = Boolean(start && end && start > end);
+
+  const field = (value, label, key) => (
+    <TextField
+      type="date"
+      size="small"
+      label={label}
+      value={value ?? ""}
+      disabled={disabled}
+      onChange={(e) => onChange?.({ start, end, [key]: e.target.value || null })}
+      error={reversed}
+      slotProps={{ inputLabel: { shrink: true }, htmlInput: { "aria-invalid": reversed } }}
+      sx={{ minWidth: 168 }}
+    />
+  );
+
+  return (
+    <Stack direction="row" sx={{ gap: 1.5, alignItems: "flex-start", flexWrap: "wrap", ...sx }}>
+      {field(start, startLabel, "start")}
+      {field(end, endLabel, "end")}
+      {reversed && (
+        <Typography variant="caption" sx={{ color: "band.critical.fg", alignSelf: "center" }}>
+          The start date is after the end date, so this range selects nothing.
+        </Typography>
+      )}
+    </Stack>
   );
 }

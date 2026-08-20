@@ -489,20 +489,19 @@ export function latestSubmission(node) {
 export const MASTER_UPLOADED_AT = parseIndianDate("04-08-2026 14:14:45");
 
 /**
- * Device fleet — GTI / BMS / UPS / general asset counts.
+ * Device fleet — MOVED to src/lib/device-data.js.
  *
- * Neither CSV contains a device record of any kind. This is not a
- * placeholder waiting to be filled with a plausible number — it is a
- * genuine absence, matching docs/dashboard-ia.md Q7 ("device telemetry
- * schema — outstanding"). Every consumer here is a signature CANDIDATE for
- * one rooftop installation once commissioned (stage 9 of 9); none exist yet.
- * Render these as `notConfigured`, never as 0 or an invented count.
+ * This was a four-key stub recording that neither CSV contains a device record
+ * of any kind. That is still true of the CSVs, but it is no longer the whole
+ * picture: the source DMS demonstrably holds a fleet (151 devices, 44 BMS and
+ * 42 UPS readings, one GTI gateway), so the absence here is an un-ingested
+ * extract rather than a schema that does not exist. `device-data.js` carries
+ * the real entity model, the four reading streams, and a `PENDING` reason per
+ * stream — see docs/dms-parity-plan.md.
+ *
+ * The rule the stub existed to enforce has not changed and is now enforced
+ * there: render an absent fleet as `notConfigured` with its reason, never as 0
+ * and never as an invented count.
  */
-export const DEVICE_FLEET = {
-  devices: { notConfigured: true, reason: "No device registry exists in the source extracts yet" },
-  gti: { notConfigured: true, reason: "No GTI telemetry schema has arrived yet" },
-  bms: { notConfigured: true, reason: "No BMS telemetry schema has arrived yet" },
-  ups: { notConfigured: true, reason: "This programme is single-phase rooftop solar — no UPS fleet is specified" },
-};
 
 export { HIERARCHY };

@@ -33,14 +33,23 @@ import {
   latestSubmission,
   SYSTEM_ACCOUNTS,
   MASTER_UPLOADED_AT,
-  DEVICE_FLEET,
 } from "../lib/programme-data.js";
+import { fleetCounts } from "../lib/device-data.js";
 import { bandFor } from "../lib/bands.js";
 import { exInt, toDmy, ageFrom } from "../lib/format.js";
 
 /** Band → KpiTile tone. Bands are for dense grid cells; a hero KPI card can
  *  carry colour freely, so "normal" maps to a real green here, not to none. */
 const BAND_TO_TONE = { normal: "good", watch: "warning", warning: "warning", critical: "warning" };
+
+/** The four fleet tiles. One list, so the labels and icons cannot drift from
+ *  `fleetCounts()`'s keys. */
+const DEVICE_TILES = [
+  { id: "devices", label: "Devices", icon: <DevicesOtherOutlinedIcon /> },
+  { id: "gti", label: "GTI system", icon: <BoltOutlinedIcon /> },
+  { id: "bms", label: "BMS devices", icon: <BatteryChargingFullOutlinedIcon /> },
+  { id: "ups", label: "UPS devices", icon: <PowerOutlinedIcon /> },
+];
 
 function CoverageCell({ node }) {
   const { pct, reason } = coverageInfo(node);
@@ -63,6 +72,7 @@ export default function Overview() {
   const exceptions = useMemo(() => exceptionsFor(node), [node]);
   const byDay = useMemo(() => submissionsByDay(node), [node]);
   const children = useMemo(() => childRollups(node), [node]);
+  const fleet = useMemo(() => fleetCounts(node.id), [node]);
 
   const surveyed = stages.find((s) => s.id === "surveyed")?.value ?? 0;
   const conditions = exceptions.filter((e) => e.type === "Contradictory survey").length;
@@ -145,7 +155,7 @@ export default function Overview() {
 
       <WsSection
         title="Users & devices"
-        note="Total Users is real — the accounts that touched this data. The device fleet below has no schema yet and is shown as such, not as zero."
+        note="Total Users is real — the accounts that touched this data. Each device tile states which population it counts, because a count with no stated population is how a dashboard ends up disagreeing with its own table."
         padded={false}
       >
         <KpiDeck sx={{ p: 2 }}>
@@ -156,30 +166,28 @@ export default function Overview() {
             tone="info"
             freshness="Admin + 2 field surveyors, from the extracts"
           />
-          <KpiTile
-            label="Devices"
-            icon={<DevicesOtherOutlinedIcon />}
-            notConfigured
-            freshness={DEVICE_FLEET.devices.reason}
-          />
-          <KpiTile
-            label="GTI system"
-            icon={<BoltOutlinedIcon />}
-            notConfigured
-            freshness={DEVICE_FLEET.gti.reason}
-          />
-          <KpiTile
-            label="BMS devices"
-            icon={<BatteryChargingFullOutlinedIcon />}
-            notConfigured
-            freshness={DEVICE_FLEET.bms.reason}
-          />
-          <KpiTile
-            label="UPS devices"
-            icon={<PowerOutlinedIcon />}
-            notConfigured
-            freshness={DEVICE_FLEET.ups.reason}
-          />
+          {DEVICE_TILES.map((t) => {
+            const c = fleet[t.id];
+            return (
+              <KpiTile
+                key={t.id}
+                label={t.label}
+                icon={t.icon}
+                tone="info"
+                value={c.pending ? undefined : c.registered}
+                notConfigured={c.pending}
+                // The freshness slot states the POPULATION, not just the age.
+                // The source DMS's cards say 146 / 63 / 76 while its own tables
+                // hold 151 / 44 / 42, and the gap is unexplainable because
+                // neither number says what it counts.
+                freshness={
+                  c.pending
+                    ? c.reason
+                    : `Registered in this scope · ${exInt(c.reporting)} reporting within one interval`
+                }
+              />
+            );
+          })}
         </KpiDeck>
       </WsSection>
 

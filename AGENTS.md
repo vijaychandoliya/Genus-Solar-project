@@ -74,15 +74,49 @@ Five states, **four of them rendered**:
 > for a question the reader actually asked — an explicit *Healthy* chip at object level — never for
 > an in-range measurement.
 
-Two hard rules:
+Three hard rules:
 
 - **A metric whose `requires` are unmet returns `unknown`, never `normal`.** A pack voltage cannot
   be judged before chemistry and series count are known, and a confident-looking green on an
   unjudgeable value is worse than an honest dash.
 - **Stale and offline readings get no band.** A four-hour-old value painted green is a lie about
   the present. Use `bandWithFreshness()`, not `bandFor()`, wherever a timestamp exists.
+- **A value outside its metric's `plausible` range returns `unknown`, not the nearest extreme.**
+  See below.
 
 Colour is never the only signal — every band carries a word or an icon.
+
+### The plausibility floor
+
+A threshold set answers *is this reading good or bad*. It cannot answer *is this a reading at all*,
+and conflating the two paints a confident colour on a broken sensor. So every metric that can carry
+a sentinel declares `plausible: { min, max, sentinel }`, and **`isImplausible()` runs before the
+thresholds** in `bandFor`.
+
+Two cases from the real device extracts, both of which the naive version got exactly wrong:
+
+| Source value | Without the floor | With it |
+|---|---|---|
+| `pack_temp` = −58 °C (thermistor open circuit) | **`critical`** — red chip, alarm, engineer dispatched to a working battery | `unknown` + "is a known sensor-fault sentinel for this field" |
+| `grid_voltage` = 0.00 V (41 of 42 UPS rows) | **`critical`** — a fleet-wide brownout that is not happening | `unknown` + "0.00 V is how the extract represents no reading" |
+
+> **A derived metric must derive from plausible inputs only.** `tempSpread` is computed across the
+> thermistors that survive the floor, never `max − min` of all four. A pack reporting 27 °C on one
+> probe and −58 °C on three does not have an 85 °C spread; it has one working probe — and the naive
+> spread would manufacture a critical thermal alarm out of a wiring fault, looking identical to a
+> real thermal event. When fewer than two probes survive, the spread is `null` with the probe count
+> as its reason, not a number.
+
+`bandDetail(metricId, value, nameplate)` returns `{ band, reason }` — use it wherever an `unknown`
+is rendered, so the cell can say *which* of the four nothings it is.
+
+### Enum metrics
+
+A mode is a band, not a status string. A metric with a `states` map resolves by lookup, and **an
+unrecognised state is `unknown`, never `normal`** — a mode string the platform has never seen is not
+evidence of health. `ups_mode` is the reason this exists: `bypass` is the highest-severity state in
+the fleet and raises no fault of its own, because the unit is healthy, the load is live, and there
+is no protection between them.
 
 ---
 
@@ -257,6 +291,150 @@ default. Caught by checking the KPI strip against the known real total (9), not 
 
 ---
 
+## 3c-3 · The gateway payloads — what the real messages turned out to be
+
+`src/lib/gti-parse.js` parses the `rtsg-1 / Ongridrooftop` pub-sub messages;
+`src/lib/device-samples.js` carries four real ones (two gateways, a 2-minute capture).
+
+**"GTI Data" carries a NET METER, not an inverter.** The body is `MS-10-2-3--*`: volts, hertz,
+power factor, import *and* export energy, max-demand registers, and a Genus single-phase C3 meter
+nameplate. That is the rooftop's revenue meter — what the consumer is paid on — and it belongs on
+`/telemetry/meter`. The only trace of an inverter anywhere in these payloads is the gateway's
+`INVERR` flag, so `/telemetry/solar` stays unbuilt: it has neither a numerator (no inverter object)
+nor a denominator (`rated_kw` is absent from the nameplate).
+
+> **The stream name in the filename is a transport envelope, not a schema.** The schema is set by the
+> object prefix, and prefixes must be SPLIT rather than matched as literals — `splitFieldKey()`.
+> `MS-10-2-3--VN` and `R-1-0---GSM` are the same fixed shape with different numbers of empty address
+> segments, which is why a naive `split("--")` works on one and silently returns the wrong thing on
+> the other. A second meter or an inverter on the same gateway changes the address.
+
+**Timezones: the filename is UTC, the payload `TIMESTAMP` is IST.** Verified on all four samples —
+`20260816_193139` + 5:30 = `01:01:39` against a payload reading `01:01:35`. Both are parsed with
+their offset stated explicitly; `new Date("2026-08-17 01:01:35")` would adopt the *viewer's* zone and
+make ingestion lag wrong by hours outside India. The 4–5 s gap between them **is** the ingestion lag,
+which is why `timestamp` and `insertedOn` stay separate fields.
+
+**`MSGID` is a per-device sequence, not an identifier** (heartbeat 1 → data 2 → data 3, ascending
+with time on both devices). So a gap in it is a lost message. Labelled "Msg seq", never "Msg ID".
+
+**`STINTERVAL` closes dashboard-ia.md Q2 from the payload itself** — 15 min on Data, 30 on
+Heartbeat, declared per message. Freshness now measures against what the device says it will do, so
+a gateway that changes cadence stays correctly classified without a code change. The seeds in
+`REPORT_INTERVAL_MS` survive only for BMS and UPS, which have no payload yet.
+
+**Nameplate keys are namespaced `meter_*` / `gateway_*`.** Both boards report a "firmware"
+(`MTRFWVER` = `G36A5.160001`, gateway `FW` = empty) and a single `firmware` key would let whichever
+object parsed last win, with no way for a reader to tell which board a version belongs to. Meter
+nameplate arrives with **every** data frame rather than from a handshake, so it can drift between
+frames and the registry keeps last-known-good.
+
+### What the four payloads prove
+
+Every one of these is a real defect in the sample, surfaced on `/alarms` by `deviceExceptionsFor()`:
+
+| Finding | Why it matters |
+|---|---|
+| Meter RTC **25 days behind** on one gateway, **72 days ahead** on the other | Each meter's billing and max-demand stamps agree with its own wrong clock, so every period is misfiled *consistently* and therefore invisibly. Banded via `meter_clock_skew`, and **not** freshness-gated — a skew from an old frame is as true as it was on arrival |
+| An all-zero Data frame with meter RTC `000000` | A failed read, not a dead supply. The discriminator is the meter's own clock, **not** `MTDET` — two samples carry `MTDET: 0` alongside a good 239.92 V reading, so that field does not mean "meter detected" whatever its name suggests |
+| `PF: 1.000` at `I: 0.000` | A register default, not a measurement. The parser **withholds** it (`pfIsMeaningful`, < 0.05 A) rather than letting a false *green* through — worse than a false alarm, because it states health the platform cannot see |
+| `TEMP: -127.0` | 1-wire "no sensor present". Kept and de-emphasised, not nulled — see below |
+| `LAT/LON: 0.00, 0.00` | Null Island. Never mapped |
+| `KWHNET` 4.40 with import **and** export at 0.00 | Arithmetically impossible; the register set is not what its names imply |
+| `TMPSTS: 001A00` | Three tamper bits asserted (9, 11, 12). Positions reported, meanings undocumented — `decodeTamper` deliberately returns no labels |
+| `RSRP -111` | Resolves to `warning` on `gateway_rsrp`, a metric kept separate from `capture_rsrp` (a surveyor's phone) so "signal" is never ambiguous |
+| `MODEMFW` contains `BETA` | A pre-release modem build in the field |
+| Gateway `FW`/`HW` empty | Nameplate completeness reads a true 50%, not a fabricated 100% |
+
+> **A device seen in the traffic but placed nowhere.** The payloads carry no geography — only an ASN
+> and (0,0) coordinates — so both gateways answer to the discom root and vanish under any circle.
+> That is raised as an exception rather than guessed at. `ASN_21` (`JD10002`/`JD10003`) is a
+> candidate join key to the consumer register and is deliberately **not** mapped onto `consumerRef`:
+> asserting the join by assigning the field would make an open question look answered.
+
+### An unknown band suppresses the JUDGEMENT, not the value
+
+`BandedValue` used to render an em dash for any `unknown` band. The first real telemetry exposed it:
+a gateway reporting **239.92 V seventeen hours ago** displayed as `—`. Suppressing the band was
+correct — §2 forbids painting a stale reading — but deleting the number threw away the only
+measurement on the row, and told the reader the meter had said nothing.
+
+§2's own band table already specified the right behaviour: `unknown` is *"de-emphasised to
+`text/tertiary`, plus the reason"*. So:
+
+- **Value present, not judgeable** (stale, implausible, no nameplate) → the value, in
+  `text/tertiary` italic, with the reason on a `MetricInfo`. A sentinel like `-127 °C` is shown for
+  the same reason: it was transmitted, and an engineer needs to see what the bus actually replied.
+- **Value genuinely absent** (the failed meter read, where the parser nulls the measurements) → em dash.
+
+Those are two different facts and they must not render identically.
+
+---
+
+## 3c-2 · Device fleet and telemetry — the model shipped ahead of the data
+
+`src/lib/device-data.js` holds the `Device` entity, four telemetry streams, and the selectors the
+Devices / GTI / BMS / UPS screens are built on. See [docs/dms-parity-plan.md](docs/dms-parity-plan.md)
+for the screen-by-screen cross-check against the source DMS that produced it.
+
+**Its `RAW_*` arrays are empty on purpose, and they are not stubs to fill with plausible numbers.**
+The source DMS demonstrably holds this data — 151 devices, 44 BMS readings, 42 UPS readings, one GTI
+gateway across four streams — so what is missing is an *extract*, not a schema. Every screen renders
+an honest empty state naming the stream and the reason. To load the real data: replace the arrays
+with the transcription, delete the matching `PENDING` entry, and change nothing else. Every selector,
+derived metric and band is a pure function over those arrays.
+
+> This replaces the four-key `DEVICE_FLEET` stub that used to live in `programme-data.js`. The rule
+> it existed to enforce is unchanged: an absent fleet renders `notConfigured` with its reason, never
+> `0` and never an invented count.
+
+**Counts state their population.** `fleetCounts()` returns `registered` and `reporting` separately,
+and the KPI tile's `freshness` slot names which is which. The source DMS is the cautionary tale: its
+dashboard cards read 146 / 63 / 76 while its own tables hold 151 / 44 / 42, and the gap is
+unexplainable because neither figure says what it counts.
+
+**`REPORT_INTERVAL_MS` is `[seed]` and it is the most consequential unverified number here.**
+`freshnessOf()` measures against it, so an interval set too long makes a dead device read as live for
+hours. It closes dashboard-ia.md Q2, which had left freshness unable to classify anything at all.
+
+### Status codes — `src/lib/device-codes.js`
+
+The DMS prints `Backup Status: 1` with no legend anywhere on the page. `CodeValue` renders `1 · On
+backup` — the word *and* the code, because dropping the number makes the screen prettier and the
+debugging harder.
+
+**Every meaning in that file is `verified: false` and must stay that way until the enums are
+documented** (dms-parity-plan.md Q4). Unverified meanings render with a dotted underline at the point
+of use, so no reader has to remember which columns are guesses. **Do not flip `verified` early:** a
+decoded word that is wrong is worse than the raw code, because the raw code at least looks like
+something to go and check. An *undocumented* code renders `Code 7` in the `unknown` treatment — a
+state the firmware emits and the platform has never been told about is a finding, not a status.
+
+`Mains Voltage` in the source carries 0/1 and is renamed **`mains_present`** on the way in, the same
+treatment dashboard-ia.md §8 gave `Device ID` → `capture_device`. `grid_voltage` means volts and must
+stay unambiguous.
+
+### Two objects under one label
+
+`/assets` is the **device registry** (plan §7.4); the rooftop-condition aggregate moved to
+`/assets/condition`. Both are reachable from the Assets nav node. Keeping them as one screen would
+repeat the source DMS's own structural mistake, where *Devices* is a registry and *BMS Devices* is
+telemetry and nothing in the labels says so.
+
+The registry carries **the consumer number, never the name, mobile or email.** `assets.jsx` already
+refuses to bundle the master's 9,673 names and phone numbers into a public client build, and a
+registry keyed on consumer identity would reopen that by the back door — see Q3.
+
+**GTI's four streams are route segments** (`/telemetry/gti/:tab`), not component state, so a link to
+one survives being pasted into a ticket. The unknown-segment redirect sits *below* the `useMemo`
+calls: returning `<Navigate>` above them makes the hook count depend on the URL.
+
+**GTI Info is nameplate, not telemetry.** Firmware / hardware / manufacturer / model belongs on the
+device record — the registry's completeness column depends on it living there, and the Info tab is a
+view of it.
+
+---
+
 ## 3a-3 · Hide-the-rail vs. Mini — two different settings, not one
 
 The top-bar hamburger used to write straight into `settings.layout`, toggling it between
@@ -421,6 +599,12 @@ Build tables with `wsCols([...])` + `WsTable`. Notes that catch people out:
 - `onRowClick` receives **`{ row, id }`**, not the row. Destructure it.
 - `renderCell` is display only. Sorting, filtering, search, faceting and CSV all read the raw or
   `valueGetter` value.
+- **`valueGetter` receives `(rawValue, row)` — two arguments, and the row is the SECOND.**
+  `renderCell` receives `{ row, value }`, so the two read differently and it is easy to write
+  `valueGetter: (r) => r.nameplate?.x` by muscle memory. On a computed column there is no
+  `row[field]`, so `rawValue` is `undefined` and that reads `undefined.nameplate` — which throws
+  inside TanStack's accessor during render and surfaces as a **blank white page**, not a console
+  error pointing at your column. Three columns shipped with this bug at once.
 - `exportName` is **also the preferences key**. Two tables sharing a title share their saved
   density, pinning, visibility and widths. A table with no title gets no persistence at all.
 - `chip` in `wsCols` takes a **tone**, not `true`. Inferring a status palette from cell text is how
@@ -432,6 +616,13 @@ Build tables with `wsCols([...])` + `WsTable`. Notes that catch people out:
 - **Never declare a component inside a render body.** It is a new component type every render, so
   React remounts it — which steals focus from the search field on every keystroke. Render helpers
   are called as functions (`renderToolbar()`), not as `<Toolbar />`.
+- **The empty overlay is pinned to the visible viewport, not to the table's scroll width.** It sits in
+  a `colSpan` cell, so its box is as wide as the sum of every column — on the 20-column BMS grid, far
+  wider than the screen. `placeItems: center` then centres the message in the *scroll* width, pushing
+  it off to the right and clipping it. Fixed with `position: sticky; left: 0` plus a width measured
+  from the scroll container (a persistent `ResizeObserver`, for the same reason §6 needs one). It
+  presented as a copy problem and was a geometry one — check any wide table's empty state at a
+  viewport narrower than its columns.
 
 > **Known limit.** There is no virtualisation. The consumer register will be tens of thousands of
 > rows per circle, which breaches that assumption — it needs `@tanstack/react-virtual` or

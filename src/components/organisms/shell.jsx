@@ -44,10 +44,13 @@ import {
   alpha,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
@@ -86,14 +89,30 @@ export const NAV = [
     ],
   },
   { id: "sites", label: "Sites", to: "/sites", icon: PlaceOutlinedIcon },
-  { id: "assets", label: "Assets", to: "/assets", icon: Inventory2OutlinedIcon },
+  {
+    id: "assets",
+    label: "Assets",
+    icon: Inventory2OutlinedIcon,
+    // Two different objects, and conflating them is the mistake the source DMS
+    // makes: its "Devices" screen is a registry while its sibling screens are
+    // telemetry, and nothing in the labels says so (plan §3, D2). The device
+    // registry takes /assets per plan §7.4; the rooftop-condition aggregate
+    // that was there keeps its own route rather than being deleted — it reads
+    // the survey data, which is the data this programme actually has.
+    children: [
+      { label: "Devices", to: "/assets" },
+      { label: "Rooftop condition", to: "/assets/condition" },
+    ],
+  },
   {
     id: "telemetry",
     label: "Telemetry",
     icon: InsightsOutlinedIcon,
     children: [
       { label: "BMS", to: "/telemetry/bms" },
-      { label: "GTI", to: "/telemetry/gti" },
+      // The four GTI streams are route segments, so the nav points at the
+      // default one explicitly rather than relying on a redirect.
+      { label: "GTI", to: "/telemetry/gti/data" },
       { label: "UPS", to: "/telemetry/ups" },
       { label: "Solar", to: "/telemetry/solar" },
       { label: "Meter", to: "/telemetry/meter" },
@@ -585,6 +604,23 @@ export function WsShell({ children }) {
   const collapsed = settings.layout === "default" && settings.collapsed && permanent;
   const railWidth = mini ? layout.miniWidth : layout.drawerWidth;
   const showRail = !horizontal && !collapsed;
+  // Is a full navigation surface on screen right now? Mini does not count —
+  // the hamburger's job there is to expand it, so it still reads as "closed".
+  const navShowing = permanent ? !(mini || collapsed) : navOpen;
+
+  /* The mode shortcut. `resolvedMode` already accounts for System, so the icon
+     always depicts the mode the click moves TO — the button shows its action,
+     not its state. */
+  const resolvedMode = settings.resolvedMode;
+  const nextMode = resolvedMode === "dark" ? "light" : "dark";
+  const modeHint =
+    settings.mode === "system"
+      ? `Following system (${resolvedMode}) — switch to ${nextMode} mode`
+      : `Switch to ${nextMode} mode`;
+  const toggleMode = useCallback(() => {
+    settings.set({ mode: nextMode });
+    announce(`${nextMode === "dark" ? "Dark" : "Light"} mode.`);
+  }, [settings, nextMode]);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100%", backgroundColor: "background.default" }}>
@@ -687,9 +723,12 @@ export function WsShell({ children }) {
                         ? "Show navigation"
                         : "Hide navigation"
                 }
-                aria-expanded={permanent ? !(mini || collapsed) : navOpen}
+                aria-expanded={navShowing}
               >
-                <MenuIcon />
+                {/* The icon states what the nav is doing right now: the arrow
+                    form only appears while the rail is actually on screen, so
+                    the control never claims "open" against a hidden rail. */}
+                {navShowing ? <MenuOpenIcon /> : <MenuIcon />}
               </IconButton>
             )}
             {horizontal && (
@@ -748,6 +787,24 @@ export function WsShell({ children }) {
             >
               <HierarchyPicker onPick={() => setScopeAnchor(null)} />
             </Popover>
+
+            {/* Mode shortcut.
+
+                `mode` is TRI-state — light / dark / system — and a two-state
+                button cannot represent three. Rather than cycle (which makes
+                the common light↔dark flip cost two clicks in one direction),
+                this flips the RESOLVED mode and says out loud when that means
+                leaving System, in the tooltip and the accessible name both.
+                The three-way choice, including getting System back, stays one
+                click away in the customizer beside it.
+
+                Same principle as the hamburger in §3a-3: a shortcut may not
+                quietly overwrite a richer setting without saying so. */}
+            <Tooltip title={modeHint}>
+              <IconButton onClick={toggleMode} aria-label={modeHint}>
+                {resolvedMode === "dark" ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+              </IconButton>
+            </Tooltip>
 
             <Tooltip title="Settings">
               <IconButton onClick={() => setSettingsOpen(true)} aria-label="Open settings">

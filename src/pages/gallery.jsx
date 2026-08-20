@@ -20,8 +20,18 @@ import {
   EmptyState,
   GridEmptyOverlay,
   NotConfigured,
+  CodeValue,
 } from "../components/atoms.jsx";
-import { KpiStrip, TileDeck, TilePane, MetricInfo, FilterBar, Delta } from "../components/molecules.jsx";
+import {
+  KpiStrip,
+  TileDeck,
+  TilePane,
+  MetricInfo,
+  FilterBar,
+  Delta,
+  JsonPayloadDialog,
+  WsDateRange,
+} from "../components/molecules.jsx";
 import { WsTable, wsCols, WsSplit, resultNote } from "../components/workspaces.jsx";
 import { EChartCard, rankedBarOption, trendOption, funnelOption } from "../components/charts.jsx";
 import { GenusMark, GenusWordmark, GenusLockup, brandColors } from "../components/brand.jsx";
@@ -131,6 +141,8 @@ function Swatch({ name, hex }) {
 export default function Gallery() {
   const { mode, resolvedMode, direction, set } = useSettings();
   const sem = semantic[resolvedMode];
+  const [galleryRange, setGalleryRange] = useState({ start: "2026-08-03", end: "2026-08-17" });
+  const [jsonDemo, setJsonDemo] = useState(null);
 
   return (
     <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, sm: 3 }, py: 4 }}>
@@ -380,6 +392,113 @@ export default function Gallery() {
           <WsTag label="MERAQUI VENTURES PVT LTD" />
           <NotConfigured hint="Sanctioned Load is empty in all 9,673 master rows." />
         </Stack>
+      </Section>
+
+      <Section
+        title="CodeValue"
+        note="A raw device status code rendered as the word it means, with the code kept beside it. Three states, because they are three different problems."
+      >
+        <Stack sx={{ gap: 2 }}>
+          <Box>
+            <SectionLabel>Verified enum — the meaning is documented</SectionLabel>
+            <Stack direction="row" sx={{ gap: 2, flexWrap: "wrap", mt: 0.5, alignItems: "center" }}>
+              <CodeValue set="gti_msg_type" value="telemetry" showRaw={false} />
+              <CodeValue set="device_class" value="bms" showRaw={false} />
+              <CodeValue set="system_type" value="non solar" showRaw={false} />
+            </Stack>
+          </Box>
+          <Box>
+            <SectionLabel>
+              Unverified enum — dotted underline; our reading of an undocumented code
+            </SectionLabel>
+            <Stack direction="row" sx={{ gap: 2, flexWrap: "wrap", mt: 0.5, alignItems: "center" }}>
+              <CodeValue set="backup_status" value={1} />
+              <CodeValue set="backup_status" value={0} />
+              <CodeValue set="inverter_status" value={0} />
+              <CodeValue set="mains_present" value={0} />
+            </Stack>
+          </Box>
+          <Box>
+            <SectionLabel>Undocumented code, and absent — never rendered as health</SectionLabel>
+            <Stack direction="row" sx={{ gap: 2, flexWrap: "wrap", mt: 0.5, alignItems: "center" }}>
+              <CodeValue set="inverter_mode" value={7} />
+              <CodeValue set="backup_status" value={null} />
+            </Stack>
+          </Box>
+        </Stack>
+      </Section>
+
+      <Section
+        title="Sensor-fault plausibility"
+        note="The same metric, fed a real reading and a sentinel. -58 °C is a thermistor open circuit, not a temperature — it must resolve to unknown, never to a confident critical."
+      >
+        <Stack direction="row" sx={{ gap: 4, flexWrap: "wrap" }}>
+          {[27, 47, 58, -58, 0].map((v) => (
+            <Box key={v}>
+              <SectionLabel>{`pack_temp = ${v}`}</SectionLabel>
+              <BandedValue value={v} unit="°C" dp={1} band={bandFor("pack_temp", v)} />
+            </Box>
+          ))}
+        </Stack>
+        <Stack direction="row" sx={{ gap: 4, flexWrap: "wrap", mt: 2 }}>
+          {[228.7, 195, 0].map((v) => (
+            <Box key={v}>
+              <SectionLabel>{`grid_voltage = ${v}`}</SectionLabel>
+              <BandedValue value={v} unit="V" dp={1} band={bandFor("grid_voltage", v)} />
+            </Box>
+          ))}
+        </Stack>
+      </Section>
+
+      <Section
+        title="WsDateRange"
+        note="Native date inputs — keyboard-accessible and OS-localised. A reversed range states itself rather than being silently swapped."
+      >
+        <Stack sx={{ gap: 2 }}>
+          <WsDateRange start={galleryRange.start} end={galleryRange.end} onChange={setGalleryRange} />
+          <Box>
+            <SectionLabel>Reversed — the error is stated, not corrected</SectionLabel>
+            <WsDateRange start="2026-08-17" end="2026-08-03" onChange={() => {}} />
+          </Box>
+          <Box>
+            <SectionLabel>Disabled</SectionLabel>
+            <WsDateRange start="2026-08-03" end="2026-08-17" disabled onChange={() => {}} />
+          </Box>
+        </Stack>
+      </Section>
+
+      <Section
+        title="JsonPayloadDialog"
+        note="The raw message behind a decoded row. Rendered as text, never reformatted — a pretty-printer that reorders keys destroys the thing this dialog exists to show."
+      >
+        <Stack direction="row" sx={{ gap: 1.5, flexWrap: "wrap" }}>
+          <Button variant="outlined" size="small" onClick={() => setJsonDemo("payload")}>
+            Open with a payload
+          </Button>
+          <Button variant="outlined" size="small" onClick={() => setJsonDemo("empty")}>
+            Open with none
+          </Button>
+        </Stack>
+        <JsonPayloadDialog
+          open={jsonDemo !== null}
+          onClose={() => setJsonDemo(null)}
+          title="GTI Data payload"
+          subtitle="Device 357108850179110 · 09-06-2026 10:51"
+          payload={
+            jsonDemo === "payload"
+              ? {
+                  device_no: "357108850179110",
+                  msg_id: 987456,
+                  msg_type: "telemetry",
+                  timestamp: "2026-06-09T10:51:23Z",
+                  max_index: 72,
+                  index: 72,
+                  load: 0,
+                  note: "Shape illustrative — the real payloads have not been extracted yet.",
+                }
+              : null
+          }
+        />
       </Section>
 
       <Section title="Numerals" note="en-IN grouping, tabular figures, lakh and crore — never K and M.">

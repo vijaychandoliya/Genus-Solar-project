@@ -7,5 +7,7 @@ export default defineConfig({
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  server: { port: 5173, strictPort: false },
+  // PORT wins when set, so a second dev server (another session, a preview
+  // pane) can run alongside the default one instead of fighting it for 5173.
+  server: { port: Number(process.env.PORT) || 5173, strictPort: false },
 });

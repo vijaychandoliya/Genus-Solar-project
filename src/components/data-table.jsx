@@ -27,6 +27,7 @@ import {
   Button,
   Menu,
   MenuItem,
+  MenuList,
   Checkbox,
   Popover,
   Stack,
@@ -238,7 +239,11 @@ function ColumnFilter({ column, anchor, onClose }) {
               sx={{ mb: 1 }}
             />
           )}
-          <Box sx={{ maxHeight: 220, overflowY: "auto" }}>
+          {/* MenuList, not a bare Box: MUI v9 throws (not warns) when a MenuItem
+              cannot find MenuListContext, and the throw takes the whole Popover
+              subtree down — which is why every faceted column filter rendered
+              nothing at all. */}
+          <MenuList dense sx={{ maxHeight: 220, overflowY: "auto", p: 0 }}>
             {shown.map(([v, count]) => (
               <MenuItem
                 key={String(v)}
@@ -258,7 +263,7 @@ function ColumnFilter({ column, anchor, onClose }) {
                 </Typography>
               </MenuItem>
             ))}
-          </Box>
+          </MenuList>
         </Box>
       );
     }
@@ -409,6 +414,31 @@ export function DataTable({
 }) {
   const prefsKey = exportName || null;
   const saved = useRef(readPrefs(prefsKey)).current;
+
+  /* ── the empty overlay's width ──────────────────────────────────────────
+     The empty state lives in a `colSpan` cell, so its box is as wide as the
+     SUM OF EVERY COLUMN — on a 20-column BMS grid that is far wider than the
+     viewport. `placeItems: center` then centres the message in the scroll
+     width rather than the visible width, which pushes it off to the right and
+     clips it. It looked like a copy problem and was a geometry one.
+
+     Fixed by measuring the scroll container and pinning the overlay to it with
+     `position: sticky`, the same mechanism the frozen first column uses. The
+     observer is persistent, not one-shot — a panel going from two columns to
+     one resizes this container without resizing the window (§6's rule for
+     charts, and it applies for the same reason here).                       */
+  const scrollRef = useRef(null);
+  const [viewportW, setViewportW] = useState(0);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => setViewportW(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const [density, setDensity] = useState(saved?.density ?? resolveDensity(densityProp));
   const [sorting, setSorting] = useState([]);
@@ -646,7 +676,10 @@ export function DataTable({
       {toolbar && renderToolbar()}
       {renderFilterChips()}
 
-      <Box sx={{ overflow: "auto", maxHeight: full ? "none" : maxHeight, flex: 1, minHeight: 0 }}>
+      <Box
+        ref={scrollRef}
+        sx={{ overflow: "auto", maxHeight: full ? "none" : maxHeight, flex: 1, minHeight: 0 }}
+      >
         <Table
           size="small"
           sx={{
@@ -816,8 +849,19 @@ export function DataTable({
           <TableBody>
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={table.getVisibleLeafColumns().length} sx={{ border: 0 }}>
-                  <Box sx={{ minHeight: overlayHeight, display: "grid", placeItems: "center" }}>
+                <TableCell colSpan={table.getVisibleLeafColumns().length} sx={{ border: 0, p: 0 }}>
+                  <Box
+                    sx={{
+                      minHeight: overlayHeight,
+                      display: "grid",
+                      placeItems: "center",
+                      // Pinned to the visible viewport, not to the full scroll
+                      // width — see the note beside `scrollRef` above.
+                      position: "sticky",
+                      left: 0,
+                      width: viewportW || "100%",
+                    }}
+                  >
                     {emptyOverlay ?? <GridEmptyOverlay />}
                   </Box>
                 </TableCell>

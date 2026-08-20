@@ -7,6 +7,7 @@
  */
 import { Box, Typography, Tooltip, Button, alpha } from "@mui/material";
 import { BAND_LABEL } from "../lib/bands.js";
+import { decode } from "../lib/device-codes.js";
 import { exInt, exNum, withUnit } from "../lib/format.js";
 import { panelBorder } from "../lib/theme.js";
 
@@ -150,6 +151,20 @@ export function BandedValue({
   sx,
 }) {
   const unknown = band === "unknown";
+  /* An unknown band and an absent value are two different things, and this
+     component used to collapse them into the same em dash.
+
+     Caught on the first real telemetry: a gateway reporting 239.92 V seventeen
+     hours ago rendered as "—". The band suppression was right — §2 forbids
+     painting a stale reading — but deleting the number threw away the only
+     measurement on the row. An engineer needs to read "239.92 V, 17 h old, not
+     judgeable"; a dash tells them the meter said nothing, which is false.
+
+     §2's own band table already specified this: unknown is "de-emphasised to
+     text/tertiary, plus the reason", not replaced. So the dash is now reserved
+     for a genuinely absent value — a failed read, where the parser nulls the
+     measurements because the meter really did not answer. */
+  const absent = value === null || value === undefined || Number.isNaN(Number(value));
   return (
     <Box
       sx={{
@@ -175,10 +190,101 @@ export function BandedValue({
               ? t.palette.band[band].fg
               : t.palette.text.primary,
           fontWeight: band === "critical" || band === "warning" ? 600 : undefined,
+          // A value we are showing but explicitly not standing behind reads as
+          // provisional, not as a measurement in good standing.
+          fontStyle: unknown && !absent ? "italic" : undefined,
         })}
       >
-        {unknown ? "—" : withUnit(dp > 0 ? exNum(value, dp) : exInt(value), unit)}
+        {absent ? "—" : withUnit(dp > 0 ? exNum(value, dp) : exInt(value), unit)}
       </Typography>
+      {info}
+    </Box>
+  );
+}
+
+/* ── CodeValue ────────────────────────────────────────────────────────────
+   A raw status code, rendered as the word it means — with the code kept beside
+   it, not replaced by it.
+
+   The source DMS prints `Backup Status: 1` and expects the reader to know. This
+   renders `1 · On backup`, so the column is readable at a glance AND still
+   traceable to the payload an engineer is diffing against. Dropping the number
+   would make the screen prettier and the debugging harder.
+
+   Three states worth distinguishing, because they are three different problems:
+     · known + verified    — the word, quietly banded
+     · known + unverified  — the word, plus a dotted underline saying "our
+                             reading of an undocumented enum" (Q4)
+     · unknown code        — "Code 7", banded `unknown`, because firmware
+                             emitting an undocumented state is a finding        */
+
+export function CodeValue({ set, value, showRaw = true, info, sx }) {
+  const d = decode(set, value);
+
+  if (d.missing) {
+    return (
+      <Typography component="span" variant="body2" sx={{ color: "text.tertiary", ...sx }}>
+        —
+      </Typography>
+    );
+  }
+
+  const tone =
+    { critical: "danger", warning: "warning", watch: "neutral", normal: "neutral", unknown: "neutral" }[
+      d.band
+    ] ?? "neutral";
+
+  // An undocumented code is not a status to paint — it is a question. It states
+  // itself plainly and takes the `unknown` treatment, never a confident colour.
+  if (!d.known) {
+    return (
+      <Tooltip title={d.reason ?? "Not a documented value for this field."}>
+        <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, ...sx }}>
+          <Typography
+            component="span"
+            variant="body2"
+            dir="ltr"
+            sx={{ color: "text.tertiary", fontStyle: "italic", cursor: "help", unicodeBidi: "isolate" }}
+          >
+            {d.label}
+          </Typography>
+          {info}
+        </Box>
+      </Tooltip>
+    );
+  }
+
+  const label = showRaw ? `${value} · ${d.label}` : d.label;
+
+  return (
+    <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, minWidth: 0, ...sx }}>
+      {d.band === "normal" || d.band === "watch" ? (
+        <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.625, minWidth: 0 }}>
+          {d.band === "watch" && <BandDot band="watch" />}
+          <Typography
+            component="span"
+            variant="body2"
+            dir="ltr"
+            sx={(t) => ({
+              color: d.band === "watch" ? t.palette.text.primary : t.palette.text.secondary,
+              whiteSpace: "nowrap",
+              unicodeBidi: "isolate",
+              // An unverified meaning is marked at the point of use, so no
+              // reader has to remember which columns are guesses.
+              ...(d.verified === false && {
+                textDecoration: "underline dotted",
+                textUnderlineOffset: 3,
+                textDecorationColor: t.palette.text.tertiary,
+                cursor: "help",
+              }),
+            })}
+          >
+            {label}
+          </Typography>
+        </Box>
+      ) : (
+        <StatusChip label={label} tone={tone} icon={<BandDot band={d.band} />} />
+      )}
       {info}
     </Box>
   );
