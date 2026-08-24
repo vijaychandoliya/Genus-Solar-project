@@ -479,12 +479,14 @@ overlap. **[V from the repo]**
 |---|---|---|
 | Button, Input, Tabs (`tab`), Dialog, Drawer, Tooltip, Card (`panel`), Table (`tableRow`), Badge (`statusChip`) | ✅ | Already contracted with `$pairs` |
 | `kpiTile`, `navItem`, `bandChip`, `freshnessChip`, `pageHeader`, `emptyState`, `codeValue` | ✅ | Product-specific — **no design system defines these**, so they are always `fallback` |
-| **Select, Checkbox, Radio, Switch, Menu, Alert, Progress, Pagination** | ❌ | **8 gaps.** Currently inherit raw MUI defaults and are **unaudited**. (Navigation is covered by `navItem`) |
+| **Alert, Menu, Checkbox** | ✅ **contracted** | Were unaudited; now contracted **and wired**. Contracting the checkbox found a live defect in 9 of 18 scheme/mode combinations |
+| **Select, Radio, Switch, Progress, Pagination** | — | **Rendered nowhere in the product.** Deliberately not contracted: `contracts.json` covers pairs the product *actually renders*, and speculative rows would be coverage theatre |
 
-> **This is a finding, not a footnote. [V, High]** Eight of the brief's components have no
-> canonical contract today, which means they have no `$pairs`, which means they are
-> **unchecked** — and unchecked reads exactly like compliant. Contracting them is a
-> prerequisite for this project, not a consequence of it.
+> **This was a finding, and checking it corrected the proposal. [V, High]** The first
+> draft said eight components were uncontracted. Grepping the repo says only **three are
+> rendered at all** — Select, Radio, Switch, Progress and Pagination appear in no file.
+> The three that do render (Alert, Menu, Checkbox) are now contracted and wired, and
+> contracting the checkbox found a defect that had been shipping unmeasured. **Done.**
 
 Every component declares the same shape:
 
@@ -765,7 +767,7 @@ Six phases. **Nothing is rewritten from scratch.**
 | **P6 · Cross-system validation** | Nightly full matrix; `adapter-report.mjs`; compatibility UI | — | ~20k |
 
 **P1 and P2 are worth doing even if this project stops there** — they pay for themselves
-by contracting eight currently-unaudited components and by separating "what the tokens
+by contracting the rendered-but-unaudited components and by separating "what the tokens
 say" from "how MUI is built".
 
 **P3 is the gate.** Without CSS-variable transport, only MUI-shaped systems work and the
@@ -818,7 +820,7 @@ supported" UI path to exist from day one rather than being retrofitted.
 | R5 | **Upstream drift.** Eight vendored token sets rot | **Medium** | Vendor `raw.json` with `extractedOn`; adapter semver independent of upstream; refresh is a reviewable diff |
 | R6 | **P3 (CSS vars) is a real migration** — 183 call sites | **Medium** | Staged; `cssVariables: true` bridge means both work during transition |
 | R7 | **`map()` never gets cheaper.** No shared leverage across role-named systems | **Medium** | Be honest in planning: positional systems are days, role-named are weeks |
-| R8 | **Eight uncontracted components** are unaudited today and would ship that way | **Medium** | P1 contracts them **before** any adapter |
+| R8 | ~~Uncontracted components unaudited~~ | **Closed** | Alert, Menu and Checkbox contracted and wired. The other five render nowhere |
 | R9 | **Approximation fatigue** — enough `approximate` labels and users stop reading them | **Low** | Coverage percentage per adapter, surfaced once, not per token |
 | R10 | Adapter authors define away failures via exemptions | **Low** | `contracts.json` is not adapter-writable. Already enforced |
 
@@ -836,13 +838,13 @@ supported" UI path to exist from day one rather than being retrofitted.
 ## 16. Implementation checklist
 
 **Phase 1 — canonical contract**
-- [ ] `contract.d.ts` from §3; `Provenanced<T>` + `Confidence`
-- [ ] **Contract the 8 missing components** with `$pairs` — Select, Checkbox, Radio, Switch, Menu, Alert, Progress, Pagination
-- [ ] Re-baseline `EXPECTED_DEFECTS` (it will move — those components have never been scored)
-- [ ] `capabilities.js` + `validate.js` + `derive.js`
+- [x] `contract.d.ts` from §3; `Provenanced<T>` + `Confidence`
+- [x] **Contract the rendered-but-unaudited components** — Alert, Menu, Checkbox (the other five render nowhere)
+- [x] Re-baseline `EXPECTED_DEFECTS` — moved 125 → 134; contract 129 → 145 pairs
+- [x] `capabilities.js` + `validate.js`  ·  [ ] `derive.js`
 
 **Phase 2 — MUI adapter**
-- [ ] `adapters/standard/` as the identity adapter (empty patch, all capabilities true)
+- [x] `adapters/standard/` as the identity adapter (empty patch)
 - [ ] `getTheme()` reduced to canonical → MUI
 - [ ] Gate green, zero visual change — **prove it with a screenshot diff**
 
@@ -852,7 +854,7 @@ supported" UI path to exist from day one rather than being retrofitted.
 - [ ] Measure switch cost: target no React commit
 
 **Phase 4 — first adapters**
-- [ ] `registry.js` + `_template/`
+- [x] `registry.js`  ·  [ ] `_template/`
 - [ ] shadcn smoke test — end to end, capabilities mostly `false`, "Not supported" UI path exists
 - [ ] **Primer** — all four methods, vendored `raw.json`, `LICENCE.md`, mapping table
 - [ ] `adapter-report.mjs` — coverage, unmapped counts, confidence histogram
