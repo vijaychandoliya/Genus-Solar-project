@@ -173,6 +173,67 @@ export function resolveSlot(ref, type, mode, ctx) {
     : { value, problem: null };
 }
 
+/**
+ * Tier 3, both modes, against ONE given semantic map.
+ *
+ * Split out of `resolveTokens` so the identical code can run again per scheme.
+ * It is HANDED a semantic map rather than reading one, because "which semantic
+ * map" turned out to be the variable that was missing: the inline version read
+ * the base map, in which `action/primary/rest` dereferences the fixed `blue`
+ * family, so every component slot was pinned to blue in all nine schemes.
+ */
+export function buildComponents(defs, ctx) {
+  const { semantic, scales, type, primitives, contrastOn, onBrand } = ctx;
+  const problems = [];
+  const components = { light: {}, dark: {} };
+
+  const slotCtx = (mode, where) => ({ semantic, scales, type, primitives, where, contrastOn, onBrand });
+
+  /** Resolve a flat `{ slot: spec }` bag for one mode. */
+  const resolveBag = (bag, mode, where) => {
+    const out = {};
+    for (const [slot, spec] of Object.entries(bag ?? {})) {
+      if (slot.startsWith("$")) continue;
+      // `$darkValue` exists for the one honest case: a slot whose alias has to
+      // change by mode because the token it points at collapses. See kpiTile's
+      // border, where border/subtle and surface/raised are the same hex in dark.
+      const ref = mode === "dark" && spec.$darkValue !== undefined ? spec.$darkValue : spec.$value;
+      const { value, problem } = resolveSlot(ref, spec.$type, mode, slotCtx(mode, `${where}.${slot}`));
+      if (problem) problems.push(problem);
+      out[slot] = value;
+    }
+    return out;
+  };
+
+  for (const [id, def] of Object.entries(defs ?? {})) {
+    if (id.startsWith("$")) continue;
+
+    for (const mode of MODES) {
+      // Base slots stay FLAT on the component so `t.component.kpiTile.padding`
+      // reads directly. Variants and states nest under `variants`, because a
+      // button's fill is not one value — it is one per variant per state, and
+      // flattening that would lose the thing this layer exists to express.
+      const out = resolveBag({ ...def, ...(def.$base ?? {}) }, mode, `components.${id}`);
+      const variants = {};
+
+      for (const [vid, vdef] of Object.entries(def.$variants ?? {})) {
+        if (vid.startsWith("$")) continue;
+        const states = {};
+        for (const [sid, sdef] of Object.entries(vdef.$states ?? {})) {
+          if (sid.startsWith("$")) continue;
+          states[sid] = resolveBag(sdef, mode, `components.${id}.${vid}.${sid}`);
+        }
+        variants[vid] = { label: vdef.$label ?? vid, states };
+      }
+
+      if (Object.keys(variants).length) out.variants = variants;
+      components[mode][id] = out;
+    }
+  }
+
+  return { components, problems };
+}
+
 /* ── the resolver ─────────────────────────────────────────────────────────── */
 
 /**
@@ -235,11 +296,31 @@ export function resolveTokens(src, overrides = {}) {
         exact: ring.exact,
         min: 3,
       });
+      // The brand as an INDICATOR rather than a fill — an active nav icon, a
+      // selected border. `action/primary/rest` was doing both jobs, and they have
+      // different requirements: as a fill it only has to carry its own label, but
+      // as an indicator it needs 3:1 against the surface behind it, and Sunset's
+      // orange-500 is 2.96:1 on white. Derived the same way the focus ring is,
+      // against the same hardest surface, because it is the same requirement.
+      const ind = stepClearing(ramp, RING_ORDER[mode], AGAINST[mode], 3);
+      derivations.push({
+        kind: "indicator",
+        what: `${id}/${mode} brand indicator`,
+        fill: AGAINST[mode],
+        fg: ramp[ind.step],
+        step: ind.step,
+        defaultStep: String(FILL_STEPS[mode][0]),
+        ratio: ind.ratio,
+        exact: ind.exact,
+        min: 3,
+      });
+
       node[mode] = {
         rest: ramp[rest],
         hover: ramp[hover],
         pressed: ramp[pressed],
         focus: ramp[ring.step],
+        indicator: ramp[ind.step],
         onBrand: label(ramp[rest], `${id}/${mode} primary label`),
       };
     }
@@ -272,61 +353,25 @@ export function resolveTokens(src, overrides = {}) {
      Component slots, resolved per mode because their colour slots alias
      semantic roles and those differ by mode. Dimensions resolve identically in
      both, which is harmless and keeps one lookup shape for consumers.        */
-  const scales = { space: spacing, radius, motion, layout };
-  const components = { light: {}, dark: {} };
-  const componentDefs = {};
+  const componentDefs = Object.fromEntries(
+    Object.entries(source.components ?? {}).filter(([id]) => !id.startsWith("$")),
+  );
 
-    // Component slots resolve AFTER the derivations above, so `{derive:…}` can see
-  // them. `onBrand` is taken from the DEFAULT scheme: a component token cannot be
-  // per-scheme, and the audit re-derives per scheme anyway.
-  const slotCtx = (mode, where) => ({
-    semantic, scales, type: source.type, primitives: P, where,
+  // Resolved here against the DEFAULT scheme, which is a no-op: the default
+  // scheme's ramp IS the blue family the base semantic map already points at, so
+  // `resolved.components` keeps exactly the values it had before. Every OTHER
+  // scheme now re-resolves through `componentsFor()` instead of silently reusing
+  // these — see that function for what went wrong when it did not.
+  const tier3 = buildComponents(componentDefs, {
+    semantic,
+    scales: { space: spacing, radius, motion, layout },
+    type: source.type,
+    primitives: P,
     contrastOn,
     onBrand: { light: schemes.default?.light?.onBrand, dark: schemes.default?.dark?.onBrand },
   });
-
-  /** Resolve a flat `{ slot: spec }` bag for one mode. */
-  const resolveBag = (bag, mode, where) => {
-    const out = {};
-    for (const [slot, spec] of Object.entries(bag ?? {})) {
-      if (slot.startsWith("$")) continue;
-      // `$darkValue` exists for the one honest case: a slot whose alias has to
-      // change by mode because the token it points at collapses. See kpiTile's
-      // border, where border/subtle and surface/raised are the same hex in dark.
-      const ref = mode === "dark" && spec.$darkValue !== undefined ? spec.$darkValue : spec.$value;
-      const { value, problem } = resolveSlot(ref, spec.$type, mode, slotCtx(mode, `${where}.${slot}`));
-      if (problem) problems.push(problem);
-      out[slot] = value;
-    }
-    return out;
-  };
-
-  for (const [id, def] of Object.entries(source.components ?? {})) {
-    if (id.startsWith("$")) continue;
-    componentDefs[id] = def;
-
-    for (const mode of MODES) {
-      // Base slots stay FLAT on the component so `t.component.kpiTile.padding`
-      // reads directly. Variants and states nest under `variants`, because a
-      // button's fill is not one value — it is one per variant per state, and
-      // flattening that would lose the thing this layer exists to express.
-      const out = resolveBag({ ...def, ...(def.$base ?? {}) }, mode, `components.${id}`);
-      const variants = {};
-
-      for (const [vid, vdef] of Object.entries(def.$variants ?? {})) {
-        if (vid.startsWith("$")) continue;
-        const states = {};
-        for (const [sid, sdef] of Object.entries(vdef.$states ?? {})) {
-          if (sid.startsWith("$")) continue;
-          states[sid] = resolveBag(sdef, mode, `components.${id}.${vid}.${sid}`);
-        }
-        variants[vid] = { label: vdef.$label ?? vid, states };
-      }
-
-      if (Object.keys(variants).length) out.variants = variants;
-      components[mode][id] = out;
-    }
-  }
+  const components = tier3.components;
+  problems.push(...tier3.problems);
 
   return {
     source,
@@ -379,21 +424,92 @@ export const fontStyles = (type) =>
   );
 
 /** The bundle `getTheme()` consumes, built from a resolved document. */
+/**
+ * The semantic map a scheme actually PAINTS.
+ *
+ * The base map dereferences the fixed `blue` family for the four brand roles; a
+ * scheme swaps in its own ramp. This is now the one definition of that rule. It
+ * used to be written out by hand in `getTheme` and again in `paletteFor` — and,
+ * critically, nowhere at all for tier 3, which is the defect this closes.
+ */
+export function semanticFor(bundle, schemeId, mode) {
+  const sch = (bundle.schemes[schemeId] ?? bundle.schemes.default)[mode];
+  return {
+    ...bundle.semantic[mode],
+    "action/primary/rest": sch.rest,
+    "action/primary/hover": sch.hover,
+    "action/primary/pressed": sch.pressed,
+    "action/primary/indicator": sch.indicator,
+    "focus/ring": sch.focus,
+  };
+}
+
+/* Keyed on the bundle object, so a new draft invalidates the whole cache for
+   free — the editor builds a fresh bundle per edit, and a stale component tree
+   surviving an edit is precisely the bug class this file exists to avoid. */
+const COMPONENT_MEMO = new WeakMap();
+
+/**
+ * Tier 3 for one scheme and mode.
+ *
+ * `resolved.components` is the DEFAULT scheme only. `getTheme` and `paletteFor`
+ * both used to read it directly for whatever scheme was active, which pinned all
+ * 292 slots to blue: in Sunset a contained button was orange and the outlined
+ * button beside it was blue, and the audit scored the blue. Re-resolving against
+ * `semanticFor()` is what makes the component layer describe what is painted.
+ *
+ * Memoised per (bundle, scheme) because the theme rebuilds on every mode, scheme
+ * and font change, and 292 slots × 2 modes is worth doing once.
+ */
+export function componentsFor(bundle, schemeId = "default", mode = "light") {
+  // A bundle emitted before componentDefs existed. Degrade to the default-scheme
+  // tree rather than blanking every component — wrong hue beats no UI.
+  if (!bundle.componentDefs) return bundle.components?.[mode] ?? {};
+
+  let byKey = COMPONENT_MEMO.get(bundle);
+  if (!byKey) {
+    byKey = new Map();
+    COMPONENT_MEMO.set(bundle, byKey);
+  }
+  const key = `${schemeId}/${mode}`;
+  if (byKey.has(key)) return byKey.get(key);
+
+  const sch = bundle.schemes[schemeId] ?? bundle.schemes.default;
+  const { components } = buildComponents(bundle.componentDefs, {
+    semantic: {
+      light: semanticFor(bundle, schemeId, "light"),
+      dark: semanticFor(bundle, schemeId, "dark"),
+    },
+    scales: { space: bundle.spacing, radius: bundle.radius, motion: bundle.motion, layout: bundle.layout },
+    type: bundle.type,
+    primitives: bundle.primitives,
+    contrastOn: bundle.contrastOn,
+    onBrand: { light: sch.light?.onBrand, dark: sch.dark?.onBrand },
+  });
+
+  // Both modes come out of one pass; cache both rather than repeating the work.
+  byKey.set(`${schemeId}/light`, components.light);
+  byKey.set(`${schemeId}/dark`, components.dark);
+  return components[mode];
+}
+
 export const themeBundle = (r) => ({
   primitives: r.primitives,
   semantic: r.semantic,
   components: r.components,
+  componentDefs: r.componentDefs,
   type: r.type,
   radius: r.radius,
   motion: r.motion,
   spacing: r.spacing,
+  layout: r.layout,
   font: fontStyles(r.type),
   schemes: r.schemes,
   fonts: r.fonts,
   contrastOn: r.contrastOn,
 });
 
-export const EXPECTED_SEMANTIC = 28;
+export const EXPECTED_SEMANTIC = 29;
 
 /**
  * Components src/lib/theme.js reads by name, with the slots it reads.

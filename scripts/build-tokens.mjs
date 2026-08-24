@@ -36,7 +36,7 @@ const BANNER = `/**
 const varName = (path) => `--genus-${path.replace(/\//g, "-")}`;
 
 const R = resolveTokens(src);
-const { flat: prims, semantic, contrastOn, derivations, components } = R;
+const { flat: prims, semantic, contrastOn, derivations, components, componentDefs } = R;
 const light = semantic.light;
 const dark = semantic.dark;
 
@@ -188,6 +188,15 @@ export const contrastOn = ${j(contrastOn)};
  * scripts/figma-tokens.json for the reference syntax and the tier rule.
  */
 export const components = ${j(components)};
+
+/**
+ * The RAW tier-3 definitions, still holding their \`{sem:…}\` references.
+ * \`components\` above is these resolved against the DEFAULT scheme; every other
+ * scheme re-resolves from here via \`componentsFor()\`, because a slot aliasing
+ * \`action/primary/rest\` has a different value in every scheme and baking one
+ * copy pinned them all to blue.
+ */
+export const componentDefs = ${j(componentDefs)};
 
 /** Body-face presets. The ramp itself never changes — only the family. */
 export const fonts = ${j(

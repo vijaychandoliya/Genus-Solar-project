@@ -23,7 +23,10 @@ import {
   fonts,
   contrastOn,
   components,
+  componentDefs,
+  layout,
 } from "./tokens.js";
+import { semanticFor, componentsFor } from "./token-resolve.js";
 
 /* ── type ramp → MUI variants ─────────────────────────────────────────────
    The Figma ramp is the authority: 10/12/14/16/18/20/28/32/56 at weights
@@ -86,7 +89,8 @@ function bandPalette(s, primitives) {
  * token editor is purely additive.
  */
 const DEFAULT_TOKENS = {
-  primitives, semantic, type, radius, motion, spacing, font, schemes, fonts, contrastOn, components,
+  primitives, semantic, type, radius, motion, spacing, layout, font, schemes, fonts, contrastOn,
+  components, componentDefs,
 };
 
 /**
@@ -108,13 +112,7 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
   // text, borders and the status ramps are identical in every scheme, so no
   // preset can break contrast or restyle a warning.
   const sch = (schemes[scheme] ?? schemes.default)[dark ? "dark" : "light"];
-  const s = {
-    ...base,
-    "action/primary/rest": sch.rest,
-    "action/primary/hover": sch.hover,
-    "action/primary/pressed": sch.pressed,
-    "focus/ring": sch.focus,
-  };
+  const s = semanticFor(T, scheme, dark ? "dark" : "light");
 
   // Derived label colours for the fills a scheme does not change. `sch.onBrand`
   // covers the brand fill, which does change per scheme.
@@ -122,7 +120,12 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
 
   // Tier 3, for this mode. Read by the MuiButton/MuiChip overrides below and
   // exposed on the theme root as `component` for custom components.
-  const comp = components[dark ? "dark" : "light"];
+  // Re-resolved for THIS scheme. Reading `components[mode]` here pinned every
+  // component slot to the default scheme's blue — outlined buttons, text buttons,
+  // active nav rows and selected tabs stayed blue in all nine schemes.
+  const comp = componentsFor(T, scheme, dark ? "dark" : "light");
+  const outlined = comp.button.variants.outlined.states;
+  const textBtn = comp.button.variants.text.states;
 
   const family = (fonts[fontId] ?? fonts.inter).stack;
 
@@ -290,6 +293,36 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
             fontWeight: comp.button.labelType.weight,
             lineHeight: `${comp.button.labelType.lineHeight}px`,
             textTransform: "none",
+
+            // Outlined and text had NO override, so they fell through to MUI's
+            // defaults — whose outline is alpha(primary.main, .5), about 1.9:1 on
+            // white in Sunset: a border you cannot see. Driving them from tier 3
+            // is also what makes the token document TRUE, which is the whole
+            // point of the tier: it names a border colour for these states, and
+            // the product was painting a different one.
+            //
+            // Written as class selectors rather than `styleOverrides.variants`
+            // because MUI v9 does not apply that form here — verified in the
+            // browser, not assumed. The doubled class raises specificity above
+            // MUI's own variant styles, which is what makes it stick.
+            "&.MuiButton-outlined.MuiButton-colorPrimary": {
+              color: outlined.rest.fg,
+              borderColor: outlined.rest.border,
+              "&:hover": { borderColor: outlined.hover.border, backgroundColor: outlined.hover.bg },
+              "&:active": {
+                color: outlined.pressed.fg,
+                borderColor: outlined.pressed.border,
+                backgroundColor: outlined.pressed.bg,
+              },
+              "&.Mui-focusVisible": { borderColor: outlined.focus.border },
+              "&.Mui-disabled": { color: outlined.disabled.fg, borderColor: outlined.disabled.border },
+            },
+            "&.MuiButton-text.MuiButton-colorPrimary": {
+              color: textBtn.rest.fg,
+              "&:hover": { backgroundColor: textBtn.hover.bg },
+              "&:active": { color: textBtn.pressed.fg, backgroundColor: textBtn.pressed.bg },
+              "&.Mui-disabled": { color: textBtn.disabled.fg },
+            },
           },
           sizeSmall: { minHeight: 28, ...font["label/m"] },
           containedPrimary: {
@@ -302,6 +335,7 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
             "&:hover": { backgroundColor: s["action/accent/hover"] },
             "&:active": { backgroundColor: s["action/accent/pressed"] },
           },
+
         },
       },
 

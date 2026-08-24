@@ -146,6 +146,7 @@
   --genus-action-primary-rest: #0467b2;
   --genus-action-primary-hover: #2a7fc1;
   --genus-action-primary-pressed: #00517d;
+  --genus-action-primary-indicator: #0467b2;
   --genus-action-accent-rest: #ee7304;
   --genus-action-accent-hover: #d96a00;
   --genus-action-accent-pressed: #ad5600;
@@ -178,6 +179,7 @@
   --genus-action-primary-rest: #5598d0;
   --genus-action-primary-hover: #80b2df;
   --genus-action-primary-pressed: #aacbed;
+  --genus-action-primary-indicator: #5598d0;
   --genus-action-accent-rest: #f28e36;
   --genus-action-accent-hover: #f6aa68;
   --genus-action-accent-pressed: #f9c69a;
@@ -212,6 +214,7 @@
     --genus-action-primary-rest: #5598d0;
     --genus-action-primary-hover: #80b2df;
     --genus-action-primary-pressed: #aacbed;
+    --genus-action-primary-indicator: #5598d0;
     --genus-action-accent-rest: #f28e36;
     --genus-action-accent-hover: #f6aa68;
     --genus-action-accent-pressed: #f9c69a;

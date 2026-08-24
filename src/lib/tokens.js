@@ -94,6 +94,7 @@ export const semantic = {
   "action/primary/rest": "#0467b2",
   "action/primary/hover": "#2a7fc1",
   "action/primary/pressed": "#00517d",
+  "action/primary/indicator": "#0467b2",
   "action/accent/rest": "#ee7304",
   "action/accent/hover": "#d96a00",
   "action/accent/pressed": "#ad5600",
@@ -124,6 +125,7 @@ export const semantic = {
   "action/primary/rest": "#5598d0",
   "action/primary/hover": "#80b2df",
   "action/primary/pressed": "#aacbed",
+  "action/primary/indicator": "#5598d0",
   "action/accent/rest": "#f28e36",
   "action/accent/hover": "#f6aa68",
   "action/accent/pressed": "#f9c69a",
@@ -235,6 +237,7 @@ export const schemes = {
       "hover": "#2a7fc1",
       "pressed": "#00517d",
       "focus": "#0467b2",
+      "indicator": "#0467b2",
       "onBrand": "#ffffff"
     },
     "dark": {
@@ -242,6 +245,7 @@ export const schemes = {
       "hover": "#80b2df",
       "pressed": "#aacbed",
       "focus": "#80b2df",
+      "indicator": "#80b2df",
       "onBrand": "#141414"
     }
   },
@@ -254,6 +258,7 @@ export const schemes = {
       "hover": "#d96a00",
       "pressed": "#ad5600",
       "focus": "#d96a00",
+      "indicator": "#d96a00",
       "onBrand": "#141414"
     },
     "dark": {
@@ -261,6 +266,7 @@ export const schemes = {
       "hover": "#f6aa68",
       "pressed": "#f9c69a",
       "focus": "#f6aa68",
+      "indicator": "#f6aa68",
       "onBrand": "#141414"
     }
   },
@@ -273,6 +279,7 @@ export const schemes = {
       "hover": "#214bf3",
       "pressed": "#0c34d4",
       "focus": "#4c6ef5",
+      "indicator": "#4c6ef5",
       "onBrand": "#000000"
     },
     "dark": {
@@ -280,6 +287,7 @@ export const schemes = {
       "hover": "#b6c4fb",
       "pressed": "#ebeffe",
       "focus": "#b6c4fb",
+      "indicator": "#b6c4fb",
       "onBrand": "#141414"
     }
   },
@@ -292,6 +300,7 @@ export const schemes = {
       "hover": "#6115e4",
       "pressed": "#4d11b6",
       "focus": "#7c3aed",
+      "indicator": "#7c3aed",
       "onBrand": "#ffffff"
     },
     "dark": {
@@ -299,6 +308,7 @@ export const schemes = {
       "hover": "#c0a1f6",
       "pressed": "#e3d4fb",
       "focus": "#c0a1f6",
+      "indicator": "#c0a1f6",
       "onBrand": "#141414"
     }
   },
@@ -311,6 +321,7 @@ export const schemes = {
       "hover": "#316f3d",
       "pressed": "#214c2a",
       "focus": "#3f8f4f",
+      "indicator": "#3f8f4f",
       "onBrand": "#141414"
     },
     "dark": {
@@ -318,6 +329,7 @@ export const schemes = {
       "hover": "#7ac489",
       "pressed": "#a1d5ab",
       "focus": "#7ac489",
+      "indicator": "#7ac489",
       "onBrand": "#141414"
     }
   },
@@ -330,6 +342,7 @@ export const schemes = {
       "hover": "#4752cc",
       "pressed": "#313baf",
       "focus": "#6b74d6",
+      "indicator": "#6b74d6",
       "onBrand": "#000000"
     },
     "dark": {
@@ -337,6 +350,7 @@ export const schemes = {
       "hover": "#c3c7ee",
       "pressed": "#eff0fb",
       "focus": "#c3c7ee",
+      "indicator": "#c3c7ee",
       "onBrand": "#141414"
     }
   },
@@ -349,6 +363,7 @@ export const schemes = {
       "hover": "#247b7b",
       "pressed": "#195353",
       "focus": "#247b7b",
+      "indicator": "#247b7b",
       "onBrand": "#141414"
     },
     "dark": {
@@ -356,6 +371,7 @@ export const schemes = {
       "hover": "#6ad3d3",
       "pressed": "#96e0e0",
       "focus": "#6ad3d3",
+      "indicator": "#6ad3d3",
       "onBrand": "#141414"
     }
   },
@@ -368,6 +384,7 @@ export const schemes = {
       "hover": "#23714c",
       "pressed": "#174a32",
       "focus": "#2e9464",
+      "indicator": "#2e9464",
       "onBrand": "#141414"
     },
     "dark": {
@@ -375,6 +392,7 @@ export const schemes = {
       "hover": "#64cf9c",
       "pressed": "#8edcb7",
       "focus": "#64cf9c",
+      "indicator": "#64cf9c",
       "onBrand": "#141414"
     }
   },
@@ -387,6 +405,7 @@ export const schemes = {
       "hover": "#315b5f",
       "pressed": "#203b3d",
       "focus": "#41787d",
+      "indicator": "#41787d",
       "onBrand": "#ffffff"
     },
     "dark": {
@@ -394,6 +413,7 @@ export const schemes = {
       "hover": "#76b2b8",
       "pressed": "#9bc7cb",
       "focus": "#76b2b8",
+      "indicator": "#76b2b8",
       "onBrand": "#141414"
     }
   }
@@ -1726,6 +1746,1670 @@ export const components = {
       "valueColor": "#ffffff",
       "rawColor": "#a3a3a3"
     }
+  }
+};
+
+/**
+ * The RAW tier-3 definitions, still holding their `{sem:…}` references.
+ * `components` above is these resolved against the DEFAULT scheme; every other
+ * scheme re-resolves from here via `componentsFor()`, because a slot aliasing
+ * `action/primary/rest` has a different value in every scheme and baking one
+ * copy pinned them all to blue.
+ */
+export const componentDefs = {
+  "kpiTile": {
+    "$label": "KPI tile",
+    "$note": "The dashboard metric card. Six sit side by side, so its padding and min-height set the rhythm of every overview screen.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/raised}",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "{sem:border/subtle}",
+        "$type": "color",
+        "$darkValue": "{sem:border/default}",
+        "$note": "border/subtle and surface/raised are the SAME hex in dark mode — a 1.00:1 edge. Hence the dark override; see AGENTS.md §1."
+      },
+      "radius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "padding": {
+        "$value": "{space:4}",
+        "$type": "dimension"
+      },
+      "gap": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "minHeight": {
+        "$value": 160,
+        "$type": "dimension"
+      },
+      "labelColor": {
+        "$value": "{sem:text/secondary}",
+        "$type": "color"
+      },
+      "labelType": {
+        "$value": "{type:label/m}",
+        "$type": "typography"
+      },
+      "valueColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "valueType": {
+        "$value": "{type:title/l}",
+        "$type": "typography"
+      },
+      "unsetColor": {
+        "$value": "{sem:text/tertiary}",
+        "$type": "color",
+        "$note": "A value the platform cannot state. Italic in this colour, never a plausible zero."
+      },
+      "iconSize": {
+        "$value": 28,
+        "$type": "dimension"
+      },
+      "iconRadius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "iconGlyph": {
+        "$value": 20,
+        "$type": "dimension"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "labelColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "label/m"
+      },
+      {
+        "fg": "valueColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "title/l"
+      },
+      {
+        "fg": "unsetColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "title/l"
+      },
+      {
+        "fg": "border",
+        "bg": "background",
+        "kind": "decorative"
+      }
+    ]
+  },
+  "panel": {
+    "$label": "Panel",
+    "$note": "The standard bordered section. Every table and chart in the product sits in one.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/raised}",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "{sem:border/subtle}",
+        "$type": "color",
+        "$darkValue": "{sem:border/default}"
+      },
+      "radius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "headerPadding": {
+        "$value": "{space:4}",
+        "$type": "dimension"
+      },
+      "bodyPadding": {
+        "$value": "{space:4}",
+        "$type": "dimension"
+      },
+      "titleColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "titleType": {
+        "$value": "{type:title/m}",
+        "$type": "typography"
+      },
+      "noteColor": {
+        "$value": "{sem:text/secondary}",
+        "$type": "color"
+      },
+      "noteType": {
+        "$value": "{type:body/s}",
+        "$type": "typography"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "titleColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "title/m"
+      },
+      {
+        "fg": "noteColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "body/s"
+      },
+      {
+        "fg": "border",
+        "bg": "background",
+        "kind": "decorative"
+      }
+    ]
+  },
+  "button": {
+    "$label": "Button",
+    "$note": "Five variants, five states each. The contained variants' label is DERIVED per fill (AGENTS.md §1a) — the `fg` slots below record what that derivation currently produces, so the audit can score them.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:control}",
+        "$type": "dimension"
+      },
+      "minHeight": {
+        "$value": 32,
+        "$type": "dimension"
+      },
+      "minHeightSmall": {
+        "$value": 28,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:label/l}",
+        "$type": "typography"
+      },
+      "labelTypeSmall": {
+        "$value": "{type:label/m}",
+        "$type": "typography"
+      },
+      "borderWidth": {
+        "$value": 1,
+        "$type": "dimension"
+      },
+      "gap": {
+        "$value": "{space:1}",
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "contained": {
+        "$label": "Contained · primary",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:onBrand}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{sem:action/primary/hover}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:onBrand}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "$knownDefect": {
+              "note": "The contained label is derived from the REST fill, but hover and pressed are different fills — and in light mode the ramp spans the luminance point where the required foreground flips. One label cannot serve all three. Same root cause as §0.6; fixing it means changing the light-mode interaction ramp.",
+              "owner": "design-system",
+              "decision": "token-engine-architecture.md §5.3"
+            }
+          },
+          "pressed": {
+            "bg": {
+              "$value": "{sem:action/primary/pressed}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:onBrand}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "$knownDefect": {
+              "note": "The contained label is derived from the REST fill, but hover and pressed are different fills — and in light mode the ramp spans the luminance point where the required foreground flips. One label cannot serve all three. Same root cause as §0.6; fixing it means changing the light-mode interaction ramp.",
+              "owner": "design-system",
+              "decision": "token-engine-architecture.md §5.3"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:onBrand}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        }
+      },
+      "containedSecondary": {
+        "$label": "Contained · accent",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:action/accent/rest}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:accent}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{sem:action/accent/hover}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:accent}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "$knownDefect": {
+              "note": "The contained label is derived from the REST fill, but hover and pressed are different fills — and in light mode the ramp spans the luminance point where the required foreground flips. One label cannot serve all three. Same root cause as §0.6; fixing it means changing the light-mode interaction ramp.",
+              "owner": "design-system",
+              "decision": "token-engine-architecture.md §5.3"
+            }
+          },
+          "pressed": {
+            "bg": {
+              "$value": "{sem:action/accent/pressed}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:accent}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "$knownDefect": {
+              "note": "The contained label is derived from the REST fill, but hover and pressed are different fills — and in light mode the ramp spans the luminance point where the required foreground flips. One label cannot serve all three. Same root cause as §0.6; fixing it means changing the light-mode interaction ramp.",
+              "owner": "design-system",
+              "decision": "token-engine-architecture.md §5.3"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:action/accent/rest}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{derive:accent}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        }
+      },
+      "outlined": {
+        "$label": "Outlined",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/strong}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,6}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:action/primary/indicator}",
+              "$type": "color"
+            }
+          },
+          "pressed": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,12}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/pressed}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:action/primary/pressed}",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:action/primary/indicator}",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          }
+        },
+        "$knownDefect": {
+          "note": "THE BRAND COLOUR USED AS 14px TEXT. In dark mode action/primary/rest is ramp[400], chosen so the brand works as a FILL and as a 3:1 non-text indicator. As a label it needs 4.5:1 and delivers 4.08:1 on surface/raised — so every outlined button, text button, active nav row and selected tab label is non-compliant in dark mode, in all nine schemes. 81 instances, one cause. The fix mirrors what focus/ring already does: derive a separate brand-as-text step, the first clearing 4.5:1 against the hardest surface (blue-300 gives 5.63:1). That changes shipped colour, so it needs sign-off.",
+          "owner": "design-system",
+          "decision": "token-engine-architecture.md §5.6 — the fill/indicator split, now three roles: fill, indicator, text"
+        }
+      },
+      "text": {
+        "$label": "Text · ghost",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,6}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "pressed": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,12}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/pressed}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        },
+        "$knownDefect": {
+          "note": "THE BRAND COLOUR USED AS 14px TEXT. In dark mode action/primary/rest is ramp[400], chosen so the brand works as a FILL and as a 3:1 non-text indicator. As a label it needs 4.5:1 and delivers 4.08:1 on surface/raised — so every outlined button, text button, active nav row and selected tab label is non-compliant in dark mode, in all nine schemes. 81 instances, one cause. The fix mirrors what focus/ring already does: derive a separate brand-as-text step, the first clearing 4.5:1 against the hardest surface (blue-300 gives 5.63:1). That changes shipped colour, so it needs sign-off.",
+          "owner": "design-system",
+          "decision": "token-engine-architecture.md §5.6 — the fill/indicator split, now three roles: fill, indicator, text"
+        }
+      },
+      "danger": {
+        "$label": "Danger",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:status/danger/foreground,surface/raised,12}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            }
+          },
+          "pressed": {
+            "bg": {
+              "$value": "{mix:status/danger/foreground,surface/raised,20}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$borderRole": "control",
+    "$borderNote": "An outlined button's edge is the only thing identifying it — SC 1.4.11 applies. Uses border/strong, not border/default: default is 1.69:1 against the fill and cannot be seen."
+  },
+  "input": {
+    "$label": "Input",
+    "$note": "Outlined text field. Five states, and `error` is a state rather than a variant because it is transient.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:control}",
+        "$type": "dimension"
+      },
+      "minHeight": {
+        "$value": 32,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      },
+      "paddingBlock": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "valueType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "labelType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "borderWidth": {
+        "$value": 1,
+        "$type": "dimension"
+      },
+      "borderWidthActive": {
+        "$value": 2,
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "outlined": {
+        "$label": "Outlined",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/strong}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/strong}",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "error": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$borderRole": "control",
+    "$borderNote": "A field's boundary is what says 'you may type here'. SC 1.4.11 applies. Uses border/strong for the same reason."
+  },
+  "navItem": {
+    "$label": "Nav item",
+    "$note": "Sidebar row. `active` uses a brand tint over the rail surface — declared as a mix so its contrast is judgeable.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:control}",
+        "$type": "dimension"
+      },
+      "minHeight": {
+        "$value": 38,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "labelTypeActive": {
+        "$value": "{type:label/l}",
+        "$type": "typography"
+      },
+      "iconSize": {
+        "$value": 20,
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "rail": {
+        "$label": "Rail",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:text/primary,surface/raised,6}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "active": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,9}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          }
+        },
+        "$knownDefect": {
+          "note": "THE BRAND COLOUR USED AS 14px TEXT. In dark mode action/primary/rest is ramp[400], chosen so the brand works as a FILL and as a 3:1 non-text indicator. As a label it needs 4.5:1 and delivers 4.08:1 on surface/raised — so every outlined button, text button, active nav row and selected tab label is non-compliant in dark mode, in all nine schemes. 81 instances, one cause. The fix mirrors what focus/ring already does: derive a separate brand-as-text step, the first clearing 4.5:1 against the hardest surface (blue-300 gives 5.63:1). That changes shipped colour, so it needs sign-off.",
+          "owner": "design-system",
+          "decision": "token-engine-architecture.md §5.6 — the fill/indicator split, now three roles: fill, indicator, text"
+        }
+      },
+      "child": {
+        "$label": "Child row",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "active": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,7}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        },
+        "$knownDefect": {
+          "note": "THE BRAND COLOUR USED AS 14px TEXT. In dark mode action/primary/rest is ramp[400], chosen so the brand works as a FILL and as a 3:1 non-text indicator. As a label it needs 4.5:1 and delivers 4.08:1 on surface/raised — so every outlined button, text button, active nav row and selected tab label is non-compliant in dark mode, in all nine schemes. 81 instances, one cause. The fix mirrors what focus/ring already does: derive a separate brand-as-text step, the first clearing 4.5:1 against the hardest surface (blue-300 gives 5.63:1). That changes shipped colour, so it needs sign-off.",
+          "owner": "design-system",
+          "decision": "token-engine-architecture.md §5.6 — the fill/indicator split, now three roles: fill, indicator, text"
+        }
+      }
+    },
+    "$borderRole": "decorative",
+    "$borderNote": "Nav rows carry no edge; selection is a tint plus weight."
+  },
+  "tableRow": {
+    "$label": "Table row",
+    "$note": "Grid rows. Density comes from `layout.row*`; these are the paint states.",
+    "$base": {
+      "rowCondensed": {
+        "$value": "{layout:rowCondensed}",
+        "$type": "dimension"
+      },
+      "rowRegular": {
+        "$value": "{layout:rowRegular}",
+        "$type": "dimension"
+      },
+      "rowRelaxed": {
+        "$value": "{layout:rowRelaxed}",
+        "$type": "dimension"
+      },
+      "cellPaddingInline": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      },
+      "cellType": {
+        "$value": "{type:body/s}",
+        "$type": "typography"
+      },
+      "borderColor": {
+        "$value": "{sem:border/subtle}",
+        "$type": "color"
+      }
+    },
+    "$variants": {
+      "body": {
+        "$label": "Body row",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:text/primary,surface/raised,4}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          },
+          "selected": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,9}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          }
+        }
+      },
+      "header": {
+        "$label": "Header row",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/tertiary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/subtle}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$pairs": [],
+    "$borderRole": "decorative",
+    "$borderNote": "Row rules are separators, not control boundaries."
+  },
+  "tab": {
+    "$label": "Tab",
+    "$note": "Tab bar. `selected` carries both a colour and the indicator, so colour is never the only signal.",
+    "$base": {
+      "minHeight": {
+        "$value": 40,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:label/l}",
+        "$type": "typography"
+      },
+      "indicatorHeight": {
+        "$value": 2,
+        "$type": "dimension"
+      },
+      "indicatorColor": {
+        "$value": "{sem:action/primary/rest}",
+        "$type": "color"
+      }
+    },
+    "$variants": {
+      "underline": {
+        "$label": "Underline",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:text/primary,surface/raised,5}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "selected": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        },
+        "$knownDefect": {
+          "note": "THE BRAND COLOUR USED AS 14px TEXT. In dark mode action/primary/rest is ramp[400], chosen so the brand works as a FILL and as a 3:1 non-text indicator. As a label it needs 4.5:1 and delivers 4.08:1 on surface/raised — so every outlined button, text button, active nav row and selected tab label is non-compliant in dark mode, in all nine schemes. 81 instances, one cause. The fix mirrors what focus/ring already does: derive a separate brand-as-text step, the first clearing 4.5:1 against the hardest surface (blue-300 gives 5.63:1). That changes shipped colour, so it needs sign-off.",
+          "owner": "design-system",
+          "decision": "token-engine-architecture.md §5.6 — the fill/indicator split, now three roles: fill, indicator, text"
+        }
+      }
+    },
+    "$borderRole": "decorative",
+    "$borderNote": "The selected tab is identified by its indicator and label colour, not by an edge."
+  },
+  "statusChip": {
+    "$label": "Status chip",
+    "$note": "Five tones. Colour is never the only signal — each chip carries a word, and the band ones an icon too.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:pill}",
+        "$type": "dimension"
+      },
+      "height": {
+        "$value": 22,
+        "$type": "dimension"
+      },
+      "heightLarge": {
+        "$value": 26,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:label/m}",
+        "$type": "typography"
+      },
+      "gap": {
+        "$value": "{space:1}",
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "tone": {
+        "$label": "Tones",
+        "$states": {
+          "neutral": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "good": {
+            "bg": {
+              "$value": "{sem:status/success/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/success/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "info": {
+            "bg": {
+              "$value": "{sem:status/info/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/info/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "warning": {
+            "bg": {
+              "$value": "{sem:status/warning/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/warning/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "danger": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$borderRole": "decorative",
+    "$borderNote": "Chips are identified by fill and word, never by an outline."
+  },
+  "bandChip": {
+    "$label": "Band chip",
+    "$note": "The band system's five states. `normal` is intentionally colourless — emphasis is zero-sum, and a grid where every cell is tinted has no exceptions left to notice (AGENTS.md §2).",
+    "$base": {
+      "radius": {
+        "$value": "{radius:pill}",
+        "$type": "dimension"
+      },
+      "height": {
+        "$value": 22,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:label/m}",
+        "$type": "typography"
+      },
+      "dotSize": {
+        "$value": 8,
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "band": {
+        "$label": "Bands",
+        "$states": {
+          "normal": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "watch": {
+            "bg": {
+              "$value": "transparent",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "warning": {
+            "bg": {
+              "$value": "{sem:status/warning/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/warning/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "critical": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "unknown": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/tertiary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$borderRole": "decorative",
+    "$borderNote": "As statusChip."
+  },
+  "freshnessChip": {
+    "$label": "Freshness chip",
+    "$note": "How old a reading is. Four states, because 'stale' and 'offline' are different facts.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:pill}",
+        "$type": "dimension"
+      },
+      "height": {
+        "$value": 20,
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:label/s}",
+        "$type": "typography"
+      }
+    },
+    "$variants": {
+      "age": {
+        "$label": "Age",
+        "$states": {
+          "live": {
+            "bg": {
+              "$value": "{sem:status/success/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/success/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "recent": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/secondary}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "stale": {
+            "bg": {
+              "$value": "{sem:status/warning/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/warning/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          },
+          "offline": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "transparent",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    "$borderRole": "decorative",
+    "$borderNote": "As statusChip."
+  },
+  "dialog": {
+    "$label": "Dialog",
+    "$note": "Modal surface. Sits on `surface/overlay`, which is a distinct role from `raised` on purpose.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/overlay}",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "padding": {
+        "$value": "{space:5}",
+        "$type": "dimension"
+      },
+      "titleType": {
+        "$value": "{type:title/l}",
+        "$type": "typography"
+      },
+      "titleColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "bodyType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "bodyColor": {
+        "$value": "{sem:text/secondary}",
+        "$type": "color"
+      },
+      "scrimOpacity": {
+        "$value": 50,
+        "$type": "dimension"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "titleColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "title/l"
+      },
+      {
+        "fg": "bodyColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "body/m"
+      }
+    ]
+  },
+  "tooltip": {
+    "$label": "Tooltip",
+    "$note": "Deliberately inverted — a tooltip that matches its surroundings reads as part of the page.",
+    "$base": {
+      "background": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "foreground": {
+        "$value": "{sem:surface/canvas}",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "{radius:control}",
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "paddingBlock": {
+        "$value": "{space:1}",
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:body/s}",
+        "$type": "typography"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "foreground",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "body/s"
+      }
+    ]
+  },
+  "drawer": {
+    "$label": "Drawer",
+    "$note": "The navigation rail's own surface.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/raised}",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "{sem:border/subtle}",
+        "$type": "color",
+        "$darkValue": "{sem:border/default}"
+      },
+      "width": {
+        "$value": "{layout:drawerWidth}",
+        "$type": "dimension"
+      },
+      "miniWidth": {
+        "$value": "{layout:miniWidth}",
+        "$type": "dimension"
+      },
+      "padding": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "border",
+        "bg": "background",
+        "kind": "decorative"
+      }
+    ]
+  },
+  "pageHeader": {
+    "$label": "Page header",
+    "$note": "Owns the single h1. Panel titles are h2 inside PanelHeader.",
+    "$base": {
+      "titleType": {
+        "$value": "{type:heading/3}",
+        "$type": "typography"
+      },
+      "titleColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "subtitleType": {
+        "$value": "{type:body/l}",
+        "$type": "typography"
+      },
+      "subtitleColor": {
+        "$value": "{sem:text/secondary}",
+        "$type": "color"
+      },
+      "crumbType": {
+        "$value": "{type:body/s}",
+        "$type": "typography"
+      },
+      "crumbColor": {
+        "$value": "{sem:text/tertiary}",
+        "$type": "color"
+      },
+      "gap": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "titleColor",
+        "bg": "@surface",
+        "kind": "text",
+        "typeToken": "heading/3"
+      },
+      {
+        "fg": "subtitleColor",
+        "bg": "@surface",
+        "kind": "text",
+        "typeToken": "body/l"
+      },
+      {
+        "fg": "crumbColor",
+        "bg": "@surface",
+        "kind": "text",
+        "typeToken": "body/s"
+      }
+    ]
+  },
+  "emptyState": {
+    "$label": "Empty state",
+    "$note": "Four different nothings need four different sentences — the title names the condition.",
+    "$base": {
+      "minHeight": {
+        "$value": 180,
+        "$type": "dimension"
+      },
+      "padding": {
+        "$value": "{space:5}",
+        "$type": "dimension"
+      },
+      "gap": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      },
+      "titleType": {
+        "$value": "{type:title/m}",
+        "$type": "typography"
+      },
+      "titleColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "bodyType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "bodyColor": {
+        "$value": "{sem:text/secondary}",
+        "$type": "color"
+      },
+      "iconSize": {
+        "$value": 28,
+        "$type": "dimension"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "titleColor",
+        "bg": "@surface",
+        "kind": "text",
+        "typeToken": "title/m"
+      },
+      {
+        "fg": "bodyColor",
+        "bg": "@surface",
+        "kind": "text",
+        "typeToken": "body/m"
+      }
+    ]
+  },
+  "codeValue": {
+    "$label": "Code value",
+    "$note": "Raw device codes. Monospaced so a technician can read a hex register without transcription errors.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/subtle}",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "{radius:control}",
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:1}",
+        "$type": "dimension"
+      },
+      "valueType": {
+        "$value": "{type:data/mono}",
+        "$type": "typography"
+      },
+      "valueColor": {
+        "$value": "{sem:text/primary}",
+        "$type": "color"
+      },
+      "rawColor": {
+        "$value": "{sem:text/tertiary}",
+        "$type": "color"
+      }
+    },
+    "$pairs": [
+      {
+        "fg": "valueColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "data/mono"
+      },
+      {
+        "fg": "rawColor",
+        "bg": "background",
+        "kind": "text",
+        "typeToken": "data/mono"
+      }
+    ]
   }
 };
 

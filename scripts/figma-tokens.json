@@ -136,6 +136,10 @@
       "light": "blue.700",
       "dark": "blue.200"
     },
+    "action/primary/indicator": {
+      "light": "blue.500",
+      "dark": "blue.400"
+    },
     "action/accent/rest": {
       "light": "orange.500",
       "dark": "orange.400"
@@ -775,7 +779,7 @@
                 "$type": "color"
               },
               "border": {
-                "$value": "{sem:action/primary/rest}",
+                "$value": "{sem:action/primary/indicator}",
                 "$type": "color"
               }
             },
@@ -803,7 +807,7 @@
                 "$type": "color"
               },
               "border": {
-                "$value": "{sem:action/primary/rest}",
+                "$value": "{sem:action/primary/indicator}",
                 "$type": "color"
               },
               "ring": {
