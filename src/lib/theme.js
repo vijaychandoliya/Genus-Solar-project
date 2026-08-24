@@ -127,6 +127,9 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
   const comp = componentsFor(T, scheme, dark ? "dark" : "light");
   const outlined = comp.button.variants.outlined.states;
   const textBtn = comp.button.variants.text.states;
+  const alertTone = comp.alert.variants.tone.states;
+  const checkbox = comp.checkbox.variants.box.states;
+  const menuItem = comp.menu.variants.item.states;
 
   const family = (fonts[fontId] ?? fonts.inter).stack;
 
@@ -366,7 +369,86 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
         },
       },
       MuiInputLabel: { styleOverrides: { root: { ...font["body/m"] } } },
-      MuiMenuItem: { styleOverrides: { root: { ...font["body/m"], minHeight: 32 } } },
+      // TIER 3 — Components → Menu. Item backgrounds are stated rather than left
+      // transparent so the audit scores them against the OVERLAY they sit on.
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: comp.menu.background,
+            borderRadius: comp.menu.radius,
+            border: `1px solid ${comp.menu.borderColor}`,
+            paddingBlock: comp.menu.paddingBlock,
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            fontSize: comp.menu.itemType.size,
+            fontWeight: comp.menu.itemType.weight,
+            lineHeight: `${comp.menu.itemType.lineHeight}px`,
+            minHeight: comp.menu.itemMinHeight,
+            paddingInline: comp.menu.itemPaddingInline,
+            color: menuItem.rest.fg,
+            "&:hover": { backgroundColor: menuItem.hover.bg, color: menuItem.hover.fg },
+            "&.Mui-focusVisible": { outline: `2px solid ${menuItem.focus.ring}`, outlineOffset: -2 },
+            "&.Mui-disabled": { color: menuItem.disabled.fg, opacity: 1 },
+          },
+        },
+      },
+
+      // TIER 3 — Components → Alert. MUI v9 emits `MuiAlert-colorX`, NOT
+      // `outlinedX` — confirmed in the DOM, because v9 does not apply
+      // styleOverrides.variants here either. Guessing the slot name would have
+      // produced an override that silently never applied.
+      MuiAlert: {
+        defaultProps: { variant: "outlined" },
+        styleOverrides: {
+          root: {
+            borderRadius: comp.alert.radius,
+            paddingInline: comp.alert.paddingInline,
+            paddingBlock: comp.alert.paddingBlock,
+            borderWidth: comp.alert.borderWidth,
+            fontSize: comp.alert.labelType.size,
+            lineHeight: `${comp.alert.labelType.lineHeight}px`,
+            gap: comp.alert.gap,
+            ...Object.fromEntries(
+              [["Success", "good"], ["Info", "info"], ["Warning", "warning"], ["Error", "danger"]].map(
+                ([muiName, tone]) => [
+                  `&.MuiAlert-color${muiName}`,
+                  {
+                    backgroundColor: alertTone[tone].bg,
+                    color: alertTone[tone].fg,
+                    borderColor: alertTone[tone].border,
+                    "& .MuiAlert-icon": { color: alertTone[tone].fg },
+                  },
+                ],
+              ),
+            ),
+          },
+        },
+      },
+
+      // TIER 3 — Components → Checkbox. `color` drives the SVG: the stroke when
+      // unchecked, the FILL when checked. The tick is negative space and takes
+      // the colour behind the control, which is why the token says surface and
+      // not a derived label — see the component's $note.
+      MuiCheckbox: {
+        styleOverrides: {
+          root: {
+            color: checkbox.rest.border,
+            borderRadius: comp.checkbox.radius,
+            "&:hover": { backgroundColor: checkbox.hover.bg },
+            "&.Mui-checked": { color: checkbox.selected.bg },
+            "&.Mui-disabled": { color: checkbox.disabled.border },
+            "&.Mui-focusVisible": {
+              outline: `2px solid ${checkbox.focus.ring}`,
+              outlineOffset: -2,
+            },
+            "& .MuiSvgIcon-root": { fontSize: comp.checkbox.size + 4 },
+          },
+        },
+      },
       MuiSelect: { styleOverrides: { select: { ...font["body/m"] } } },
 
       MuiChip: {

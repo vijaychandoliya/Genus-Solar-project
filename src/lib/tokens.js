@@ -1034,6 +1034,44 @@ export const components = {
         "tracking": 0
       }
     },
+    "menu": {
+      "background": "#ffffff",
+      "radius": 8,
+      "borderColor": "#e0e0e0",
+      "paddingBlock": 4,
+      "itemType": {
+        "size": 14,
+        "weight": 400,
+        "lineHeight": 20,
+        "tracking": 0
+      },
+      "itemMinHeight": 32,
+      "itemPaddingInline": 12,
+      "variants": {
+        "item": {
+          "label": "Item",
+          "states": {
+            "rest": {
+              "bg": "#ffffff",
+              "fg": "#141414"
+            },
+            "hover": {
+              "bg": "#f1f1f1",
+              "fg": "#141414"
+            },
+            "focus": {
+              "bg": "#ffffff",
+              "fg": "#141414",
+              "ring": "#0467b2"
+            },
+            "disabled": {
+              "bg": "#ffffff",
+              "fg": "#a3a3a3"
+            }
+          }
+        }
+      }
+    },
     "drawer": {
       "background": "#ffffff",
       "border": "#e0e0e0",
@@ -1097,6 +1135,80 @@ export const components = {
       },
       "valueColor": "#141414",
       "rawColor": "#616161"
+    },
+    "alert": {
+      "radius": 8,
+      "paddingInline": 16,
+      "paddingBlock": 12,
+      "borderWidth": 1,
+      "labelType": {
+        "size": 14,
+        "weight": 400,
+        "lineHeight": 20,
+        "tracking": 0
+      },
+      "gap": 8,
+      "variants": {
+        "tone": {
+          "label": "Severities",
+          "states": {
+            "good": {
+              "bg": "#dff6dd",
+              "fg": "#0b6a0b",
+              "border": "#0b6a0b"
+            },
+            "info": {
+              "bg": "#deecf9",
+              "fg": "#005ba1",
+              "border": "#005ba1"
+            },
+            "warning": {
+              "bg": "#fff4ce",
+              "fg": "#8a3707",
+              "border": "#8a3707"
+            },
+            "danger": {
+              "bg": "#fde7e9",
+              "fg": "#a4262c",
+              "border": "#a4262c"
+            }
+          }
+        }
+      }
+    },
+    "checkbox": {
+      "size": 18,
+      "radius": 2,
+      "borderWidth": 1.5,
+      "variants": {
+        "box": {
+          "label": "Box",
+          "states": {
+            "rest": {
+              "bg": "#ffffff",
+              "border": "#808080"
+            },
+            "hover": {
+              "bg": "#f0f6fa",
+              "border": "#0467b2"
+            },
+            "selected": {
+              "bg": "#0467b2",
+              "fg": "#ffffff"
+            },
+            "focus": {
+              "bg": "#ffffff",
+              "border": "#0467b2",
+              "ring": "#0467b2"
+            },
+            "disabled": {
+              "bg": "#f0f0f0",
+              "fg": "#a3a3a3",
+              "border": "#c7c7c7"
+            }
+          }
+        }
+      }
     }
   },
   "dark": {
@@ -1682,6 +1794,44 @@ export const components = {
         "tracking": 0
       }
     },
+    "menu": {
+      "background": "#242424",
+      "radius": 8,
+      "borderColor": "#333333",
+      "paddingBlock": 4,
+      "itemType": {
+        "size": 14,
+        "weight": 400,
+        "lineHeight": 20,
+        "tracking": 0
+      },
+      "itemMinHeight": 32,
+      "itemPaddingInline": 12,
+      "variants": {
+        "item": {
+          "label": "Item",
+          "states": {
+            "rest": {
+              "bg": "#242424",
+              "fg": "#ffffff"
+            },
+            "hover": {
+              "bg": "#313131",
+              "fg": "#ffffff"
+            },
+            "focus": {
+              "bg": "#242424",
+              "fg": "#ffffff",
+              "ring": "#80b2df"
+            },
+            "disabled": {
+              "bg": "#242424",
+              "fg": "#616161"
+            }
+          }
+        }
+      }
+    },
     "drawer": {
       "background": "#333333",
       "border": "#474747",
@@ -1745,6 +1895,80 @@ export const components = {
       },
       "valueColor": "#ffffff",
       "rawColor": "#a3a3a3"
+    },
+    "alert": {
+      "radius": 8,
+      "paddingInline": 16,
+      "paddingBlock": 12,
+      "borderWidth": 1,
+      "labelType": {
+        "size": 14,
+        "weight": 400,
+        "lineHeight": 20,
+        "tracking": 0
+      },
+      "gap": 8,
+      "variants": {
+        "tone": {
+          "label": "Severities",
+          "states": {
+            "good": {
+              "bg": "#0b6a0b",
+              "fg": "#dff6dd",
+              "border": "#dff6dd"
+            },
+            "info": {
+              "bg": "#005ba1",
+              "fg": "#deecf9",
+              "border": "#deecf9"
+            },
+            "warning": {
+              "bg": "#8a3707",
+              "fg": "#fff4ce",
+              "border": "#fff4ce"
+            },
+            "danger": {
+              "bg": "#a4262c",
+              "fg": "#fde7e9",
+              "border": "#fde7e9"
+            }
+          }
+        }
+      }
+    },
+    "checkbox": {
+      "size": 18,
+      "radius": 2,
+      "borderWidth": 1.5,
+      "variants": {
+        "box": {
+          "label": "Box",
+          "states": {
+            "rest": {
+              "bg": "#333333",
+              "border": "#a3a3a3"
+            },
+            "hover": {
+              "bg": "#35393c",
+              "border": "#5598d0"
+            },
+            "selected": {
+              "bg": "#5598d0",
+              "fg": "#333333"
+            },
+            "focus": {
+              "bg": "#333333",
+              "border": "#80b2df",
+              "ring": "#80b2df"
+            },
+            "disabled": {
+              "bg": "#333333",
+              "fg": "#616161",
+              "border": "#474747"
+            }
+          }
+        }
+      }
     }
   }
 };
@@ -3227,6 +3451,91 @@ export const componentDefs = {
       }
     ]
   },
+  "menu": {
+    "$label": "Menu",
+    "$note": "Popover surface. Sits on surface/overlay, like dialog and tooltip. Item backgrounds are stated explicitly rather than left transparent so the audit scores them against the OVERLAY they actually sit on — `transparent` resolves to @behind, which is surface/raised, and would measure the wrong backdrop. No `selected` state is declared because nothing in the product renders one; inventing it would put an unscored pair in the contract wearing the look of coverage.",
+    "$base": {
+      "background": {
+        "$value": "{sem:surface/overlay}",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "borderColor": {
+        "$value": "{sem:border/subtle}",
+        "$type": "color"
+      },
+      "paddingBlock": {
+        "$value": "{space:1}",
+        "$type": "dimension"
+      },
+      "itemType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "itemMinHeight": {
+        "$value": 32,
+        "$type": "dimension"
+      },
+      "itemPaddingInline": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "item": {
+        "$label": "Item",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/overlay}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:text/primary,surface/overlay,6}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:surface/overlay}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/primary}",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/overlay}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    }
+  },
   "drawer": {
     "$label": "Drawer",
     "$note": "The navigation rail's own surface.",
@@ -3410,6 +3719,188 @@ export const componentDefs = {
         "typeToken": "data/mono"
       }
     ]
+  },
+  "alert": {
+    "$label": "Alert",
+    "$note": "Outlined banner, four severities. The BORDER is deliberately not declared a control edge: MUI's Alert always renders a severity icon beside the text, so the colour is redundant signal rather than the only one, and demanding 3:1 of it would buy nothing a reader can use. The text pair is what carries the meaning and is what gets scored.",
+    "$base": {
+      "radius": {
+        "$value": "{radius:surface}",
+        "$type": "dimension"
+      },
+      "paddingInline": {
+        "$value": "{space:4}",
+        "$type": "dimension"
+      },
+      "paddingBlock": {
+        "$value": "{space:3}",
+        "$type": "dimension"
+      },
+      "borderWidth": {
+        "$value": 1,
+        "$type": "dimension"
+      },
+      "labelType": {
+        "$value": "{type:body/m}",
+        "$type": "typography"
+      },
+      "gap": {
+        "$value": "{space:2}",
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "tone": {
+        "$label": "Severities",
+        "$states": {
+          "good": {
+            "bg": {
+              "$value": "{sem:status/success/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/success/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/success/foreground}",
+              "$type": "color"
+            }
+          },
+          "info": {
+            "bg": {
+              "$value": "{sem:status/info/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/info/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/info/foreground}",
+              "$type": "color"
+            }
+          },
+          "warning": {
+            "bg": {
+              "$value": "{sem:status/warning/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/warning/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/warning/foreground}",
+              "$type": "color"
+            }
+          },
+          "danger": {
+            "bg": {
+              "$value": "{sem:status/danger/background}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:status/danger/foreground}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checkbox": {
+    "$label": "Checkbox",
+    "$note": "MUI renders the checkbox as an SVG whose `color` drives the stroke when unchecked and the FILL when checked — and in the checked icon the tick is NEGATIVE SPACE, so it shows whatever sits behind the control rather than a colour we choose. That is why `fg` on the selected state is surface/raised and not {derive:onBrand}: the token has to name the colour the product actually paints, and a derived label here would describe an icon MUI does not draw.",
+    "$borderRole": "control",
+    "$base": {
+      "size": {
+        "$value": 18,
+        "$type": "dimension"
+      },
+      "radius": {
+        "$value": "{radius:sharp}",
+        "$type": "dimension"
+      },
+      "borderWidth": {
+        "$value": 1.5,
+        "$type": "dimension"
+      }
+    },
+    "$variants": {
+      "box": {
+        "$label": "Box",
+        "$states": {
+          "rest": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/strong}",
+              "$type": "color"
+            }
+          },
+          "hover": {
+            "bg": {
+              "$value": "{mix:action/primary/rest,surface/raised,6}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:action/primary/indicator}",
+              "$type": "color"
+            }
+          },
+          "selected": {
+            "bg": {
+              "$value": "{sem:action/primary/rest}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "$knownDefect": {
+              "note": "The tick in MUI's checked icon is NEGATIVE SPACE — a cut-out in a single filled path — so it renders as whatever sits behind the control and cannot be given a derived colour. Against the brand fill that lands between 2.96:1 (Sunset) and 4.32:1 (Indigo) in 8 of 18 scheme/mode combinations. Same family as the 113 brand-as-text rows: a light foreground on the brand step at small size. Darkening the fill does not fix it — Sunset's pressed step fails against white AND near-black. The fix is a custom `checkedIcon` whose tick is a real path taking {derive:onBrand}, which is app code, not a token change. Found by contracting the component; it has been rendering this way unmeasured.",
+              "owner": "design-system",
+              "decision": "docs/design-system-adapters.md — P1 component contracting"
+            }
+          },
+          "focus": {
+            "bg": {
+              "$value": "{sem:surface/raised}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            },
+            "ring": {
+              "$value": "{sem:focus/ring}",
+              "$type": "color"
+            }
+          },
+          "disabled": {
+            "bg": {
+              "$value": "{sem:surface/subtle}",
+              "$type": "color"
+            },
+            "fg": {
+              "$value": "{sem:text/disabled}",
+              "$type": "color"
+            },
+            "border": {
+              "$value": "{sem:border/default}",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    }
   }
 };
 
