@@ -56,17 +56,28 @@ export const DEFAULT_REPORT_INTERVAL_MS: Record<DeviceClass, number> = {
 export const effectiveIntervalMs = (device: Device): number =>
   device.reportIntervalMs ?? DEFAULT_REPORT_INTERVAL_MS[device.deviceClass];
 
-/** Which expected nameplate fields are absent. */
+/** An empty string counts as MISSING, not present — carried over from the
+ *  original, and it matters: the payloads send "" for an unpopulated field. */
+const isBlank = (v: unknown): boolean => v === undefined || v === null || v === "";
+
+/** Which expected nameplate fields are absent. The actionable half of the figure. */
 export function missingNameplate(device: Device): readonly string[] {
-  return NAMEPLATE_FIELDS[device.deviceClass].filter(
-    (field) => device.nameplate[field] === undefined || device.nameplate[field] === null,
-  );
+  return NAMEPLATE_FIELDS[device.deviceClass].filter((field) => isBlank(device.nameplate[field]));
 }
 
-/** 0–1. How much of the expected nameplate this device actually carries. */
-export function nameplateCompleteness(device: Device): number {
+/**
+ * 0–1, or `null` when the class declares no expected nameplate at all.
+ *
+ * `null` is NOT zero. A class with no schema is unmeasurable, and scoring it 0
+ * would put "we never defined what this device should report" in the same column
+ * as "this device reported nothing" — the same distinction AGENTS.md keeps
+ * between `unknown` and `normal`. The original returned 0–100; the domain keeps
+ * a fraction and the VIEW MODEL renders the percentage, which is the whole point
+ * of having both.
+ */
+export function nameplateCompleteness(device: Device): number | null {
   const expected = NAMEPLATE_FIELDS[device.deviceClass];
-  if (expected.length === 0) return 1;
+  if (expected.length === 0) return null;
   return (expected.length - missingNameplate(device).length) / expected.length;
 }
 
@@ -88,34 +99,31 @@ export function freshness(device: Device, now: Date = new Date()): Freshness {
 }
 
 /* ── view model ───────────────────────────────────────────────────────────
-   A DeviceRow is what a TABLE needs, which is not what the domain is: it is
-   flat, pre-derived and sorted-friendly. Keeping it separate stops derived
-   fields leaking into the domain model, where they would have to be recomputed
-   or kept stale on every write.                                             */
+   A DeviceRow is the domain entity PLUS the things a table cannot compute for
+   itself — completeness, what is missing, freshness. Keeping the derivations
+   out of `Device` matters: a domain model that carried them would have to
+   recompute them on every write or serve them stale, and `freshness` is a
+   function of the CURRENT TIME, which no stored entity can honestly hold.    */
 
-export interface DeviceRow {
-  readonly id: string;
-  readonly name: string;
-  readonly deviceClass: DeviceClass;
-  readonly siteId: string;
-  readonly enabled: boolean;
-  readonly lastSeenAt: Date | null;
-  readonly completeness: number;
+export interface DeviceRow extends Device {
+  /** 0–1, or null when unmeasurable. */
+  readonly completeness: number | null;
+  /** 0–100 for display. Null propagates — never rendered as 0%. */
+  readonly completenessPct: number | null;
   readonly missing: readonly string[];
   readonly freshness: Freshness;
 }
 
-export const toDeviceRow = (device: Device, now?: Date): DeviceRow => ({
-  id: device.id,
-  name: device.name,
-  deviceClass: device.deviceClass,
-  siteId: device.siteId,
-  enabled: device.enabled,
-  lastSeenAt: device.lastSeenAt,
-  completeness: nameplateCompleteness(device),
-  missing: missingNameplate(device),
-  freshness: freshness(device, now),
-});
+export const toDeviceRow = (device: Device, now?: Date): DeviceRow => {
+  const completeness = nameplateCompleteness(device);
+  return {
+    ...device,
+    completeness,
+    completenessPct: completeness === null ? null : completeness * 100,
+    missing: missingNameplate(device),
+    freshness: freshness(device, now),
+  };
+};
 
 export const toDeviceRows = (devices: readonly Device[], now?: Date): DeviceRow[] =>
   devices.map((device) => toDeviceRow(device, now));

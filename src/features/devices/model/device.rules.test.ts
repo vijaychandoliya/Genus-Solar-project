@@ -5,13 +5,14 @@
  * used to be welded to the fake data in src/lib/device-data.js.
  */
 import { describe, it, expect } from "vitest";
-import { nameplateCompleteness, missingNameplate, freshness, effectiveIntervalMs, DEFAULT_REPORT_INTERVAL_MS } from "./device.rules.js";
+import { nameplateCompleteness, missingNameplate, freshness, effectiveIntervalMs, toDeviceRow, DEFAULT_REPORT_INTERVAL_MS } from "./device.rules.js";
 import type { Device, DeviceClass, Nameplate } from "./device.model.js";
 
 const device = (over: Partial<Device> = {}): Device => ({
   id: "D1", name: "Test", deviceClass: "gti", systemType: null, siteId: "S1",
   circleId: null, districtId: null, dealer: null, consumerRef: null, enabled: true,
   lastSeenAt: null, reportIntervalMs: null, intervalIsDeclared: false, nameplate: {},
+  latestPayload: null,
   ...over,
 });
 
@@ -40,8 +41,11 @@ describe("nameplateCompleteness", () => {
     expect(nameplateCompleteness(device({ deviceClass: "gti", nameplate: bmsPlate }))).toBe(0);
   });
 
-  it("treats an explicit null as missing, not as present", () => {
+  it("treats null AND empty string as missing, not as present", () => {
     expect(missingNameplate(device({ nameplate: { ...GTI_FULL, rated_kw: null } }))).toContain("rated_kw");
+    // The payloads send "" for an unpopulated field; counting that as present
+    // would inflate every completeness figure on the screen.
+    expect(missingNameplate(device({ nameplate: { ...GTI_FULL, meter_firmware: "" } }))).toContain("meter_firmware");
   });
 });
 
@@ -86,5 +90,19 @@ describe("freshness", () => {
 describe("every device class has an expected nameplate", () => {
   it.each(["gti", "bms", "ups", "meter"] as DeviceClass[])("%s", (cls) => {
     expect(nameplateCompleteness(device({ deviceClass: cls, nameplate: {} }))).toBe(0);
+  });
+});
+
+describe("the view model", () => {
+  it("renders a percentage while the domain keeps a fraction", () => {
+    const row = toDeviceRow(device({ nameplate: GTI_FULL }));
+    expect(row.completeness).toBe(1);
+    expect(row.completenessPct).toBe(100);
+  });
+
+  it("propagates null rather than rendering an unmeasurable device as 0%", () => {
+    // Guarded so the test stays honest if a class gains an empty field list.
+    const row = toDeviceRow(device({ nameplate: {} }));
+    expect(row.completenessPct).toBe(row.completeness === null ? null : row.completeness * 100);
   });
 });

@@ -27,6 +27,7 @@ export function toDevice(dto: DeviceApi): Device {
     // silently reclassify healthy devices as stale.
     intervalIsDeclared: dto.report_interval_ms !== null,
     nameplate: dto.nameplate ?? {},
+    latestPayload: dto.latest_payload ?? null,
   };
 }
 
