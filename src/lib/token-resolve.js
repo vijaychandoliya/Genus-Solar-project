@@ -88,7 +88,7 @@ export function primitiveAliases(primitives) {
    prefix says which tier, so the editor knows which picker to offer and the
    resolver can refuse a reference that skips a tier.                        */
 
-export const SLOT_REF = /^\{(sem|space|radius|motion|layout|type|prim|derive):([^}]+)\}$/;
+export const SLOT_REF = /^\{(sem|space|radius|motion|layout|shadow|type|prim|derive):([^}]+)\}$/;
 
 /**
  * A translucent tint, composited to an opaque hex: `{mix:a,b,9}` is 9% of
@@ -165,6 +165,9 @@ export function resolveSlot(ref, type, mode, ctx) {
     radius: () => ctx.scales.radius[key],
     motion: () => ctx.scales.motion[key],
     layout: () => ctx.scales.layout[key],
+    // Per mode, like a colour — the alpha differs, so one value would be wrong
+    // in one of the two.
+    shadow: () => ctx.scales.shadow?.[mode]?.[key],
   }[tier];
 
   const value = lookup?.();
@@ -241,7 +244,7 @@ export function buildComponents(defs, ctx) {
  * the gate consume.
  *
  * Returns `{ source, primitives, flat, semantic:{light,dark}, type, schemes,
- * contrastOn, spacing, radius, motion, layout, derivations, problems }`.
+ * contrastOn, spacing, radius, shadow, motion, layout, derivations, problems }`.
  *
  * `problems` is a LIST, not a throw. The editor has to be able to render an
  * invalid draft — that is how the user sees what is wrong and fixes it. Only the
@@ -349,6 +352,34 @@ export function resolveTokens(src, overrides = {}) {
 
   const { spacing, radius, motion, layout } = source.nonFigma;
 
+  /* Elevation, resolved to a CSS box-shadow string per mode. `darkAlpha` is a
+     declared value rather than a multiplier because a shadow is a shortfall of
+     light: the same alpha that reads on white is invisible on a dark surface, and
+     deriving it would quietly flatten every dark-mode Look. */
+  const shadow = { light: {}, dark: {} };
+  for (const [name, layers] of Object.entries(source.nonFigma.shadow ?? {})) {
+    if (name.startsWith("$")) continue;
+    for (const mode of MODES) {
+      if (!layers.length) {
+        shadow[mode][name] = "none";
+        continue;
+      }
+      shadow[mode][name] = layers
+        .map((l) => {
+          const hex = deref(P, l.color);
+          if (hex === null) {
+            problems.push(`nonFigma.shadow.${name} → unknown primitive "${l.color}"`);
+            return null;
+          }
+          const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+          const a = mode === "dark" ? (l.darkAlpha ?? l.alpha) : l.alpha;
+          return `${l.offsetX}px ${l.offsetY}px ${l.blur}px ${l.spread}px rgba(${r}, ${g}, ${b}, ${a})`;
+        })
+        .filter(Boolean)
+        .join(", ");
+    }
+  }
+
   /* ── tier 3 ─────────────────────────────────────────────────────────────
      Component slots, resolved per mode because their colour slots alias
      semantic roles and those differ by mode. Dimensions resolve identically in
@@ -364,7 +395,7 @@ export function resolveTokens(src, overrides = {}) {
   // these — see that function for what went wrong when it did not.
   const tier3 = buildComponents(componentDefs, {
     semantic,
-    scales: { space: spacing, radius, motion, layout },
+    scales: { space: spacing, radius, motion, layout, shadow },
     type: source.type,
     primitives: P,
     contrastOn,
@@ -387,6 +418,7 @@ export function resolveTokens(src, overrides = {}) {
     fixedFill,
     spacing,
     radius,
+    shadow,
     motion,
     layout,
     derivations,
@@ -480,7 +512,10 @@ export function componentsFor(bundle, schemeId = "default", mode = "light") {
       light: semanticFor(bundle, schemeId, "light"),
       dark: semanticFor(bundle, schemeId, "dark"),
     },
-    scales: { space: bundle.spacing, radius: bundle.radius, motion: bundle.motion, layout: bundle.layout },
+    scales: {
+      space: bundle.spacing, radius: bundle.radius, motion: bundle.motion,
+      layout: bundle.layout, shadow: bundle.shadow,
+    },
     type: bundle.type,
     primitives: bundle.primitives,
     contrastOn: bundle.contrastOn,
@@ -500,6 +535,7 @@ export const themeBundle = (r) => ({
   componentDefs: r.componentDefs,
   type: r.type,
   radius: r.radius,
+  shadow: r.shadow,
   motion: r.motion,
   spacing: r.spacing,
   layout: r.layout,

@@ -354,8 +354,12 @@
       "16": 64
     },
     "radius": {
+      "none": 0,
+      "sharp": 2,
       "control": 4,
       "surface": 8,
+      "large": 12,
+      "xl": 16,
       "pill": 999
     },
     "motion": {
@@ -379,6 +383,55 @@
       "rowCondensed": 40,
       "rowRegular": 48,
       "rowRelaxed": 56
+    },
+    "shadow": {
+      "$note": "Elevation. The product is deliberately FLAT today — MuiPaper defaults to elevation 0 and cards are separated by borders, not shadows — so nothing reads these yet. They exist because a Look cannot differ in DEPTH without them, and depth is the most legible difference after colour. See docs/design-system-presets-research.md section 4.2 and S2.1 of docs/looks-workplan.md.",
+      "$rule": "`darkAlpha` is separate and always higher, never derived. A shadow is a shortfall of light, and on a dark surface the same alpha is invisible — one multiplier would silently make every dark-mode Look flat.",
+      "none": [],
+      "xs": [
+        {
+          "offsetX": 0,
+          "offsetY": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "neutral.950",
+          "alpha": 0.06,
+          "darkAlpha": 0.3
+        }
+      ],
+      "sm": [
+        {
+          "offsetX": 0,
+          "offsetY": 2,
+          "blur": 6,
+          "spread": -1,
+          "color": "neutral.950",
+          "alpha": 0.08,
+          "darkAlpha": 0.36
+        }
+      ],
+      "md": [
+        {
+          "offsetX": 0,
+          "offsetY": 6,
+          "blur": 16,
+          "spread": -4,
+          "color": "neutral.950",
+          "alpha": 0.1,
+          "darkAlpha": 0.44
+        }
+      ],
+      "lg": [
+        {
+          "offsetX": 0,
+          "offsetY": 12,
+          "blur": 32,
+          "spread": -8,
+          "color": "neutral.950",
+          "alpha": 0.14,
+          "darkAlpha": 0.52
+        }
+      ]
     }
   },
   "components": {

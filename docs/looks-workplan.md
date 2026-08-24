@@ -64,7 +64,8 @@ The plan front-loads the first three classes and touches the fourth exactly twic
 P0  Instrument      S0.1 ✅                 ── DONE. Killed S1.1, found S1.0
 P1  Generator       S1.0 ✅  S1.1 ⛔  S1.2 ✅ ── DONE. The audit now measures
                                               what the product paints
-P2  Capacity        S2.1  S2.2              ── lets Looks differ in depth/shape
+P2  Capacity        S2.1 ✅  S2.2 ✅          ── DONE. Looks can differ in
+                                              depth and shape, not just hue
 P3  The axis        S3.1  S3.2  S3.3  S3.4  ── the engine
 P4  The Looks       S4.1 … S4.5             ── JSON only, cheapest phase
 P5  The UI          S5.1  S5.2  S5.3        ── the only expensive phase
@@ -182,13 +183,28 @@ Looks hits it repeatedly (research §9.2).
 
 ---
 
-## Phase 2 · Capacity
+## Phase 2 · Capacity — ✅ COMPLETE
+
+Five elevation levels (`none`/`xs`/`sm`/`md`/`lg`) and seven radius steps
+(`none`/`sharp`/`control`/`surface`/`large`/`xl`/`pill`) — the original three radius names and
+values are untouched, so nothing that referenced them moved.
+
+Two decisions worth keeping:
+
+- **`darkAlpha` is declared per level, never derived.** A shadow is a shortfall of light; the alpha
+  that reads on white is invisible on a dark surface. `md` is 0.10 light and 0.44 dark. One
+  multiplier would have quietly flattened every dark-mode Look.
+- **Exposed as `theme.elevation`, not `theme.shadows`.** MUI's `shadows` is a fixed 25-entry array
+  and overwriting it would change every component that reads an elevation number.
+
+Nothing reads these yet — the product stays deliberately flat, `MuiPaper` still defaults to
+elevation 0 and cards are still separated by borders. They exist so P4 has something to vary.
 
 Research §4.2: we have **no shadow tokens** and only 3 radius values. Every system reviewed has more.
 Depth and shape are the most legible differences after colour — without these, Looks vary only in hue
 and the feature reads as decoration (risk R4).
 
-### S2.1 · Add the `shadow` category · **~10k**
+### S2.1 ✅ · Add the `shadow` category · **spent ~11k**
 
 | | |
 |---|---|
@@ -198,7 +214,7 @@ and the feature reads as decoration (risk R4).
 | **Depends** | — |
 | **Note** | One of only two steps that opens `theme.js`. Do it in one pass. |
 
-### S2.2 · Expand `radius` · **~2k**
+### S2.2 ✅ · Expand `radius` · **spent ~1k**
 
 | | |
 |---|---|

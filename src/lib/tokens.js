@@ -3458,9 +3458,30 @@ export const spacing = {
   "12": 48,
   "16": 64
 };
+export const shadow = {
+  "light": {
+    "none": "none",
+    "xs": "0px 1px 2px 0px rgba(20, 20, 20, 0.06)",
+    "sm": "0px 2px 6px -1px rgba(20, 20, 20, 0.08)",
+    "md": "0px 6px 16px -4px rgba(20, 20, 20, 0.1)",
+    "lg": "0px 12px 32px -8px rgba(20, 20, 20, 0.14)"
+  },
+  "dark": {
+    "none": "none",
+    "xs": "0px 1px 2px 0px rgba(20, 20, 20, 0.3)",
+    "sm": "0px 2px 6px -1px rgba(20, 20, 20, 0.36)",
+    "md": "0px 6px 16px -4px rgba(20, 20, 20, 0.44)",
+    "lg": "0px 12px 32px -8px rgba(20, 20, 20, 0.52)"
+  }
+};
+
 export const radius = {
+  "none": 0,
+  "sharp": 2,
   "control": 4,
   "surface": 8,
+  "large": 12,
+  "xl": 16,
   "pill": 999
 };
 export const motion = {
