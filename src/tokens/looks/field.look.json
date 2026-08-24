@@ -1,0 +1,108 @@
+{
+  "id": "field",
+  "version": "1.0.0",
+  "label": "Field",
+  "blurb": "Higher contrast and larger text, with sharp edges. Built for outdoor use.",
+  "character": {
+    "contrast": "high",
+    "shape": "sharp",
+    "depth": "flat",
+    "density": "relaxed"
+  },
+  "provenance": {
+    "source": "generated",
+    "generator": {
+      "engine": "hand-authored",
+      "version": "1.0.0"
+    },
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+  "requires": {
+    "schema": ">=1.0.0 <2.0.0",
+    "categories": [
+      "color",
+      "type",
+      "radius",
+      "layout"
+    ]
+  },
+  "audit": {
+    "gate": "wcag-2.2-aa",
+    "modes": 2,
+    "schemes": 9,
+    "introduced": 0,
+    "fixedVsStandard": 0,
+    "runOn": "2026-08-24"
+  },
+  "$note": "Glare, gloves and arm's length. Text goes up a step and the neutrals move OUT rather than in — secondary text lands on neutral-800 instead of 700 — because low-contrast greys are the first thing to disappear in sunlight. Sharp corners and a 32px minimum target are the same argument: this is a Look for someone standing on a roof, not sitting at a desk.",
+  "patch": {
+    "semantic": {
+      "text/secondary": {
+        "light": "neutral.800",
+        "dark": "neutral.200"
+      },
+      "text/tertiary": {
+        "light": "neutral.700",
+        "dark": "neutral.300"
+      },
+      "border/default": {
+        "light": "neutral.500",
+        "dark": "neutral.500"
+      },
+      "border/subtle": {
+        "light": "neutral.300",
+        "dark": "neutral.700"
+      }
+    },
+    "type": {
+      "styles": {
+        "body/m": {
+          "size": 16,
+          "weight": 400,
+          "lineHeight": 24,
+          "tracking": 0
+        },
+        "body/s": {
+          "size": 14,
+          "weight": 400,
+          "lineHeight": 20,
+          "tracking": 0
+        },
+        "label/l": {
+          "size": 15,
+          "weight": 600,
+          "lineHeight": 20,
+          "tracking": 0
+        },
+        "label/m": {
+          "size": 13,
+          "weight": 600,
+          "lineHeight": 18,
+          "tracking": 0
+        },
+        "label/s": {
+          "size": 11,
+          "weight": 600,
+          "lineHeight": 14,
+          "tracking": 0.2
+        }
+      }
+    },
+    "nonFigma": {
+      "radius": {
+        "control": 2,
+        "surface": 4,
+        "large": 6
+      },
+      "layout": {
+        "rowCondensed": 44,
+        "rowRegular": 52,
+        "rowRelaxed": 60,
+        "targetMin": 32
+      }
+    }
+  }
+}

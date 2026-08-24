@@ -1,0 +1,55 @@
+{
+  "id": "slate",
+  "version": "1.0.0",
+  "label": "Slate",
+  "blurb": "Cool grey neutrals. The brand shows up only where it matters.",
+  "character": {
+    "contrast": "normal",
+    "shape": "soft",
+    "depth": "flat",
+    "density": "regular"
+  },
+  "provenance": {
+    "source": "generated",
+    "generator": {
+      "engine": "hand-authored",
+      "version": "1.0.0"
+    },
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+  "requires": {
+    "schema": ">=1.0.0 <2.0.0",
+    "categories": [
+      "color"
+    ]
+  },
+  "audit": {
+    "gate": "wcag-2.2-aa",
+    "modes": 2,
+    "schemes": 9,
+    "introduced": 0,
+    "fixedVsStandard": 8,
+    "runOn": "2026-08-24"
+  },
+  "$note": "The most 'professional utility' register available without touching a text colour, a size or a radius: it re-tints the neutral RAMP cool and changes nothing else. Every semantic role keeps its alias, so the whole product shifts together and the brand reads as the only warm thing on screen. Each step keeps its predecessor's lightness closely enough that the contrast ratios hold — which the gate checks rather than trusts. The dark steps 800-950 sit a shade below their Standard counterparts on purpose: a cool tint lifts the blue channel, and the translucent hover tints composited over these surfaces came out light enough to cost the brand foreground its 4.5:1. The gate caught all three at 4.40-4.44:1 — margins no eye would have flagged in review.",
+  "patch": {
+    "primitives": {
+      "neutral": {
+        "50": "#f6f7f9",
+        "100": "#eef0f4",
+        "200": "#dde1e8",
+        "300": "#c2c9d4",
+        "400": "#9aa4b2",
+        "500": "#78828f",
+        "600": "#5b6472",
+        "700": "#434b57",
+        "800": "#292f37",
+        "900": "#1c2028",
+        "950": "#0e1116"
+      }
+    }
+  }
+}

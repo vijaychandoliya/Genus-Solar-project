@@ -17,9 +17,14 @@
  * gate seeing exactly what the app sees.
  */
 import standard from "../../tokens/looks/standard.look.json" with { type: "json" };
+import field from "../../tokens/looks/field.look.json" with { type: "json" };
+import calm from "../../tokens/looks/calm.look.json" with { type: "json" };
+import compact from "../../tokens/looks/compact.look.json" with { type: "json" };
+import contrast_dark from "../../tokens/looks/contrast-dark.look.json" with { type: "json" };
+import slate from "../../tokens/looks/slate.look.json" with { type: "json" };
 
 /** Every Look, in gallery order. Standard is first and is never removable. */
-export const LOOKS = [standard];
+export const LOOKS = [standard, field, calm, compact, contrast_dark, slate];
 
 /** The identity Look. Its patch is empty, which is what makes it unbreakable. */
 export const DEFAULT_LOOK = "standard";

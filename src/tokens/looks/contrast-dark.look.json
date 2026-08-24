@@ -1,0 +1,78 @@
+{
+  "id": "contrast-dark",
+  "version": "1.0.0",
+  "label": "Contrast Dark",
+  "blurb": "Deeper darks and brighter text. For control rooms and night shifts.",
+  "character": {
+    "contrast": "high",
+    "shape": "soft",
+    "depth": "flat",
+    "density": "regular"
+  },
+  "provenance": {
+    "source": "generated",
+    "generator": {
+      "engine": "hand-authored",
+      "version": "1.0.0"
+    },
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+  "requires": {
+    "schema": ">=1.0.0 <2.0.0",
+    "categories": [
+      "color"
+    ]
+  },
+  "audit": {
+    "gate": "wcag-2.2-aa",
+    "modes": 2,
+    "schemes": 9,
+    "introduced": 0,
+    "fixedVsStandard": 23,
+    "runOn": "2026-08-24"
+  },
+  "$note": "Dark mode as a first-class target rather than an inversion. Standard's dark canvas is neutral-950 and its raised surface is neutral-800, which is only two steps of separation; here the canvas goes to true black and raised goes to 900, so panels read as panels. Light mode is left almost exactly as Standard — a Look that ruined the other mode to serve one would be a worse deal than a mode toggle.",
+  "patch": {
+    "semantic": {
+      "surface/canvas": {
+        "light": "white",
+        "dark": "black"
+      },
+      "surface/base": {
+        "light": "neutral.50",
+        "dark": "neutral.950"
+      },
+      "surface/raised": {
+        "light": "white",
+        "dark": "neutral.900"
+      },
+      "surface/subtle": {
+        "light": "neutral.100",
+        "dark": "neutral.900"
+      },
+      "surface/overlay": {
+        "light": "white",
+        "dark": "neutral.950"
+      },
+      "text/secondary": {
+        "light": "neutral.700",
+        "dark": "neutral.200"
+      },
+      "text/tertiary": {
+        "light": "neutral.600",
+        "dark": "neutral.300"
+      },
+      "border/default": {
+        "light": "neutral.300",
+        "dark": "neutral.600"
+      },
+      "border/subtle": {
+        "light": "neutral.200",
+        "dark": "neutral.700"
+      }
+    }
+  }
+}

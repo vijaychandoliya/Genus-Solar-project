@@ -67,7 +67,7 @@ P1  Generator       S1.0 ✅  S1.1 ⛔  S1.2 ✅ ── DONE. The audit now meas
 P2  Capacity        S2.1 ✅  S2.2 ✅          ── DONE. Looks can differ in
                                               depth and shape, not just hue
 P3  The axis        S3.1 ✅ S3.2 ✅ S3.3 ✅ S3.4 ✅ ── DONE. The engine works
-P4  The Looks       S4.1 … S4.5             ── JSON only, cheapest phase
+P4  The Looks       S4.1 … S4.5 ✅           ── DONE. Six Looks, all gate-clean
 P5  The UI          S5.1  S5.2  S5.3        ── the only expensive phase
 P6  Deferred        S6.x                    ── not in V1
 ```
@@ -298,7 +298,33 @@ Freezing the contract first is what stops later steps re-reading earlier ones.
 
 ---
 
-## Phase 4 · The Looks · **cheapest phase — batch it**
+## Phase 4 · The Looks — ✅ COMPLETE
+
+Six Looks, every one gate-clean. **Two of them actively fix Standard's defects:**
+
+```
+standard ✓ baseline 125 · field ✓ +0/-0 · calm ✓ +0/-0 · compact ✓ +0/-0
+contrast-dark ✓ +0/-23 · slate ✓ +0/-8          (+introduced / -fixed vs Standard)
+```
+
+**The admission rule changed during this phase, and the original was wrong.** It counted every
+failing row, including the 125 markers — but those describe rows of the *shared* contract and are
+structural to the product, not to any appearance. That rule would have made every Look impossible
+until somebody first fixed all 125, which is a different project. The rule is now **"introduces
+nothing"**: a Look that adds a shortfall Standard does not have fails the build; a Look that retires
+one is reported as a win.
+
+`slate` earned its keep as a test of the gate: its first draft introduced three shortfalls at
+**4.40–4.44:1** — a cool tint lifts the blue channel, and the translucent hover tints composited over
+those surfaces came out just light enough to cost the brand foreground its 4.5:1. Margins no eye
+would have caught in review. Darkening steps 800–950 fixed all three.
+
+**Looks reach the whole UI.** Zero components read `var(--genus-*)`; all 261 style reads go through
+the theme, which `themeBundle` rebuilds per Look. The emitted custom properties are still generated
+from Standard alone — irrelevant today because nothing consumes them, but M1 must not change that
+without making them per-Look.
+
+### Original plan (kept for reference)
 
 Each Look is a JSON file plus a gate loop. No source code. Run S4.2–S4.5 as **one prompt**.
 
