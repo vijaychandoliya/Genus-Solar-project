@@ -3,26 +3,93 @@
     "$note": "THE ACCESSIBILITY CONTRACT. Every foreground/background pair the product actually renders, so contrast becomes decidable instead of a spot check. scripts/check-a11y.mjs scores every row against all 9 schemes x 2 modes and fails the build on any shortfall. A pair that is not listed here is not checked — adding a rendered pair is part of adding a component. See docs/token-engine-architecture.md 2.4.",
     "$rule": "An exemption needs a reason, a note and an owner. `exempt` is NOT `pass`: exempt rows are reported and never scored, so a waiver stays visible instead of becoming a silent omission."
   },
-
-  { "fg": "text/primary",   "bg": "surface/canvas",  "kind": "text", "typeToken": "body/m" },
-  { "fg": "text/primary",   "bg": "surface/raised",  "kind": "text", "typeToken": "body/m" },
-  { "fg": "text/primary",   "bg": "surface/subtle",  "kind": "text", "typeToken": "body/m" },
-  { "fg": "text/secondary", "bg": "surface/canvas",  "kind": "text", "typeToken": "body/m" },
-  { "fg": "text/secondary", "bg": "surface/raised",  "kind": "text", "typeToken": "body/m" },
-  { "fg": "text/tertiary",  "bg": "surface/canvas",  "kind": "text", "typeToken": "body/s" },
-  { "fg": "text/tertiary",  "bg": "surface/raised",  "kind": "text", "typeToken": "body/s" },
-  { "fg": "text/tertiary",  "bg": "surface/subtle",  "kind": "text", "typeToken": "body/s" },
-  { "fg": "text/primary",   "bg": "surface/overlay", "kind": "text", "typeToken": "body/m" },
-
-  { "fg": "status/success/foreground", "bg": "status/success/background", "kind": "text", "typeToken": "label/m" },
-  { "fg": "status/warning/foreground", "bg": "status/warning/background", "kind": "text", "typeToken": "label/m" },
-  { "fg": "status/danger/foreground",  "bg": "status/danger/background",  "kind": "text", "typeToken": "label/m" },
-  { "fg": "status/info/foreground",    "bg": "status/info/background",    "kind": "text", "typeToken": "label/m" },
-
+  {
+    "fg": "text/primary",
+    "bg": "surface/canvas",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "text/primary",
+    "bg": "surface/raised",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "text/primary",
+    "bg": "surface/subtle",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "text/secondary",
+    "bg": "surface/canvas",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "text/secondary",
+    "bg": "surface/raised",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "text/tertiary",
+    "bg": "surface/canvas",
+    "kind": "text",
+    "typeToken": "body/s"
+  },
+  {
+    "fg": "text/tertiary",
+    "bg": "surface/raised",
+    "kind": "text",
+    "typeToken": "body/s"
+  },
+  {
+    "fg": "text/tertiary",
+    "bg": "surface/subtle",
+    "kind": "text",
+    "typeToken": "body/s"
+  },
+  {
+    "fg": "text/primary",
+    "bg": "surface/overlay",
+    "kind": "text",
+    "typeToken": "body/m"
+  },
+  {
+    "fg": "status/success/foreground",
+    "bg": "status/success/background",
+    "kind": "text",
+    "typeToken": "label/m"
+  },
+  {
+    "fg": "status/warning/foreground",
+    "bg": "status/warning/background",
+    "kind": "text",
+    "typeToken": "label/m"
+  },
+  {
+    "fg": "status/danger/foreground",
+    "bg": "status/danger/background",
+    "kind": "text",
+    "typeToken": "label/m"
+  },
+  {
+    "fg": "status/info/foreground",
+    "bg": "status/info/background",
+    "kind": "text",
+    "typeToken": "label/m"
+  },
   {
     "$note": "Button labels. `label/l` is 14px, so 4.5:1 applies — large-scale text starts at 24px, or 18.66px bold, and only display/xl, heading/2 and heading/3 qualify in this ramp. These four rows are the ones that were failing in 15 of 18 scheme/mode combinations before the foreground became derived."
   },
-  { "fg": "@onBrand",       "bg": "action/primary/rest",    "kind": "text", "typeToken": "label/l" },
+  {
+    "fg": "@onBrand",
+    "bg": "action/primary/rest",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
   {
     "fg": "@onBrand",
     "bg": "action/primary/hover",
@@ -45,40 +112,69 @@
       "decision": "token-engine-architecture.md §5.3"
     }
   },
-  { "fg": "@on.accent",     "bg": "action/accent/rest",     "kind": "text", "typeToken": "label/l" },
-  { "fg": "@on.success",    "bg": "@fill.success",          "kind": "text", "typeToken": "label/l" },
-  { "fg": "@on.warning",    "bg": "@fill.warning",          "kind": "text", "typeToken": "label/l" },
-  { "fg": "@on.danger",     "bg": "@fill.danger",           "kind": "text", "typeToken": "label/l" },
-  { "fg": "@on.info",       "bg": "@fill.info",             "kind": "text", "typeToken": "label/l" },
-
+  {
+    "fg": "@on.accent",
+    "bg": "action/accent/rest",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
+  {
+    "fg": "@on.success",
+    "bg": "@fill.success",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
+  {
+    "fg": "@on.warning",
+    "bg": "@fill.warning",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
+  {
+    "fg": "@on.danger",
+    "bg": "@fill.danger",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
+  {
+    "fg": "@on.info",
+    "bg": "@fill.info",
+    "kind": "text",
+    "typeToken": "label/l"
+  },
   {
     "$note": "Non-text UI, 3:1 per SC 1.4.11. The focus ring is also SC 2.4.11, and is checked against surface/subtle because that is the hardest light surface it must separate from."
   },
   {
-    "fg": "action/primary/rest",
+    "fg": "action/primary/indicator",
     "bg": "surface/canvas",
-    "kind": "ui",
-    "knownDefect": {
-      "note": "action/primary/rest serves two roles: a FILL behind a label (button background) and a FOREGROUND indicator (active nav icon, selected border, ~29 palette.primary.main sites). As a fill it is fine; as an indicator it needs 3:1 against the surface, and Sunset's orange-500 is 2.96:1 on white and 2.60:1 on surface/subtle. AGENTS.md §3b already flags that exact 2.60:1 pairing as logotype-only. The fix is to split the indicator role onto its own derived step — the same treatment focus/ring now gets — which means rewiring those call sites to distinguish fill from indicator. That is M1/M3 work, not a token change.",
-      "owner": "design-system",
-      "decision": "token-engine-architecture.md §5 — needs a new decision item"
-    }
+    "kind": "ui"
   },
   {
-    "fg": "action/primary/rest",
+    "fg": "action/primary/indicator",
     "bg": "surface/raised",
-    "kind": "ui",
-    "knownDefect": {
-      "note": "Same as the row above; surface/raised is #ffffff in light mode, so the ratio is identical.",
-      "owner": "design-system",
-      "decision": "token-engine-architecture.md §5 — needs a new decision item"
-    }
+    "kind": "ui"
   },
-  { "fg": "focus/ring",          "bg": "surface/canvas", "kind": "ui" },
-  { "fg": "focus/ring",          "bg": "surface/raised", "kind": "ui" },
-  { "fg": "focus/ring",          "bg": "surface/subtle", "kind": "ui" },
-  { "fg": "border/strong",       "bg": "surface/raised", "kind": "ui" },
-
+  {
+    "fg": "focus/ring",
+    "bg": "surface/canvas",
+    "kind": "ui"
+  },
+  {
+    "fg": "focus/ring",
+    "bg": "surface/raised",
+    "kind": "ui"
+  },
+  {
+    "fg": "focus/ring",
+    "bg": "surface/subtle",
+    "kind": "ui"
+  },
+  {
+    "fg": "border/strong",
+    "bg": "surface/raised",
+    "kind": "ui"
+  },
   {
     "$note": "Exemptions below. Each is a real WCAG provision, not a convenience."
   },

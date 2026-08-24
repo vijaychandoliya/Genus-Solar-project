@@ -22,7 +22,7 @@
  * See docs/token-engine-architecture.md §2.4.
  */
 import { contrast, requiredRatio, bestOn, isHex } from "./contrast.js";
-import { FILL_STEPS, onCandidates, ON_MIN } from "./token-resolve.js";
+import { FILL_STEPS, onCandidates, ON_MIN , semanticFor, componentsFor } from "./token-resolve.js";
 import rawContracts from "../tokens/contracts.json" with { type: "json" };
 import { EXPECTED_DEFECTS } from "../tokens/baseline.js";
 
@@ -143,14 +143,12 @@ export const CONTRACT_NOTES = rawContracts.filter((r) => r.$note || r.$rule);
  * the editor would score a palette the product never paints.
  */
 export function paletteFor(resolved, schemeId, mode) {
-  const out = { ...resolved.semantic[mode] };
   const scheme = resolved.schemes[schemeId] ?? resolved.schemes.default;
   const sm = scheme[mode];
 
-  out["action/primary/rest"] = sm.rest;
-  out["action/primary/hover"] = sm.hover;
-  out["action/primary/pressed"] = sm.pressed;
-  out["focus/ring"] = sm.focus;
+  // The brand swap lives in semanticFor() now, so this function and getTheme()
+  // cannot drift apart on what a scheme actually changes.
+  const out = semanticFor(resolved, schemeId, mode);
 
   // ONE label for all three fill states, because that is what the button
   // renders: containedPrimary overrides only backgroundColor on :hover and
@@ -163,7 +161,7 @@ export function paletteFor(resolved, schemeId, mode) {
   // Tier 3. Namespaced so a component slot can never collide with a semantic
   // role, and so a contract row reads unambiguously as which tier it is about.
   out["@behind"] = resolved.semantic[mode]["surface/raised"];
-  for (const [id, slots] of Object.entries(resolved.components?.[mode] ?? {})) {
+  for (const [id, slots] of Object.entries(componentsFor(resolved, schemeId, mode))) {
     for (const [slot, value] of Object.entries(slots)) {
       if (slot === "variants") continue;
       out[`@c:${id}.${slot}`] = value;

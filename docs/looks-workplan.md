@@ -62,7 +62,8 @@ The plan front-loads the first three classes and touches the fourth exactly twic
 
 ```
 P0  Instrument      S0.1 ✅                 ── DONE. Killed S1.1, found S1.0
-P1  Generator       S1.0 🛑  S1.1 ⛔  S1.2  ── makes the audit true
+P1  Generator       S1.0 ✅  S1.1 ⛔  S1.2 ✅ ── DONE. The audit now measures
+                                              what the product paints
 P2  Capacity        S2.1  S2.2              ── lets Looks differ in depth/shape
 P3  The axis        S3.1  S3.2  S3.3  S3.4  ── the engine
 P4  The Looks       S4.1 … S4.5             ── JSON only, cheapest phase
@@ -115,9 +116,31 @@ schemes do not. **Do not revisit without a new measurement.**
 
 ---
 
-## Phase 1 · Make the audit true
+## Phase 1 · Make the audit true — ✅ COMPLETE
 
-### S1.0 🛑 · Tier 3 does not follow the scheme · **~14k**
+**Result: 113 → 125 known defects, 0 unmarked, gate green.** The number went UP because
+the audit now measures the colour actually painted instead of blue everywhere. Twelve rows were
+always failing; nothing could see them. Three things shipped:
+
+1. **`componentsFor()`** re-resolves tier 3 per scheme. Verified in the browser: Sunset's outlined
+   button label is now `rgb(238,115,4)`, not `#0467b2`.
+2. **`action/primary/indicator`** — a derived brand step clearing 3:1, the same treatment
+   `focus/ring` has. 18 derivations across 9 schemes × 2 modes; **11 of them moved off the fill
+   step**, meaning in 11 of 18 combinations the brand fill would NOT have cleared 3:1 as an
+   indicator. Sunset light: `#d96a00` instead of `#ee7304`.
+3. **`MuiButton` outlined and text wired to tier 3.** They had no override at all and fell through
+   to MUI's default `alpha(primary.main, .5)` outline — about 1.9:1 on white in Sunset, an invisible
+   border. This was not in the original S1.2 scope, but moving a contract row onto a token the
+   product does not paint would have made the audit *less* true, which is the opposite of this
+   phase's purpose.
+
+> **Note for S5.x and S6.1.** `styleOverrides.variants` is **not applied by MUI v9** in this
+> codebase — verified in a browser after a clean dev-server restart, not assumed. Component
+> overrides must use class selectors (`"&.MuiButton-outlined.MuiButton-colorPrimary"`), whose
+> doubled class also clears MUI's own variant specificity. Anything that styles a component from a
+> token must follow that shape.
+
+### S1.0 ✅ · Tier 3 does not follow the scheme · **spent ~16k**
 
 **Found by S0.1 and more important than anything it replaced.**
 
@@ -144,7 +167,7 @@ architecture doc's §0.6 already suspected this from the other direction.
 | **🛑** | It changes rendered colours in eight schemes — outlined buttons, text buttons, active nav rows and selected tabs stop being blue and start matching the scheme. That is the intended behaviour and a **visible change**, so it needs the same sign-off S1.1 would have needed — but this one is a bug fix with a measured cause, which is a much easier conversation. |
 | **Depends** | — |
 
-### S1.2 · Split fill from indicator · **~8k**
+### S1.2 ✅ · Split fill from indicator · **spent ~9k**
 
 `action/primary/rest` is a button background *and* an active-nav indicator. The first needs nothing
 against the surface; the second needs 3:1. Sunset fails at 2.96:1. Hue-dependent, so a library of
@@ -305,7 +328,7 @@ per-component preset overrides, APCA as the gate.
 
 | # | Decision | Blocks | Owner |
 |---|---|---|---|
-| 🛑 1 | **Tier-3 scheme fix sign-off** — outlined buttons, text buttons, active nav rows and selected tabs stop being blue in eight schemes | S1.0 | design-system |
+| ✅ 1 | ~~Tier-3 scheme fix sign-off~~ — **shipped**. Outlined buttons, text buttons, active nav rows and selected tabs now match the scheme instead of being blue in all nine | done | design-system |
 | 🛑 2 | **Internal tool or tenant-facing branding?** (architecture doc §5.1) | S3.3 persistence, S5.x permissions | product |
 | 🛑 3 | **Per-user or per-tenant Look?** | S3.3 data model | product |
 
