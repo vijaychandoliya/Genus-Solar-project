@@ -66,7 +66,7 @@ P1  Generator       S1.0 ✅  S1.1 ⛔  S1.2 ✅ ── DONE. The audit now meas
                                               what the product paints
 P2  Capacity        S2.1 ✅  S2.2 ✅          ── DONE. Looks can differ in
                                               depth and shape, not just hue
-P3  The axis        S3.1  S3.2  S3.3  S3.4  ── the engine
+P3  The axis        S3.1 ✅ S3.2 ✅ S3.3 ✅ S3.4 ✅ ── DONE. The engine works
 P4  The Looks       S4.1 … S4.5             ── JSON only, cheapest phase
 P5  The UI          S5.1  S5.2  S5.3        ── the only expensive phase
 P6  Deferred        S6.x                    ── not in V1
@@ -225,9 +225,38 @@ and the feature reads as decoration (risk R4).
 
 ---
 
-## Phase 3 · The Look axis
+## Phase 3 · The Look axis — ✅ COMPLETE
 
-### S3.1 · Freeze the format · **~3k**
+The axis is one line, exactly as predicted:
+
+```js
+resolveTokens(source, merge(lookPatch(look), overrides))
+```
+
+Verified, not assumed:
+
+- **The zero-defect rule bites.** A deliberately unreadable probe Look (`text/secondary` →
+  `neutral.300`) made the gate exit **1** and name the failing pairs: *"look \"_probe\" scores 251
+  failing row(s), expected 0"*. Removed after the test. Clean tree exits 0 with
+  `looks OK — standard ✓ 125/125`.
+- **Legacy drafts migrate.** A pre-Looks draft is a bare override tree; it is now read as
+  `overrides` and rewritten into `{ look, overrides }`. Confirmed live in the browser — the old
+  override stayed applied through the migration.
+- **The Look sits UNDER the user's edits.** `baseline` is `merge(source, patch)`, so "changed from"
+  reports what the user moved, not what the Look moved.
+
+Two corrections to what this file said before:
+
+1. **The Look is deliberately OUTSIDE the undo history**, not "one undo entry". `history` is about
+   token EDITS — "Review changes" lists them by path with a value to go back to — and a Look is not
+   an edit, it is which baseline those edits sit on. One Ctrl-Z sometimes meaning "un-apply an
+   appearance" and sometimes "restore one padding value" would be worse than no undo. Reversal is
+   picking another Look, which the gallery offers directly.
+2. **Stop point 🛑 2 / 🛑 3 did not bind after all.** Persistence follows the existing draft
+   mechanism (`localStorage`, same key, same defensive read). The internal-vs-tenant decision moves
+   one function — `read`/`write` in token-store.jsx — so it is still open without blocking P4 or P5.
+
+### S3.1 ✅ · Freeze the format · **spent ~4k**
 
 Freezing the contract first is what stops later steps re-reading earlier ones.
 
@@ -238,7 +267,7 @@ Freezing the contract first is what stops later steps re-reading earlier ones.
 | **Verify** | `node -e "require('./src/tokens/looks/standard.look.json')"` |
 | **Depends** | — |
 
-### S3.2 · The registry · **~6k**
+### S3.2 ✅ · The registry · **spent ~3k**
 
 | | |
 |---|---|
@@ -247,7 +276,7 @@ Freezing the contract first is what stops later steps re-reading earlier ones.
 | **Verify** | `node -e "import('./src/lib/looks/index.js').then(m=>console.log(m.LOOKS.map(l=>l.id)))"` |
 | **Depends** | S3.1 |
 
-### S3.3 · Thread it through the store · **~8k**
+### S3.3 ✅ · Thread it through the store · **spent ~7k**
 
 | | |
 |---|---|
@@ -256,7 +285,7 @@ Freezing the contract first is what stops later steps re-reading earlier ones.
 | **Verify** | `npm run dev`, switch look via the store, confirm repaint and that overrides still win |
 | **Depends** | S3.2 |
 
-### S3.4 · Gate every Look · **~7k**
+### S3.4 ✅ · Gate every Look · **spent ~5k**
 
 | | |
 |---|---|

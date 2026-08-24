@@ -1,0 +1,25 @@
+{
+  "$schema": "./README.md",
+  "id": "standard",
+  "version": "1.0.0",
+  "label": "Standard",
+  "blurb": "The Genus default. Flat surfaces, clear borders, compact rows.",
+  "character": { "contrast": "normal", "shape": "soft", "depth": "flat", "density": "regular" },
+
+  "provenance": {
+    "source": "figma",
+    "generator": null,
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+
+  "requires": { "schema": ">=1.0.0 <2.0.0", "categories": ["color", "type", "space", "radius"] },
+
+  "audit": { "gate": "wcag-2.2-aa", "modes": 2, "defects": 125, "runOn": "2026-08-24" },
+
+  "$note": "The identity Look and the permanent escape hatch. Its patch is EMPTY on purpose — Standard is not a set of values, it is the absence of a Look, so `merge({}, overrides)` resolves to exactly what the build emits today. That is what makes 'go back to Standard' free and unbreakable: there is nothing to get wrong. It is also the only Look allowed a non-zero defect count, because those 125 are the product's existing known defects and not something a Look introduced.",
+
+  "patch": {}
+}
