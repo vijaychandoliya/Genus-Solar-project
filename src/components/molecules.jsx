@@ -259,6 +259,11 @@ function KpiBody({ icon, label, value, unit, dp = 0, delta, deltaGood = true, no
         ? withUnit(dp > 0 ? exNum(value, dp) : exInt(value), unit)
         : String(value);
   // A formatted numeral has no spaces and must never shrink; prose may wrap.
+  // The literal below contains a NON-BREAKING space (U+00A0) on purpose: that is
+  // the thousands separator our formatters emit, so it has to be stripped before
+  // testing for real whitespace. Flagged by no-irregular-whitespace, which cannot
+  // tell a deliberate NBSP from a pasted one — this one is deliberate.
+  // eslint-disable-next-line no-irregular-whitespace
   const isNumeral = !/\s/.test(String(formatted).replace(/ /g, ""));
 
   return (
