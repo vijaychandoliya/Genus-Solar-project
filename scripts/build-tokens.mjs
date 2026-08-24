@@ -74,7 +74,14 @@ const primBlock = Object.entries(prims)
   .map(([k, v]) => `  --genus-${k}: ${v};`)
   .join("\n");
 
-const { spacing, radius, motion, layout } = R;
+const { spacing, radius, motion, layout, shadow } = R;
+
+/* Elevation is per mode — the alpha differs — so it rides with the semantic
+   blocks rather than the mode-independent scales. */
+const shadowBlock = (mode, indent = "  ") =>
+  Object.entries(shadow[mode])
+    .map(([k, v]) => `${indent}--genus-shadow-${k}: ${v};`)
+    .join("\n");
 
 const scaleBlock = [
   ...Object.entries(spacing).map(([k, v]) => `  --genus-space-${k}: ${v}px;`),
@@ -110,11 +117,13 @@ ${scaleBlock}
 
 /* ── semantic — light ───────────────────────────────────────────────────── */
 ${cssBlock(light)}
+${shadowBlock("light")}
 }
 
 /* ── semantic — dark, explicit ──────────────────────────────────────────── */
 :root[data-mode="dark"] {
 ${cssBlock(dark)}
+${shadowBlock("dark")}
   color-scheme: dark;
 }
 
@@ -122,6 +131,7 @@ ${cssBlock(dark)}
 @media (prefers-color-scheme: dark) {
   :root[data-mode="system"] {
 ${cssBlock(dark, "    ")}
+${shadowBlock("dark", "    ")}
     color-scheme: dark;
   }
 }
@@ -204,6 +214,8 @@ export const fonts = ${j(
 )};
 
 export const spacing = ${j(spacing)};
+export const shadow = ${j(shadow)};
+
 export const radius = ${j(radius)};
 export const motion = ${j(motion)};
 export const layout = ${j(layout)};

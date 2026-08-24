@@ -25,6 +25,7 @@ import {
   components,
   componentDefs,
   layout,
+  shadow,
 } from "./tokens.js";
 import { semanticFor, componentsFor } from "./token-resolve.js";
 
@@ -89,8 +90,8 @@ function bandPalette(s, primitives) {
  * token editor is purely additive.
  */
 const DEFAULT_TOKENS = {
-  primitives, semantic, type, radius, motion, spacing, layout, font, schemes, fonts, contrastOn,
-  components, componentDefs,
+  primitives, semantic, type, radius, motion, spacing, layout, shadow, font, schemes, fonts,
+  contrastOn, components, componentDefs,
 };
 
 /**
@@ -236,6 +237,18 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
      *   sx={(t) => ({ p: `${t.component.kpiTile.padding}px` })}
      */
     component: comp,
+
+    /**
+     * Elevation, for THIS mode — `sx={(t) => ({ boxShadow: t.elevation.md })}`.
+     *
+     * Nothing reads these yet: the product is deliberately flat, MuiPaper
+     * defaults to elevation 0, and cards are separated by borders. They exist so
+     * a Look can differ in DEPTH, which is the most legible difference after
+     * colour. Named `elevation` rather than `shadows` because MUI's own
+     * `theme.shadows` is a fixed 25-entry array and overwriting it would change
+     * every MUI component that reads an elevation number.
+     */
+    elevation: shadow[dark ? "dark" : "light"],
 
     // Surfaces. Controls get 4 through the component overrides below — never
     // change `shape` to fix a control, it rescales every borderRadius in the app.

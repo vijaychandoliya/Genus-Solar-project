@@ -121,8 +121,12 @@
   --genus-space-10: 40px;
   --genus-space-12: 48px;
   --genus-space-16: 64px;
+  --genus-radius-none: 0px;
+  --genus-radius-sharp: 2px;
   --genus-radius-control: 4px;
   --genus-radius-surface: 8px;
+  --genus-radius-large: 12px;
+  --genus-radius-xl: 16px;
   --genus-radius-pill: 999px;
   --genus-motion-fast: 120ms;
   --genus-motion-medium: 190ms;
@@ -159,6 +163,11 @@
   --genus-status-danger-background: #fde7e9;
   --genus-status-info-foreground: #005ba1;
   --genus-status-info-background: #deecf9;
+  --genus-shadow-none: none;
+  --genus-shadow-xs: 0px 1px 2px 0px rgba(20, 20, 20, 0.06);
+  --genus-shadow-sm: 0px 2px 6px -1px rgba(20, 20, 20, 0.08);
+  --genus-shadow-md: 0px 6px 16px -4px rgba(20, 20, 20, 0.1);
+  --genus-shadow-lg: 0px 12px 32px -8px rgba(20, 20, 20, 0.14);
 }
 
 /* ── semantic — dark, explicit ──────────────────────────────────────────── */
@@ -192,6 +201,11 @@
   --genus-status-danger-background: #a4262c;
   --genus-status-info-foreground: #deecf9;
   --genus-status-info-background: #005ba1;
+  --genus-shadow-none: none;
+  --genus-shadow-xs: 0px 1px 2px 0px rgba(20, 20, 20, 0.3);
+  --genus-shadow-sm: 0px 2px 6px -1px rgba(20, 20, 20, 0.36);
+  --genus-shadow-md: 0px 6px 16px -4px rgba(20, 20, 20, 0.44);
+  --genus-shadow-lg: 0px 12px 32px -8px rgba(20, 20, 20, 0.52);
   color-scheme: dark;
 }
 
@@ -227,6 +241,11 @@
     --genus-status-danger-background: #a4262c;
     --genus-status-info-foreground: #deecf9;
     --genus-status-info-background: #005ba1;
+    --genus-shadow-none: none;
+    --genus-shadow-xs: 0px 1px 2px 0px rgba(20, 20, 20, 0.3);
+    --genus-shadow-sm: 0px 2px 6px -1px rgba(20, 20, 20, 0.36);
+    --genus-shadow-md: 0px 6px 16px -4px rgba(20, 20, 20, 0.44);
+    --genus-shadow-lg: 0px 12px 32px -8px rgba(20, 20, 20, 0.52);
     color-scheme: dark;
   }
 }
