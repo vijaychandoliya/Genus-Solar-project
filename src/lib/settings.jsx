@@ -18,6 +18,7 @@ import createCache from "@emotion/cache";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
 import { getTheme } from "./theme.js";
+import { TokenProvider, useTokens } from "./token-store.jsx";
 
 const KEY = "genus-settings";
 
@@ -95,11 +96,6 @@ export function SettingsProvider({ children }) {
     document.documentElement.lang = "en";
   }, [settings.mode, settings.direction]);
 
-  const theme = useMemo(
-    () => getTheme(resolvedMode, settings.direction, settings.scheme, settings.font),
-    [resolvedMode, settings.direction, settings.scheme, settings.font],
-  );
-
   const value = useMemo(
     () => ({ ...settings, resolvedMode, set, reset, defaults: DEFAULTS }),
     [settings, resolvedMode, set, reset],
@@ -107,12 +103,39 @@ export function SettingsProvider({ children }) {
 
   return (
     <SettingsContext.Provider value={value}>
-      <CacheProvider value={settings.direction === "rtl" ? rtlCache : ltrCache}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
-      </CacheProvider>
+      <TokenProvider>
+        <CacheProvider value={settings.direction === "rtl" ? rtlCache : ltrCache}>
+          <ThemedApp>{children}</ThemedApp>
+        </CacheProvider>
+      </TokenProvider>
     </SettingsContext.Provider>
+  );
+}
+
+/**
+ * The theme is built HERE, inside TokenProvider, so it can read the live token
+ * bundle. Editing a token changes `bundle`, which rebuilds the theme, which
+ * repaints the product — no reload, no rebuild.
+ *
+ * `getTheme` costs 0.164 ms; the expense is the React commit this triggers under
+ * a provider the whole app sits beneath. That is acceptable for an editing
+ * session and is the reason the colour inputs commit on change rather than on
+ * every pointer move. Moving to CSS custom properties would remove the commit
+ * entirely — see docs/token-engine-architecture.md §1.1 (M1).
+ */
+function ThemedApp({ children }) {
+  const { direction, resolvedMode, scheme, font } = useSettings();
+  const { bundle } = useTokens();
+
+  const theme = useMemo(
+    () => getTheme(resolvedMode, direction, scheme, font, bundle),
+    [resolvedMode, direction, scheme, font, bundle],
+  );
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
   );
 }
