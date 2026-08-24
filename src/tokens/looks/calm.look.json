@@ -1,0 +1,75 @@
+{
+  "id": "calm",
+  "version": "1.0.0",
+  "label": "Calm",
+  "blurb": "Softer surfaces and rounder edges. Same readability, less shouting.",
+  "character": {
+    "contrast": "normal",
+    "shape": "round",
+    "depth": "soft",
+    "density": "relaxed"
+  },
+  "provenance": {
+    "source": "generated",
+    "generator": {
+      "engine": "hand-authored",
+      "version": "1.0.0"
+    },
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+  "requires": {
+    "schema": ">=1.0.0 <2.0.0",
+    "categories": [
+      "color",
+      "space",
+      "radius",
+      "layout"
+    ]
+  },
+  "audit": {
+    "gate": "wcag-2.2-aa",
+    "modes": 2,
+    "schemes": 9,
+    "introduced": 0,
+    "fixedVsStandard": 0,
+    "runOn": "2026-08-24"
+  },
+  "$note": "Answers the commonest request a dense operations UI gets — 'make it less shouty' — WITHOUT touching a single text colour. Contrast is not what makes an interface loud; hard edges, tight gutters and a pure-white glare are. So the canvas drops off white, the radii roughly double and the mid spacing steps grow, and every readability number stays exactly where Standard put it.",
+  "patch": {
+    "semantic": {
+      "surface/canvas": {
+        "light": "neutral.50",
+        "dark": "neutral.950"
+      },
+      "surface/subtle": {
+        "light": "neutral.50",
+        "dark": "neutral.900"
+      },
+      "border/subtle": {
+        "light": "neutral.200",
+        "dark": "neutral.700"
+      }
+    },
+    "nonFigma": {
+      "radius": {
+        "control": 8,
+        "surface": 14,
+        "large": 18,
+        "xl": 22
+      },
+      "spacing": {
+        "3": 14,
+        "4": 18,
+        "5": 22,
+        "6": 26
+      },
+      "layout": {
+        "rowRegular": 52,
+        "rowRelaxed": 60
+      }
+    }
+  }
+}

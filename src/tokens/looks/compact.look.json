@@ -1,0 +1,86 @@
+{
+  "id": "compact",
+  "version": "1.0.0",
+  "label": "Compact",
+  "blurb": "More rows on screen. Same colours, tighter spacing.",
+  "character": {
+    "contrast": "normal",
+    "shape": "soft",
+    "depth": "flat",
+    "density": "condensed"
+  },
+  "provenance": {
+    "source": "generated",
+    "generator": {
+      "engine": "hand-authored",
+      "version": "1.0.0"
+    },
+    "seededFrom": null,
+    "licence": null,
+    "attribution": null,
+    "authoredOn": "2026-08-24"
+  },
+  "requires": {
+    "schema": ">=1.0.0 <2.0.0",
+    "categories": [
+      "space",
+      "radius",
+      "type",
+      "layout"
+    ]
+  },
+  "audit": {
+    "gate": "wcag-2.2-aa",
+    "modes": 2,
+    "schemes": 9,
+    "introduced": 0,
+    "fixedVsStandard": 0,
+    "runOn": "2026-08-24"
+  },
+  "$note": "Deliberately varies on an axis that is NOT hue, so that risk R4 — a library of Looks that all read the same — is tested at launch rather than after. Colour is untouched; only density moves. The big headings are left alone on purpose: display/xl, heading/2 and heading/3 are the only styles that qualify as large text, and shrinking them past the threshold would silently RAISE their contrast requirement from 3:1 to 4.5:1.",
+  "patch": {
+    "nonFigma": {
+      "spacing": {
+        "3": 10,
+        "4": 12,
+        "5": 16,
+        "6": 20,
+        "8": 28
+      },
+      "radius": {
+        "control": 3,
+        "surface": 6
+      },
+      "layout": {
+        "rowCondensed": 34,
+        "rowRegular": 40,
+        "rowRelaxed": 46,
+        "contentPadXs": 12,
+        "contentPadSm": 16,
+        "topBarSm": 64
+      }
+    },
+    "type": {
+      "styles": {
+        "body/s": {
+          "size": 11,
+          "weight": 400,
+          "lineHeight": 15,
+          "tracking": 0
+        },
+        "label/m": {
+          "size": 11,
+          "weight": 600,
+          "lineHeight": 15,
+          "tracking": 0
+        },
+        "title/m": {
+          "size": 17,
+          "weight": 600,
+          "lineHeight": 22,
+          "tracking": 0
+        }
+      }
+    }
+  }
+}
