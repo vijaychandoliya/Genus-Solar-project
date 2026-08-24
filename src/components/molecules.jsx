@@ -127,14 +127,15 @@ export function PanelHeader({ title, note, action, id }) {
   return (
     <Stack
       direction="row"
-      sx={{
+      /* TIER 3 — see /admin/design-tokens → Components → Panel. */
+      sx={(t) => ({
         alignItems: "center",
         gap: 1.5,
-        px: 2,
-        py: 1.5,
+        paddingInline: `${t.component.panel.headerPadding}px`,
+        paddingBlock: `${t.component.panel.headerPadding * 0.75}px`,
         minWidth: 0,
-        borderBottom: (t) => `1px solid ${t.palette.border.subtle}`,
-      }}
+        borderBottom: `1px solid ${t.component.panel.border}`,
+      })}
     >
       <Box
         aria-hidden
@@ -147,19 +148,31 @@ export function PanelHeader({ title, note, action, id }) {
           flexShrink: 0,
         })}
       />
-      <Typography component="h2" id={id} variant="h5" sx={{ flexShrink: 0 }}>
+      <Typography
+        component="h2"
+        id={id}
+        sx={(t) => ({
+          flexShrink: 0,
+          color: t.component.panel.titleColor,
+          fontSize: t.component.panel.titleType.size,
+          fontWeight: t.component.panel.titleType.weight,
+          lineHeight: `${t.component.panel.titleType.lineHeight}px`,
+        })}
+      >
         {title}
       </Typography>
       {note && (
         <Typography
-          variant="body2"
-          sx={{
-            color: "text.secondary",
+          sx={(t) => ({
+            color: t.component.panel.noteColor,
+            fontSize: t.component.panel.noteType.size,
+            fontWeight: t.component.panel.noteType.weight,
+            lineHeight: `${t.component.panel.noteType.lineHeight}px`,
             minWidth: 0,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-          }}
+          })}
         >
           {note}
         </Typography>
@@ -178,7 +191,14 @@ export function Panel({ title, note, action, children, sx, labelledBy }) {
       component="section"
       variant="outlined"
       aria-labelledby={title ? headingId : undefined}
-      sx={{ overflow: "hidden", minWidth: 0, ...sx }}
+      sx={(t) => ({
+        overflow: "hidden",
+        minWidth: 0,
+        backgroundColor: t.component.panel.background,
+        borderColor: t.component.panel.border,
+        borderRadius: `${t.component.panel.radius}px`,
+        ...sx,
+      })}
     >
       {title && <PanelHeader id={headingId} title={title} note={note} action={action} />}
       {children}
@@ -389,33 +409,40 @@ export function KpiTile({
   return (
     <Paper
       variant="outlined"
-      sx={{
+      /* TIER 3 — every value here is a component token, editable live at
+         /admin/design-tokens. The `outlined` variant's border colour comes from
+         the same layer via the MuiPaper override in theme.js. */
+      sx={(t) => ({
         display: "flex",
         flexDirection: "column",
-        gap: 1,
-        minHeight: 160,
-        p: 2,
+        gap: `${t.component.kpiTile.gap}px`,
+        minHeight: t.component.kpiTile.minHeight,
+        padding: `${t.component.kpiTile.padding}px`,
+        borderRadius: `${t.component.kpiTile.radius}px`,
+        backgroundColor: t.component.kpiTile.background,
+        borderColor: t.component.kpiTile.border,
         minWidth: 0,
         ...sx,
-      }}
+      })}
     >
-      <Stack direction="row" sx={{ alignItems: "center", gap: 1, minWidth: 0 }}>
-        {/* Genus Label/M — 12/600/16, tracking 0. Not one of MUI's own
-            Typography variants, so it is set directly rather than through a
+      <Stack direction="row" sx={(t) => ({ alignItems: "center", gap: `${t.component.kpiTile.gap}px`, minWidth: 0 })}>
+        {/* Genus Label/M by default — 12/600/16. Not one of MUI's own Typography
+            variants, so it is set from the token directly rather than through a
             variant name that would silently fall back to body defaults. */}
         <Typography
           component="span"
-          sx={{
+          sx={(t) => ({
             flex: 1,
             minWidth: 0,
-            color: "text.secondary",
-            fontWeight: 600,
-            fontSize: 12,
-            lineHeight: "16px",
+            color: t.component.kpiTile.labelColor,
+            fontWeight: t.component.kpiTile.labelType.weight,
+            fontSize: t.component.kpiTile.labelType.size,
+            lineHeight: `${t.component.kpiTile.labelType.lineHeight}px`,
+            letterSpacing: `${t.component.kpiTile.labelType.tracking}px`,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-          }}
+          })}
         >
           {label}
         </Typography>
@@ -425,15 +452,15 @@ export function KpiTile({
             sx={(t) => {
               const c = toneColors(t, notConfigured ? "neutral" : tone);
               return {
-                width: 28,
-                height: 28,
+                width: t.component.kpiTile.iconSize,
+                height: t.component.kpiTile.iconSize,
                 flexShrink: 0,
                 display: "grid",
                 placeItems: "center",
-                borderRadius: `${t.shape.borderRadius}px`,
+                borderRadius: `${t.component.kpiTile.iconRadius}px`,
                 backgroundColor: c.bg,
                 color: c.fg,
-                "& svg": { fontSize: 20 },
+                "& svg": { fontSize: t.component.kpiTile.iconGlyph },
               };
             }}
           >
@@ -443,13 +470,18 @@ export function KpiTile({
       </Stack>
 
       <Typography
-        variant="h4"
         dir="ltr"
         sx={(t) => ({
           fontVariantNumeric: "tabular-nums",
           unicodeBidi: "isolate",
           whiteSpace: "nowrap",
-          color: notConfigured ? t.palette.text.tertiary : t.palette.text.primary,
+          fontSize: t.component.kpiTile.valueType.size,
+          fontWeight: t.component.kpiTile.valueType.weight,
+          lineHeight: `${t.component.kpiTile.valueType.lineHeight}px`,
+          letterSpacing: `${t.component.kpiTile.valueType.tracking}px`,
+          // A value the platform cannot state gets its own token and italics —
+          // never a plausible zero. AGENTS.md §2.
+          color: notConfigured ? t.component.kpiTile.unsetColor : t.component.kpiTile.valueColor,
           fontStyle: notConfigured ? "italic" : "normal",
         })}
       >

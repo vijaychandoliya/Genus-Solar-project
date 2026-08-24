@@ -3,12 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Genus Solar — SBPDCL rooftop-solar rollout programme platform",
+  "description": "Genus Solar \u2014 SBPDCL rooftop-solar rollout programme platform",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tokens": "node scripts/build-tokens.mjs"
+    "tokens": "node scripts/build-tokens.mjs && node scripts/check-a11y.mjs",
+    "check:a11y": "node scripts/check-a11y.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

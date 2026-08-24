@@ -111,8 +111,10 @@ export const NAV = [
     children: [
       { label: "BMS", to: "/telemetry/bms" },
       // The four GTI streams are route segments, so the nav points at the
-      // default one explicitly rather than relying on a redirect.
-      { label: "GTI", to: "/telemetry/gti/data" },
+      // default one explicitly rather than relying on a redirect. `match` is
+      // the subtree it owns: without it the row highlights on Data and goes
+      // blank on Heartbeat, Info and On demand.
+      { label: "GTI", to: "/telemetry/gti/data", match: "/telemetry/gti" },
       { label: "UPS", to: "/telemetry/ups" },
       { label: "Solar", to: "/telemetry/solar" },
       { label: "Meter", to: "/telemetry/meter" },
@@ -136,11 +138,47 @@ export const NAV = [
     children: [
       { label: "Users", to: "/admin/users" },
       { label: "Roles", to: "/admin/roles" },
+      { label: "Design tokens", to: "/admin/design-tokens" },
       { label: "Audit log", to: "/admin/audit" },
       { label: "Organisation", to: "/admin/organisation" },
     ],
   },
 ];
+
+/* ── which nav item owns the current path ─────────────────────────────────
+   A nav item's LINK TARGET and its MATCH SCOPE are different things, and both
+   navs used to conflate them by testing every item with
+   `pathname === to || pathname.startsWith(to + "/")`. That breaks two ways,
+   in opposite directions:
+
+   - **Two items lit at once.** A child sitting on its parent's root path
+     (`Inbox → /alarms`, `Devices → /assets`) is a *prefix* of its sibling, so
+     at `/alarms/rules` both Inbox and Rules matched — and the parent row too,
+     which is how one screen highlighted three rows.
+   - **No item lit at all.** A child pointing at one tab of a tabbed screen
+     (`GTI → /telemetry/gti/data`) matches none of the sibling tabs, so three
+     of GTI's four tabs highlighted nothing.
+
+   So: longest match wins, and `match` declares a subtree that is wider than
+   the link target. Both navs call this one function — the horizontal nav is a
+   separate component by necessity (see below), but the rule it applies must
+   not be a second copy that can drift.                                      */
+
+const NAV_TARGETS = NAV.flatMap((n) => [
+  ...(n.to ? [{ to: n.to, match: n.match ?? n.to }] : []),
+  ...(n.children ?? []).map((c) => ({ to: c.to, match: c.match ?? c.to })),
+]);
+
+/** The single `to` that owns `pathname`, or null when nothing does. */
+export function activeNavTarget(pathname) {
+  let best = null;
+  for (const t of NAV_TARGETS) {
+    if (pathname === t.match || pathname.startsWith(`${t.match}/`)) {
+      if (!best || t.match.length > best.match.length) best = t;
+    }
+  }
+  return best?.to ?? null;
+}
 
 /* ── live region ──────────────────────────────────────────────────────────
    One polite region owned by the shell, which every screen can post a
@@ -234,7 +272,14 @@ function HierarchyPicker({ compact, onPick }) {
 
 function SidebarContent({ mini, onNavigate }) {
   const [q, setQ] = useState("");
-  const [open, setOpen] = useState({ alarms: false, telemetry: false, data: false, admin: false });
+  // Seeded EMPTY on purpose. `expanded` below reads `open[id] ?? <a child is
+  // active>`, so a group only auto-expands to reveal the current page while its
+  // key is absent. Seeding `alarms/telemetry/data/admin` to `false` made `??`
+  // dead for exactly those four — deep-linking or reloading on /alarms/rules
+  // left the group shut with no indication of where you were. `assets` was
+  // omitted from that seed and is the one group that always behaved correctly.
+  // An explicit false still lands here the moment the user collapses a group.
+  const [open, setOpen] = useState({});
   const { pathname } = useLocation();
 
   const items = useMemo(() => {
@@ -247,7 +292,8 @@ function SidebarContent({ mini, onNavigate }) {
     }).filter(Boolean);
   }, [q]);
 
-  const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`);
+  const activeTo = activeNavTarget(pathname);
+  const isActive = (to) => to === activeTo;
 
   return (
     <Stack sx={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
@@ -495,7 +541,8 @@ function SidebarContent({ mini, onNavigate }) {
 function HorizontalNav() {
   const { pathname } = useLocation();
   const [menu, setMenu] = useState(null);
-  const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`);
+  const activeTo = activeNavTarget(pathname);
+  const isActive = (to) => to === activeTo;
 
   return (
     <Stack

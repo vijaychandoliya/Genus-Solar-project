@@ -8,6 +8,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
+import { resolveTokens, assertResolved } from "../src/lib/token-resolve.js";
 
 const root = (p) => fileURLToPath(new URL(p, import.meta.url));
 const src = JSON.parse(readFileSync(root("./figma-tokens.json"), "utf8"));
@@ -24,144 +25,38 @@ const BANNER = `/**
  * the nonFigma.$provenance note in scripts/figma-tokens.json.
  */`;
 
-/* ── helpers ─────────────────────────────────────────────────────────────── */
+/* ── resolve ──────────────────────────────────────────────────────────────
+   The resolution itself lives in src/lib/token-resolve.js, shared with the
+   contrast gate and the token editor's live preview. This file only EMITS.
+
+   That split is deliberate: when the editor previews a draft it runs this exact
+   function, so "it looked right in the editor" and "this is what the build
+   writes" are the same statement rather than two hopeful ones.               */
 
 const varName = (path) => `--genus-${path.replace(/\//g, "-")}`;
 
-/** "neutral.950" | "white" → hex, resolved out of primitives. */
-function deref(alias) {
-  const [family, step] = alias.split(".");
-  const node = src.primitives[family];
-  if (node === undefined) throw new Error(`unknown primitive family: ${alias}`);
-  if (step === undefined) {
-    if (typeof node !== "string") throw new Error(`${family} needs a step`);
-    return node;
-  }
-  const hex = node[step];
-  if (!hex) throw new Error(`unknown primitive step: ${alias}`);
-  return hex;
-}
+const R = resolveTokens(src);
+const { flat: prims, semantic, contrastOn, derivations, components } = R;
+const light = semantic.light;
+const dark = semantic.dark;
 
-/** Flatten primitives to { "blue-500": "#0467b2", "white": "#ffffff", … }. */
-function flatPrimitives() {
-  const out = {};
-  for (const [family, node] of Object.entries(src.primitives)) {
-    if (typeof node === "string") out[family] = node;
-    else for (const [step, hex] of Object.entries(node)) out[`${family}-${step}`] = hex;
-  }
-  return out;
-}
+// The resolver also returns each scheme's `base` and full `ramp`, which the token
+// editor needs to render and re-generate a ramp. They are stripped here: this
+// file is the SHIPPED snapshot, and it should not carry data only the editor
+// uses. The editor resolves from the source document instead.
+const schemes = Object.fromEntries(
+  Object.entries(R.schemes).map(([id, s]) => {
+    const { base, ramp, ...shipped } = s;
+    return [id, shipped];
+  }),
+);
 
-/** Resolve every semantic token for one mode → { "surface/canvas": "#ffffff", … }. */
-function resolveSemantic(mode) {
-  const out = {};
-  for (const [path, alias] of Object.entries(src.semantic)) {
-    if (path.startsWith("$")) continue;
-    out[path] = deref(alias[mode]);
-  }
-  return out;
-}
+/* ── sanity checks, so a bad extraction fails loudly here ─────────────────
+   assertResolved() is the same function the editor runs against a draft, so the
+   editor can tell a user what would fail BEFORE they export.                 */
 
-/* ── colour schemes ───────────────────────────────────────────────────────
-   A scheme swaps the BRAND HUE and nothing else. Neutrals, surfaces, text,
-   borders and the status ramps are untouched, so no scheme can break contrast
-   or restyle a warning.                                                      */
-
-/** One monotonic lightness curve for every generated ramp. */
-const RAMP_LIGHTNESS = { 100: 92, 200: 80, 300: 69, 400: 58, 500: 47, 600: 38, 700: 28 };
-
-function hexToHsl(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = ((n >> 16) & 255) / 255;
-  const g = ((n >> 8) & 255) / 255;
-  const b = (n & 255) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  let h = 0;
-  let s = 0;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-    else if (max === g) h = ((b - r) / d + 2) / 6;
-    else h = ((r - g) / d + 4) / 6;
-  }
-  return { h: h * 360, s: s * 100, l: l * 100 };
-}
-
-function hslToHex(h, s, l) {
-  const S = s / 100;
-  const L = l / 100;
-  const c = (1 - Math.abs(2 * L - 1)) * S;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = L - c / 2;
-  const seg = [
-    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
-  ][Math.floor((h % 360) / 60)];
-  const to = (v) =>
-    Math.round((v + m) * 255)
-      .toString(16)
-      .padStart(2, "0");
-  return `#${to(seg[0])}${to(seg[1])}${to(seg[2])}`;
-}
-
-/**
- * Step 500 IS the given base, verbatim — the chosen colour is never "corrected".
- * The other steps keep its hue and saturation and only move lightness, so a
- * muted base stays muted instead of being pushed to a vivid mid-tone.
- */
-function generateRamp(base) {
-  const { h, s, l } = hexToHsl(base);
-  const anchor = RAMP_LIGHTNESS[500];
-  return Object.fromEntries(
-    Object.entries(RAMP_LIGHTNESS).map(([step, target]) => [
-      step,
-      Number(step) === 500 ? base : hslToHex(h, s, l + (target - anchor)),
-    ]),
-  );
-}
-
-function buildSchemes() {
-  const out = {};
-  for (const [id, def] of Object.entries(src.schemes)) {
-    if (id.startsWith("$")) continue;
-    const ramp = def.ramp ? src.primitives[def.ramp] : generateRamp(def.base);
-    out[id] = {
-      label: def.label,
-      // Figma-sourced schemes are flagged, so a reader can tell which nine of
-      // these the design system actually stands behind.
-      fromFigma: Boolean(def.ramp),
-      swatch: ramp[500],
-      light: { rest: ramp[500], hover: ramp[600], pressed: ramp[700], focus: ramp[500] },
-      dark: { rest: ramp[400], hover: ramp[300], pressed: ramp[200], focus: ramp[300] },
-    };
-  }
-  return out;
-}
-
-const prims = flatPrimitives();
-const light = resolveSemantic("light");
-const dark = resolveSemantic("dark");
-const schemes = buildSchemes();
-
-/* ── sanity checks, so a bad extraction fails loudly here ─────────────────── */
-
-const problems = [];
-const EXPECTED_SEMANTIC = 28;
+const problems = assertResolved(R);
 const semCount = Object.keys(light).length;
-if (semCount !== EXPECTED_SEMANTIC)
-  problems.push(`expected ${EXPECTED_SEMANTIC} semantic tokens, resolved ${semCount}`);
-
-for (const [path, hex] of Object.entries({ ...light, ...dark }))
-  if (!/^#[0-9a-f]{6}$/i.test(hex)) problems.push(`${path} resolved to a non-hex: ${hex}`);
-
-// Every semantic token must actually differ between modes, or it is not semantic.
-// text/on-brand is the one legitimate exception — white on brand fill in both modes.
-const SAME_IN_BOTH_MODES_OK = new Set(["text/on-brand"]);
-for (const path of Object.keys(light))
-  if (light[path] === dark[path] && !SAME_IN_BOTH_MODES_OK.has(path))
-    problems.push(`${path} is identical in light and dark (${light[path]}) — check the alias table`);
 
 if (problems.length) {
   console.error("Token build failed:\n  " + problems.join("\n  "));
@@ -179,7 +74,7 @@ const primBlock = Object.entries(prims)
   .map(([k, v]) => `  --genus-${k}: ${v};`)
   .join("\n");
 
-const { spacing, radius, motion, layout } = src.nonFigma;
+const { spacing, radius, motion, layout } = R;
 
 const scaleBlock = [
   ...Object.entries(spacing).map(([k, v]) => `  --genus-space-${k}: ${v}px;`),
@@ -276,6 +171,24 @@ export const type = ${j(src.type)};
  */
 export const schemes = ${j(schemes)};
 
+/**
+ * Compliant label colours for the fills a scheme does NOT change — the accent
+ * and the four status ramps. DERIVED, not extracted: Figma's single
+ * \`text/on-brand\` (white) is 1.9:1 on warning-500, so one shared value cannot
+ * be correct for every fill. See docs/token-engine-architecture.md §0.5.
+ */
+export const contrastOn = ${j(contrastOn)};
+
+/**
+ * TIER 3 — component slots, resolved per mode. \`theme.component.kpiTile.padding\`.
+ *
+ * A component reads these instead of hard-coding its own geometry and colour, so
+ * a designer can retune a card in the editor without a developer opening the
+ * file. Every slot aliases a lower tier; see the \`components\` block in
+ * scripts/figma-tokens.json for the reference syntax and the tier rule.
+ */
+export const components = ${j(components)};
+
 /** Body-face presets. The ramp itself never changes — only the family. */
 export const fonts = ${j(
   Object.fromEntries(Object.entries(src.fonts).filter(([k]) => !k.startsWith("$"))),
@@ -327,5 +240,19 @@ console.log(
     `${Object.keys(src.type.styles).length} type styles, ` +
     `${Object.keys(schemes).length} schemes (${figmaSchemes} from Figma, ` +
     `${Object.keys(schemes).length - figmaSchemes} generated), ` +
-    `${Object.keys(src.fonts).filter((k) => !k.startsWith("$")).length} fonts`,
+    `${Object.keys(src.fonts).filter((k) => !k.startsWith("$")).length} fonts, ` +
+    `${derivations.length} derived foregrounds`,
 );
+
+// The blast radius of the override, stated so a reader does not have to diff the
+// generated files. Labels and rings are counted separately because "could not
+// use white" is meaningless for a ring — a ring is a brand step, not a label.
+const labels = derivations.filter((d) => d.kind === "label");
+const rings = derivations.filter((d) => d.kind === "ring");
+const offWhite = labels.filter((d) => d.fg !== src.primitives.white);
+const movedRings = rings.filter((d) => d.step !== d.defaultStep);
+console.log(
+  `  labels: ${offWhite.length} of ${labels.length} cannot use white ` +
+    `(${offWhite.filter((d) => d.fg === src.primitives.black).length} need pure black)`,
+);
+console.log(`  rings:  ${rings.length} derived, ${movedRings.length} moved off the default step`);

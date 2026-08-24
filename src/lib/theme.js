@@ -1,9 +1,14 @@
 /**
- * The MUI theme, assembled entirely from generated tokens.
+ * The MUI theme, assembled entirely from tokens.
  *
  * There is not a single colour, font size or radius literal in this file — every
- * value dereferences src/lib/tokens.js, which is generated from the Figma export.
- * If a value looks wrong, fix it in Figma and re-run `npm run tokens`.
+ * value comes from a token bundle. By default that is src/lib/tokens.js, the
+ * generated snapshot. The token editor (`/admin/design-tokens`) passes a
+ * live-resolved bundle instead, which is how an edit repaints the product
+ * without a reload.
+ *
+ * If a value looks wrong, change the token — in the editor, or in
+ * scripts/figma-tokens.json followed by `npm run tokens`. Never here.
  */
 import { createTheme, alpha } from "@mui/material/styles";
 import {
@@ -16,6 +21,8 @@ import {
   font,
   schemes,
   fonts,
+  contrastOn,
+  components,
 } from "./tokens.js";
 
 /* ── type ramp → MUI variants ─────────────────────────────────────────────
@@ -41,7 +48,7 @@ const VARIANT_OF = {
 /** Semantic band → the palette pair that paints it. See docs §5.1. */
 export const BANDS = ["normal", "watch", "warning", "critical", "unknown"];
 
-function bandPalette(s) {
+function bandPalette(s, primitives) {
   return {
     // `normal` is intentionally colourless — emphasis is a zero-sum budget and a
     // grid where every cell is tinted has no exceptions left to notice.
@@ -73,7 +80,27 @@ function bandPalette(s) {
   };
 }
 
-export function getTheme(mode = "light", direction = "ltr", scheme = "default", fontId = "inter") {
+/**
+ * The generated snapshot, used unless a caller passes an edited bundle. Keeping
+ * this as the default means the app boots with zero resolution cost and the
+ * token editor is purely additive.
+ */
+const DEFAULT_TOKENS = {
+  primitives, semantic, type, radius, motion, spacing, font, schemes, fonts, contrastOn, components,
+};
+
+/**
+ * Build the MUI theme.
+ *
+ * `T` is a token bundle — the generated one by default, or a live-resolved one
+ * from the token editor (see src/lib/token-store.jsx). It is destructured into
+ * names that SHADOW the module-level imports, so every reference in the body
+ * below reads from whichever bundle was passed without another line changing.
+ */
+export function getTheme(mode = "light", direction = "ltr", scheme = "default", fontId = "inter", T = DEFAULT_TOKENS) {
+  const {
+    primitives, semantic, type, radius, motion, spacing, font, schemes, fonts, contrastOn, components,
+  } = T;
   const dark = mode === "dark";
   const base = semantic[dark ? "dark" : "light"];
 
@@ -88,6 +115,14 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
     "action/primary/pressed": sch.pressed,
     "focus/ring": sch.focus,
   };
+
+  // Derived label colours for the fills a scheme does not change. `sch.onBrand`
+  // covers the brand fill, which does change per scheme.
+  const on = contrastOn[dark ? "dark" : "light"];
+
+  // Tier 3, for this mode. Read by the MuiButton/MuiChip overrides below and
+  // exposed on the theme root as `component` for custom components.
+  const comp = components[dark ? "dark" : "light"];
 
   const family = (fonts[fontId] ?? fonts.inter).stack;
 
@@ -107,42 +142,50 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
     palette: {
       mode: dark ? "dark" : "light",
 
+      // `contrastText` is DERIVED per fill, not read from `text/on-brand`.
+      //
+      // Figma declares one on-brand colour — white — and it does not survive
+      // contact with the fills it lands on. White clears 4.5:1 on 3 of the 18
+      // scheme/mode brand fills, and is 1.9:1 on warning-500. Every value below
+      // comes from build-tokens.mjs, which picks the first of
+      // white / neutral-950 / black that clears AA on that specific fill and
+      // fails the build if none does. See docs/token-engine-architecture.md §0.5.
       primary: {
         main: s["action/primary/rest"],
         light: s["action/primary/hover"],
         dark: s["action/primary/pressed"],
-        contrastText: s["text/on-brand"],
+        contrastText: sch.onBrand,
       },
       secondary: {
         main: s["action/accent/rest"],
         light: s["action/accent/hover"],
         dark: s["action/accent/pressed"],
-        contrastText: s["text/on-brand"],
+        contrastText: on.accent,
       },
 
       success: {
         main: primitives.success[500],
         light: s["status/success/background"],
         dark: s["status/success/foreground"],
-        contrastText: s["text/on-brand"],
+        contrastText: on.success,
       },
       warning: {
         main: primitives.warning[500],
         light: s["status/warning/background"],
         dark: s["status/warning/foreground"],
-        contrastText: s["text/on-brand"],
+        contrastText: on.warning,
       },
       error: {
         main: primitives.danger[500],
         light: s["status/danger/background"],
         dark: s["status/danger/foreground"],
-        contrastText: s["text/on-brand"],
+        contrastText: on.danger,
       },
       info: {
         main: primitives.info[500],
         light: s["status/info/background"],
         dark: s["status/info/foreground"],
-        contrastText: s["text/on-brand"],
+        contrastText: on.info,
       },
 
       // The reference "Dashboard Template" screen in the Genus Design System
@@ -177,10 +220,19 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
         strong: s["border/strong"],
       },
       focusRing: s["focus/ring"],
-      band: bandPalette(s),
+      band: bandPalette(s, primitives),
     },
 
     typography,
+
+    /**
+     * TIER 3, on the theme root rather than inside `palette` — a component slot
+     * bag holds dimensions and type styles as well as colours, and burying
+     * `padding` inside `palette` would be a lie about what it is.
+     *
+     *   sx={(t) => ({ p: `${t.component.kpiTile.padding}px` })}
+     */
+    component: comp,
 
     // Surfaces. Controls get 4 through the component overrides below — never
     // change `shape` to fix a control, it rescales every borderRadius in the app.
@@ -229,11 +281,14 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
+          // TIER 3 — Components → Button in the token editor.
           root: {
-            borderRadius: radius.control,
-            minHeight: 32,
-            paddingInline: spacing[3],
-            ...font["label/l"],
+            borderRadius: comp.button.radius,
+            minHeight: comp.button.minHeight,
+            paddingInline: comp.button.paddingInline,
+            fontSize: comp.button.labelType.size,
+            fontWeight: comp.button.labelType.weight,
+            lineHeight: `${comp.button.labelType.lineHeight}px`,
             textTransform: "none",
           },
           sizeSmall: { minHeight: 28, ...font["label/m"] },
@@ -269,8 +324,16 @@ export function getTheme(mode = "light", direction = "ltr", scheme = "default", 
 
       MuiChip: {
         styleOverrides: {
-          root: { borderRadius: radius.pill, ...font["label/m"], height: 22 },
-          label: { paddingInline: spacing[2] },
+          // TIER 3 — Components → Status chip. Colour still comes from the band
+          // system; only geometry is a slot.
+          root: {
+            borderRadius: comp.statusChip.radius,
+            height: comp.statusChip.height,
+            fontSize: comp.statusChip.labelType.size,
+            fontWeight: comp.statusChip.labelType.weight,
+            lineHeight: `${comp.statusChip.labelType.lineHeight}px`,
+          },
+          label: { paddingInline: comp.statusChip.paddingInline },
         },
       },
 

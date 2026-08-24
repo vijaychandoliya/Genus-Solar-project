@@ -16,17 +16,78 @@ the app look machine-assembled.
 ## 1 · Tokens are generated, never written
 
 ```
-Figma  ──►  scripts/figma-tokens.json  ──►  npm run tokens  ──►  src/tokens.css
-                                                             └►  src/lib/tokens.js
+                    ┌─ src/lib/token-resolve.js ─┐        ┌► src/tokens.css
+Figma ─► scripts/    │  ONE resolver, 3 callers   │        │
+         figma-      ├────────────────────────────┤        ├► src/lib/tokens.js
+         tokens.json │ build-tokens.mjs (emit)    ├─ npm ──┤
+              ▲      │ check-a11y.mjs   (gate)    │  run   └► exit 1 on any
+              │      │ token-store.jsx  (live)    │ tokens    contrast shortfall
+              │      └────────────────────────────┘
+              └──── export ──── /admin/design-tokens (the live editor)
 ```
 
 `src/tokens.css` and `src/lib/tokens.js` carry a DO-NOT-EDIT banner and mean it. A wrong value is
-wrong in Figma or in the extraction — fix it there and regenerate.
+wrong in `figma-tokens.json` — fix it there, or in the editor, and regenerate.
+
+**The editor does not write to disk.** `/admin/design-tokens` edits every token live — a draft is a
+sparse override patch in `localStorage`, resolved through the same `resolveTokens()` the build uses,
+so its preview *is* the build output rather than an approximation of it. Landing a change means
+Export → merge into `figma-tokens.json` → `npm run tokens`. That keeps the reviewed JSON the source
+of truth and keeps every change a diff someone can read, which is the whole point of this section.
+
+**Every edit is reversible at the scope the mistake happened at** — one slot, one state, one variant,
+one component, one tier, or the whole draft. *Review changes* lists every edit with its original
+value and a way back. Nothing is destructive: a reset pushes the previous draft onto the undo stack,
+so Undo restores it, and the confirmation dialog says so. A lone "discard all" would force a person
+who mis-set one padding to choose between hunting it down and losing an afternoon.
 
 The generator fails loudly rather than emitting something plausible. It asserts 28 semantic tokens,
-valid hex on every one, and that **every semantic token differs between light and dark** — a token
-that resolves identically in both modes is not semantic and is almost always a bad extraction.
-`text/on-brand` is the single allowed exception.
+valid hex on every one, that **every semantic token differs between light and dark** — a token that
+resolves identically in both modes is not semantic and is almost always a bad extraction — and that
+every derived foreground clears AA. `text/on-brand` is the single allowed same-in-both-modes
+exception, and it is no longer *applied*: see §1a.
+
+### 1a · Contrast is a gate, not a guideline
+
+`npm run tokens` scores **2,016 pairs** — the semantic contract in `src/tokens/contracts.json` plus
+every tier-3 component variant and state, across 9 schemes × 2 modes — and exits non-zero on any
+shortfall. A pair that is not declared is **unchecked**, not compliant.
+
+Tier 3 pairs are **auto-derived**: every state carrying both `fg` and `bg` is scored, so declaring a
+state declares its coverage and there is no second file to forget. A state named `disabled` is
+auto-exempt under 1.4.3. A border is only scored when the component declares
+`$borderRole: "control"` — a field outline identifies its control, a table row rule does not, and
+they look identical in code.
+
+Four verdicts, and the two extra ones carry the design:
+
+| | |
+|---|---|
+| `pass` | cleared its threshold |
+| `fail` | did not. The only verdict that blocks |
+| `exempt` | a declared WCAG provision, with an owner. Reported, never scored. **Not a pass** |
+| `unknown` | cannot be judged — missing token, or alpha over an unknown backdrop. Never blocks |
+
+This is §2's discipline applied to colour: an unjudgeable pair returns `unknown`, never `pass`.
+
+> **`contrastText` is derived per fill, never one shared token.** Figma declares `text/on-brand` as
+> white; white clears 4.5:1 on **3 of 18** scheme/mode brand fills and is 1.9:1 on warning-500. So
+> `build-tokens.mjs` picks the first of white / neutral-950 / black that clears AA on each specific
+> fill and fails the build if none does. Indigo and Periwinkle in light mode need pure black — they
+> sit at the luminance where neither white nor neutral-950 reaches 4.5:1.
+>
+> The focus ring gets the same treatment: it walks the ramp to the first step clearing 3:1 against
+> the hardest surface in that mode, which moves Sunset and Teal off step 500 and leaves the other
+> seven untouched.
+>
+> **113 known defects are on record**, held to an exact count so the list cannot quietly grow or
+> quietly stop being true. They are three causes, not 113 problems — 81 of them are one: the brand
+> colour used as 14px text. `action/primary/rest` is `ramp[400]` in dark mode, chosen to work as a
+> fill and as a 3:1 indicator, and it gives 4.08:1 as a label. That hits every outlined button, text
+> button, active nav row and selected tab, in every scheme. The semantic contract had declared this
+> token `ui` (3:1), which passes — only recording how a component actually *uses* it revealed it is
+> also a label. See [token-engine-architecture.md](docs/token-engine-architecture.md) §0.5–0.6, §5.6
+> and `src/tokens/baseline.js`.
 
 **Never hard-code a colour, size, radius or duration.** Use `theme.palette.*` in an `sx` callback,
 `alpha(t.palette.X, n)` for tints, and `font["title/m"]` from tokens for type. If you need a value
