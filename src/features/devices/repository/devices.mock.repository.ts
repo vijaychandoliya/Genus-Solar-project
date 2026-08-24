@@ -11,9 +11,26 @@ import { NotFoundError } from "../../../services/http/errors.js";
 import type { Device, DeviceInput, DeviceQuery, Paged } from "../model/device.model.js";
 import type { DeviceRepository } from "./devices.repository.js";
 import { DEVICE_FIXTURES } from "../mocks/devices.fixture.js";
+import { fromLegacy } from "../mocks/devices.from-legacy.js";
+// The legacy module is plain JavaScript. `allowJs` infers it, so no suppression
+// is needed — and the boundary is crossed in ONE place and mapped immediately
+// rather than leaking untyped values through the codebase.
+import { devicesFor } from "../../../lib/device-data.js";
 
 /** Real networks are neither instant nor uniform. Neither is this. */
 const latency = () => new Promise((r) => setTimeout(r, 120 + Math.random() * 280));
+
+/**
+ * Serve the REAL parsed payloads, scoped by hierarchy node, so refactoring a
+ * screen onto this stack changes nothing a user can see — and any visual
+ * difference means the refactor is wrong. `DEVICE_FIXTURES` stays as the
+ * hand-written set the contract tests run against, because those need a stable,
+ * known shape rather than whatever the payloads happen to contain today.
+ */
+function legacyScope(scopeId: string | undefined): Device[] {
+  const raw = (devicesFor as (id: string | undefined) => unknown[])(scopeId) ?? [];
+  return raw.map((d) => fromLegacy(d as Parameters<typeof fromLegacy>[0]));
+}
 
 let store: Device[] = [...DEVICE_FIXTURES];
 
@@ -36,7 +53,10 @@ export const mockDeviceRepository: DeviceRepository = {
     await latency();
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 50;
-    const matched = filter(store, query);
+    // A scoped query is answered from the real payloads; an unscoped one from
+    // the stable fixture set, which is what the contract tests exercise.
+    const source = query.scopeId === undefined ? store : legacyScope(query.scopeId);
+    const matched = filter(source, query);
     const start = (page - 1) * pageSize;
     return { items: matched.slice(start, start + pageSize), total: matched.length, page, pageSize };
   },
@@ -67,6 +87,7 @@ export const mockDeviceRepository: DeviceRepository = {
       reportIntervalMs: null,
       intervalIsDeclared: false,
       nameplate: input.nameplate,
+      latestPayload: null,
     };
     store = [device, ...store];
     return device;

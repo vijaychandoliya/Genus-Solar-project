@@ -49,6 +49,15 @@ export interface Device {
   /** False when we fell back to the class default — see device.rules. */
   readonly intervalIsDeclared: boolean;
   readonly nameplate: Nameplate;
+  /**
+   * The most recent raw payload, for the "view payload" dialog.
+   *
+   * Deliberately `unknown` and deliberately opaque: this is telemetry, which is
+   * a different domain with its own shape per device class. Modelling it here
+   * would drag the whole telemetry schema into the device registry. The dialog
+   * renders it as JSON; nothing else may read into it.
+   */
+  readonly latestPayload: unknown;
 }
 
 /** A page of devices. The shape every list repository returns. */
@@ -61,6 +70,8 @@ export interface Paged<T> {
 
 /** What a list screen may ask for. Mirrors the URL, so a filter is shareable. */
 export interface DeviceQuery {
+  /** Hierarchy node the list is scoped to. The product is always scoped. */
+  readonly scopeId?: string;
   readonly page?: number;
   readonly pageSize?: number;
   readonly search?: string;

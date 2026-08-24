@@ -41,6 +41,7 @@ export const DEVICE_FIXTURES: readonly Device[] = [
       gateway_hardware: "GW-R2",
       rated_kw: 5,
     },
+    latestPayload: null,
   },
   {
     // Late, and missing half its nameplate — the common real-world row.
@@ -64,6 +65,7 @@ export const DEVICE_FIXTURES: readonly Device[] = [
       meter_firmware: "G36A5.160001",
       meter_current_rating: "5-30A",
     },
+    latestPayload: null,
   },
   {
     // Never reported. Distinct from "stale" on purpose — see device.rules.
@@ -86,6 +88,7 @@ export const DEVICE_FIXTURES: readonly Device[] = [
       chemistry: "LFP",
       rated_capacity_ah: 200,
     },
+    latestPayload: null,
   },
   {
     // Stale: hours overdue against a 15-minute interval.
@@ -103,6 +106,7 @@ export const DEVICE_FIXTURES: readonly Device[] = [
     reportIntervalMs: null,
     intervalIsDeclared: false,
     nameplate: {},
+    latestPayload: null,
   },
   {
     // Disabled. Should not disappear from lists — operators need to see it.
@@ -124,5 +128,6 @@ export const DEVICE_FIXTURES: readonly Device[] = [
       meter_firmware: "G36A5.160001",
       meter_current_rating: "10-60A",
     },
+    latestPayload: null,
   },
 ];

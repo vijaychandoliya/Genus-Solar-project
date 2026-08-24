@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run tokens && npm run build",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "verify:no-mocks": "rm -rf dist && VITE_DATA_SOURCE=api vite build >/dev/null 2>&1 && (grep -rq \"GTI-BHR-000141\" dist/assets/*.js && echo \"FAIL - fixtures shipped in the api build\" && exit 1 || echo \"OK - no fixtures in the api build\")"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

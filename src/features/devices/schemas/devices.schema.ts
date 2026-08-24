@@ -39,6 +39,8 @@ export const DeviceApiSchema = z.object({
   last_seen_at: z.iso.datetime().nullable().default(null),
   report_interval_ms: z.number().int().positive().nullable().default(null),
   nameplate: NameplateApiSchema.nullable().default(null),
+  // Opaque by design — see Device.latestPayload.
+  latest_payload: z.unknown().nullable().default(null),
 });
 
 export const DeviceListApiSchema = z.object({

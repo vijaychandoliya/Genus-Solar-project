@@ -39,7 +39,9 @@ import {
   WsTag,
 } from "../components/atoms.jsx";
 import { useHierarchy, LEVEL_LABEL } from "../lib/hierarchy.jsx";
-import { devicesFor, PENDING, INTERVAL_IS_SEED } from "../lib/device-data.js";
+import { PENDING, INTERVAL_IS_SEED } from "../lib/device-data.js";
+import { useDevices } from "../features/devices/index.js";
+import { AsyncBoundary } from "../components/feedback/states.tsx";
 import { bandFor } from "../lib/bands.js";
 import { exInt, toDmyTime, ageFrom } from "../lib/format.js";
 
@@ -53,13 +55,13 @@ const CLASSES = [
 /** Completeness is a percentage, so it gets a band — but a low one is a data
  *  gap, not a device fault, so the copy says which. */
 function CompletenessCell({ row }) {
-  if (row.completeness == null) return <WsTag label="No schema" />;
+  if (row.completenessPct == null) return <WsTag label="No schema" />;
   return (
     <BandedValue
-      value={row.completeness}
+      value={row.completenessPct}
       unit="%"
       dp={0}
-      band={bandFor("photo_completeness", row.completeness)}
+      band={bandFor("photo_completeness", row.completenessPct)}
     />
   );
 }
@@ -71,21 +73,20 @@ export default function Devices() {
   const [payload, setPayload] = useState(null);
   const [menu, setMenu] = useState({ anchor: null, row: null });
 
-  const all = useMemo(() => devicesFor(node.id), [node]);
-  const rows = useMemo(
-    () =>
-      all.filter(
-        (d) =>
-          (!deviceClass || d.deviceClass === deviceClass) &&
-          (!query ||
-            String(d.deviceNo).toLowerCase().includes(query.toLowerCase()) ||
-            String(d.consumerRef ?? "").includes(query)),
-      ),
-    [all, deviceClass, query],
-  );
+  // Data access is now the hook's problem. This page does not know whether the
+  // rows came from a fixture, an HTTP call or a cache — which is the point.
+  const scoped = useDevices({ scopeId: node.id });
+  const filtered = useDevices({
+    scopeId: node.id,
+    ...(deviceClass ? { deviceClass } : {}),
+    ...(query ? { search: query } : {}),
+  });
+
+  const all = scoped.data?.rows ?? [];
+  const rows = filtered.data?.rows ?? [];
 
   const cols = wsCols([
-    ["deviceNo", "Device no.", { minWidth: 190 }],
+    ["name", "Device no.", { minWidth: 190 }],
     [
       "deviceClass",
       "Class",
@@ -109,7 +110,7 @@ export default function Devices() {
       },
     ],
     [
-      "completeness",
+      "completenessPct",
       "Nameplate",
       { width: 130, align: "right", renderCell: ({ row }) => <CompletenessCell row={row} /> },
     ],
@@ -119,12 +120,12 @@ export default function Devices() {
       {
         width: 160,
         renderCell: ({ row }) => (
-          <FreshnessChip freshness={row.freshness} age={row.lastSeen ? ageFrom(row.lastSeen) : undefined} />
+          <FreshnessChip freshness={row.freshness} age={row.lastSeenAt ? ageFrom(row.lastSeenAt) : undefined} />
         ),
       },
     ],
     [
-      "lastSeen",
+      "lastSeenAt",
       "Last reading",
       { width: 150, sortable: false, renderCell: ({ value }) => (value ? toDmyTime(value) : "—") },
     ],
@@ -156,7 +157,7 @@ export default function Devices() {
         renderCell: ({ row }) => (
           <IconButton
             size="small"
-            aria-label={`Actions for device ${row.deviceNo}`}
+            aria-label={`Actions for device ${row.name}`}
             onClick={(e) => {
               e.stopPropagation();
               setMenu({ anchor: e.currentTarget, row });
@@ -216,15 +217,12 @@ export default function Devices() {
         />
       </FilterBar>
 
-      <WsTable
-        title="Registry"
-        note="The device number is frozen — the table is wider than the viewport and the identity must not scroll away."
-        exportName="device-registry"
-        cols={cols}
-        rows={rows}
-        lockFirstColumn
-        pageSize={10}
-        emptyOverlay={
+      {/* Loading, error and empty resolved once, the same way every screen does
+          it. The table's own emptyOverlay still covers "the filter matched
+          nothing", which is a different thing from "there are no devices". */}
+      <AsyncBoundary
+        state={filtered}
+        empty={
           <EmptyState
             icon={<DevicesOtherOutlinedIcon />}
             title="Registry not yet ingested"
@@ -232,7 +230,27 @@ export default function Devices() {
             minHeight={200}
           />
         }
-      />
+      >
+        {() => (
+          <WsTable
+            title="Registry"
+            note="The device number is frozen — the table is wider than the viewport and the identity must not scroll away."
+            exportName="device-registry"
+            cols={cols}
+            rows={rows}
+            lockFirstColumn
+            pageSize={10}
+            emptyOverlay={
+              <EmptyState
+                icon={<DevicesOtherOutlinedIcon />}
+                title="No devices match these filters"
+                body="Try a different class, or clear the search."
+                minHeight={200}
+              />
+            }
+          />
+        )}
+      </AsyncBoundary>
 
       <Menu
         open={Boolean(menu.anchor)}
@@ -242,7 +260,7 @@ export default function Devices() {
         <MenuItem
           onClick={() => {
             setPayload({
-              title: `Device ${menu.row?.deviceNo}`,
+              title: `Device ${menu.row?.name}`,
               subtitle: "Registry record as stored",
               body: menu.row,
             });
