@@ -202,16 +202,15 @@ export function ComponentsTab({ scope, guard }) {
   const [variant, setVariant] = useState(null);
   const [state, setState] = useState(null);
 
-  if (!ids.length)
-    return (
-      <EmptyState
-        title="No component tokens declared"
-        body="Add a `components` block to scripts/figma-tokens.json. Each slot aliases a lower tier; see the $note in that file for the reference syntax."
-      />
-    );
-
-  const def = resolved.componentDefs[selected];
-  const values = resolved.components[scope.mode][selected] ?? {};
+  // The empty guard used to sit HERE, above the useMemos below — so this
+  // component called three hooks when components existed and none when they did
+  // not, and React would throw "rendered fewer hooks than expected" on the
+  // transition. It never fired only because 16 components are always declared;
+  // a broken draft or an adapter with no component tier would have found it.
+  // The guard now sits immediately before the JSX, after every hook. Caught by
+  // react-hooks/rules-of-hooks when the linter was introduced.
+  const def = resolved.componentDefs?.[selected] ?? {};
+  const values = resolved.components?.[scope.mode]?.[selected] ?? {};
   const variantDefs = def.$variants ?? {};
   const variantIds = Object.keys(variantDefs).filter((k) => !k.startsWith("$"));
   const vid = variantIds.includes(variant) ? variant : variantIds[0] ?? null;
@@ -219,7 +218,7 @@ export function ComponentsTab({ scope, guard }) {
   const stateIds = vdef ? Object.keys(vdef.$states ?? {}).filter((k) => !k.startsWith("$")) : [];
   const sid = stateIds.includes(state) ? state : stateIds[0] ?? null;
 
-  const rows = componentRows(resolved, selected, scope);
+  const rows = ids.length ? componentRows(resolved, selected, scope) : [];
   const rowsByState = useMemo(() => {
     const out = {};
     for (const r of rows) if (r.variant === vid && r.state) (out[r.state] ??= []).push(r);
@@ -472,7 +471,15 @@ export function ComponentsTab({ scope, guard }) {
                   const cmp = compare(path);
                   const ref = scope.mode === "dark" && spec.$darkValue !== undefined ? spec.$darkValue : spec.$value;
                   const tier = parseSlotRef(ref)?.tier;
-                  return (
+                  if (!ids.length)
+    return (
+      <EmptyState
+        title="No component tokens declared"
+        body="Add a `components` block to scripts/figma-tokens.json. Each slot aliases a lower tier; see the $note in that file for the reference syntax."
+      />
+    );
+
+  return (
                     <SlotField
                       key={slot}
                       component={selected}
