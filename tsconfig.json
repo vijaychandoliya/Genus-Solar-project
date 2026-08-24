@@ -1,0 +1,52 @@
+{
+  "$comment": [
+    "TypeScript is enabled INCREMENTALLY, not by a big-bang rewrite.",
+    "",
+    "`allowJs: true` + `checkJs: false` means the 62 existing .js/.jsx files keep",
+    "working untouched and untypechecked, while every new file is .ts/.tsx and is",
+    "checked at full strictness. A 62-file rewrite done in one pass would be a huge",
+    "unreviewable diff across a codebase whose token engine is finished and heavily",
+    "commented — and it would buy nothing that migrating file-by-file does not.",
+    "",
+    "Vite transpiles TS with esbuild and does NOT typecheck, so `npm run build`",
+    "cannot be broken by a type error. Typechecking is its own gate: `npm run",
+    "typecheck`. That separation is deliberate — a type error should fail CI, not",
+    "the dev server someone is using to look at a screen.",
+    "",
+    "TypeScript 7 removed `baseUrl`; `paths` now resolves relative to this file."
+  ],
+
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    "allowJs": true,
+    "checkJs": false,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "noEmit": true,
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
+
+    "paths": { "@/*": ["./src/*"] }
+  },
+
+  "include": ["src", "vite.config.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "src/tokens.css", "src/lib/tokens.js"]
+}
