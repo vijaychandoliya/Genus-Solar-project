@@ -18,6 +18,7 @@ import DataHealth from "./pages/data-health.jsx";
 import Reports from "./pages/reports.jsx";
 import AdminUsers from "./pages/admin-users.jsx";
 import AdminRoles from "./pages/admin-roles.jsx";
+import Appearance from "./pages/appearance.jsx";
 import DesignTokens from "./pages/design-tokens.jsx";
 import AdminOrganisation from "./pages/admin-organisation.jsx";
 import Placeholder from "./pages/placeholder.jsx";
@@ -42,6 +43,7 @@ const BUILT = new Set([
   "/reports",
   "/admin/users",
   "/admin/roles",
+  "/admin/appearance",
   "/admin/design-tokens",
   "/admin/organisation",
 ]);
@@ -74,6 +76,7 @@ export default function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/roles" element={<AdminRoles />} />
+          <Route path="/admin/appearance" element={<Appearance />} />
           <Route path="/admin/design-tokens" element={<DesignTokens />} />
           <Route path="/admin/organisation" element={<AdminOrganisation />} />
           {ROUTES.map((r) => (

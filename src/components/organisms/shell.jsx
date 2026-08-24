@@ -138,6 +138,7 @@ export const NAV = [
     children: [
       { label: "Users", to: "/admin/users" },
       { label: "Roles", to: "/admin/roles" },
+      { label: "Appearance", to: "/admin/appearance" },
       { label: "Design tokens", to: "/admin/design-tokens" },
       { label: "Audit log", to: "/admin/audit" },
       { label: "Organisation", to: "/admin/organisation" },

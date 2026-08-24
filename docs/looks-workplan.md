@@ -68,7 +68,7 @@ P2  Capacity        S2.1 ✅  S2.2 ✅          ── DONE. Looks can differ in
                                               depth and shape, not just hue
 P3  The axis        S3.1 ✅ S3.2 ✅ S3.3 ✅ S3.4 ✅ ── DONE. The engine works
 P4  The Looks       S4.1 … S4.5 ✅           ── DONE. Six Looks, all gate-clean
-P5  The UI          S5.1  S5.2  S5.3        ── the only expensive phase
+P5  The UI          S5.1 ✅ S5.2 ✅ S5.3 ✅    ── DONE. V1 is shippable
 P6  Deferred        S6.x                    ── not in V1
 ```
 
@@ -348,9 +348,41 @@ Each Look is a JSON file plus a gate loop. No source code. Run S4.2–S4.5 as **
 
 ---
 
-## Phase 5 · The UI · **the only expensive phase**
+## Phase 5 · The UI — ✅ COMPLETE
 
-### S5.1 · The gallery · **~18k**
+`/admin/appearance`, under Administration above Design tokens. Verified end to end in the browser:
+choosing **Field** persisted the Look, moved the "In use" marker, showed "Back to Standard" and put
+buttons at 2px radius across the product. Choosing **Calm** with two clashing overrides raised the
+dialog; **Use the Look's** dropped exactly those overrides and applied the Look.
+
+**Three deviations from this plan, all deliberate:**
+
+1. **Selecting applies immediately — there is no "nothing is saved yet" preview mode.** The store
+   persists `look` the moment it changes, so that promise would have been false the instant the bar
+   appeared. Rather than build a shadow copy of the theme to make a sentence true, the page tells the
+   truth: selecting shows the Look everywhere and the bar offers the way back. For a reversible
+   visual preference that is also the better interaction.
+2. **The cards preview a real screen**, painted from each Look's own resolved values via the same
+   `resolveTokens` the build uses — not the live theme, so a card shows what you would get rather
+   than what you already have. They follow the reader's current accent colour and light/dark setting.
+3. **The readability badge is on every card**, so it reads as furniture rather than as an alarm. The
+   claim is only made because `npm run tokens` enforces it.
+
+**Three bugs worth recording, because each would recur:**
+
+- `palette.action` is a **reserved MUI key** (`hover`, `disabled`, `focus`…). `palette.action.primary`
+  is `undefined`. The brand is `palette.primary.main`; the focus ring is `palette.focusRing`, not
+  `palette.focus.ring`.
+- **In `sx`, a bare number on `borderRadius` / `padding` / `gap` is a MULTIPLE of the theme scale.**
+  `borderRadius: 8` renders as 64px — the first miniature was a row of ovals. Anything painting a
+  Look's own resolved pixels must pass px strings so the current theme cannot rescale them.
+- `shadowedBy` returns **leaf** paths, so a colour override arrives as
+  `semantic.surface/canvas.light`. The dialog leaked that verbatim until the mode suffix was
+  stripped. Any plain-language mapping over override paths has to normalise first.
+
+### Original plan (kept for reference)
+
+### S5.1 ✅ · The gallery · **spent ~14k**
 
 | | |
 |---|---|
@@ -359,7 +391,7 @@ Each Look is a JSON file plus a gate loop. No source code. Run S4.2–S4.5 as **
 | **Verify** | Browser: gallery renders, preview repaints, apply persists across reload |
 | **Depends** | S3.3, P4 |
 
-### S5.2 · Route and navigation · **~4k**
+### S5.2 ✅ · Route and navigation · **spent ~2k**
 
 | | |
 |---|---|
@@ -368,7 +400,7 @@ Each Look is a JSON file plus a gate loop. No source code. Run S4.2–S4.5 as **
 | **Verify** | Route resolves; nav highlights |
 | **Depends** | S5.1 |
 
-### S5.3 · The shadow dialog · **~6k**
+### S5.3 ✅ · The shadow dialog · **spent ~3k**
 
 | | |
 |---|---|
