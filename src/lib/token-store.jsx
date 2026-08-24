@@ -18,9 +18,10 @@
  * var route needs the M1 migration first. Rebuild works today; §1.1 has the
  * comparison.
  */
-import React, { createContext, useContext, useCallback, useMemo, useReducer, useEffect } from "react";
+import React, { createContext, useContext, useCallback, useMemo, useReducer, useEffect, useState } from "react";
 import source from "../../scripts/figma-tokens.json";
 import { resolveTokens, assertResolved, themeBundle, merge } from "./token-resolve.js";
+import { lookPatch, lookById, shadowedBy, DEFAULT_LOOK } from "./looks/index.js";
 
 const KEY = "genus-tokens";
 const HISTORY_LIMIT = 50;
@@ -32,18 +33,29 @@ const HISTORY_LIMIT = 50;
 function read() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return {};
+    if (!raw) return { look: DEFAULT_LOOK, overrides: {} };
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
+    if (!parsed || typeof parsed !== "object") return { look: DEFAULT_LOOK, overrides: {} };
+
+    // Drafts written before Looks existed are a bare override tree. Detected by
+    // the ABSENCE of the wrapper key rather than by sniffing token names, so a
+    // future top-level token group cannot be mistaken for a draft envelope.
+    if (!("overrides" in parsed)) return { look: DEFAULT_LOOK, overrides: parsed };
+
+    return {
+      look: typeof parsed.look === "string" ? parsed.look : DEFAULT_LOOK,
+      overrides: parsed.overrides && typeof parsed.overrides === "object" ? parsed.overrides : {},
+    };
   } catch {
-    return {};
+    return { look: DEFAULT_LOOK, overrides: {} };
   }
 }
 
-function write(overrides) {
+function write(look, overrides) {
   try {
-    if (Object.keys(overrides).length === 0) localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, JSON.stringify(overrides));
+    const clean = look === DEFAULT_LOOK && Object.keys(overrides).length === 0;
+    if (clean) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, JSON.stringify({ look, overrides }));
   } catch {
     /* quota or private mode — the draft simply does not survive a reload */
   }
@@ -165,10 +177,19 @@ function reducer(state, action) {
 }
 
 export function TokenProvider({ children }) {
-  const [history, dispatch] = useReducer(reducer, undefined, () => initial(read()));
+  const stored = useMemo(read, []);
+  const [history, dispatch] = useReducer(reducer, undefined, () => initial(stored.overrides));
   const overrides = history.present;
 
-  useEffect(() => write(overrides), [overrides]);
+  /* The Look is its own axis, deliberately OUTSIDE the undo history.
+     `history` is about token EDITS — "Review changes" lists them by path with a
+     value to go back to — and a Look is not an edit, it is which baseline those
+     edits sit on. Undoing it is picking another Look, which the gallery offers
+     directly; folding it into the same stack would make one Ctrl-Z sometimes
+     mean "un-apply an appearance" and sometimes "restore one padding value". */
+  const [look, setLookState] = useState(stored.look);
+
+  useEffect(() => write(look, overrides), [look, overrides]);
 
   /** Apply a sparse patch. */
   const apply = useCallback((patch) => dispatch({ type: "patch", patch }), []);
@@ -216,7 +237,28 @@ export function TokenProvider({ children }) {
      the editor has to render an invalid draft so the user can see what is
      wrong and fix it. Only the build treats problems as fatal.              */
 
-  const resolved = useMemo(() => resolveTokens(source, overrides), [overrides]);
+  /* THE AXIS, in one line. A Look is a sparse patch and `resolveTokens` already
+     deep-merges one, so it needs no new resolver: the Look goes on first and the
+     user's own overrides go on top and keep winning. Applying is a layer, never
+     a write — nothing is destroyed and "back to Standard" is one field. */
+  const patch = useMemo(() => lookPatch(look), [look]);
+  const resolved = useMemo(() => resolveTokens(source, merge(patch, overrides)), [patch, overrides]);
+
+  /* What the user's edits are measured AGAINST. With a Look applied that is the
+     Look's value, not the shipped one — otherwise "changed from" would report
+     every value the Look moved as though the user had moved it. */
+  const baseline = useMemo(() => (Object.keys(patch).length ? merge(structuredClone(source), patch) : source), [patch]);
+
+  /**
+   * Which of the user's edits will keep overriding this Look.
+   *
+   * Applying never destroys an edit, so an earlier one can silently SHADOW the
+   * Look and make it look broken. The apply dialog names these before anything
+   * happens — never resolved silently in either direction.
+   */
+  const shadowedByLook = useMemo(() => shadowedBy(patch, overrides), [patch, overrides]);
+
+  const setLook = useCallback((id) => setLookState(lookById(id) ? id : DEFAULT_LOOK), []);
   const bundle = useMemo(() => themeBundle(resolved), [resolved]);
   const problems = useMemo(() => assertResolved(resolved), [resolved]);
 
@@ -230,20 +272,24 @@ export function TokenProvider({ children }) {
 
   /** Every edit as `{ path, from, to }`, newest last — the "what did I change" list. */
   const changeList = useMemo(
-    () => changed.map((path) => ({ path, from: at(source, path), to: at(resolved.source, path) })),
-    [changed, resolved.source],
+    () => changed.map((path) => ({ path, from: at(baseline, path), to: at(resolved.source, path) })),
+    [changed, resolved.source, baseline],
   );
 
   /** What a token is now, and what it was — for the "changed from shipped" UI. */
   const compare = useCallback(
-    (path) => ({ current: at(resolved.source, path), original: at(source, path), isOverridden: changed.includes(path) }),
-    [resolved.source, changed],
+    (path) => ({ current: at(resolved.source, path), original: at(baseline, path), isOverridden: changed.includes(path) }),
+    [resolved.source, changed, baseline],
   );
 
   const value = useMemo(
     () => ({
       source,
       overrides,
+      look,
+      setLook,
+      lookMeta: lookById(look),
+      shadowedByLook,
       resolved,
       bundle,
       problems,
@@ -263,7 +309,7 @@ export function TokenProvider({ children }) {
       replaceDraft,
       compare,
     }),
-    [overrides, resolved, bundle, problems, changed, changeList, set, revert, revertUnder, changedUnder, apply, undo, redo, history.past.length, history.future.length, resetAll, replaceDraft, compare],
+    [overrides, look, setLook, shadowedByLook, resolved, bundle, problems, changed, changeList, set, revert, revertUnder, changedUnder, apply, undo, redo, history.past.length, history.future.length, resetAll, replaceDraft, compare],
   );
 
   return <TokenContext.Provider value={value}>{children}</TokenContext.Provider>;
