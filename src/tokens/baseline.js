@@ -48,4 +48,4 @@
  * See docs/token-engine-architecture.md §0.5–0.6 and §5, and steps S1.0/S1.2 of
  * docs/looks-workplan.md.
  */
-export const EXPECTED_DEFECTS = 125;
+export const EXPECTED_DEFECTS = 134;

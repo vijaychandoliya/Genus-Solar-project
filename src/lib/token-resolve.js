@@ -563,6 +563,10 @@ export const THEME_REQUIRES = {
             "iconSize", "iconRadius", "iconGlyph"],
   panel: ["background", "border", "radius", "headerPadding", "titleColor",
           "titleType", "noteColor", "noteType"],
+  alert: ["radius", "paddingInline", "paddingBlock", "borderWidth", "labelType", "gap"],
+  checkbox: ["size", "radius", "borderWidth"],
+  menu: ["background", "radius", "borderColor", "paddingBlock", "itemType",
+         "itemMinHeight", "itemPaddingInline"],
 };
 export const SAME_IN_BOTH_MODES_OK = new Set(["text/on-brand"]);
 
