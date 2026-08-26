@@ -1,0 +1,15 @@
+{
+  "$comment": [
+    "How many routes currently have a screen guide.",
+    "",
+    "A RATCHET, and it points both ways — the same discipline src/tokens/baseline.js",
+    "applies to contrast defects. Coverage may not fall: deleting a guide, or adding a",
+    "route without one, fails the check. And when you DO write a guide, the check fails",
+    "until you raise this number, so the count cannot quietly stay stale.",
+    "",
+    "It is not 22 yet because writing 19 more guides at the standard the three reference",
+    "guides set is real work, and a gate nobody can pass is a gate everybody disables."
+  ],
+  "documented": 3,
+  "total": 22
+}
