@@ -14,11 +14,13 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run lint && npm run test && npm run docs:check && npm run tokens && npm run build",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run docs:check && npm run help:check && npm run tokens && npm run build",
     "lint": "eslint src",
     "verify:no-mocks": "rm -rf dist && VITE_DATA_SOURCE=api vite build >/dev/null 2>&1 && (grep -rq \"GTI-BHR-000141\" dist/assets/*.js && echo \"FAIL - fixtures shipped in the api build\" && exit 1 || echo \"OK - no fixtures in the api build\")",
     "docs:screens": "node scripts/screen-inventory.mjs",
-    "docs:check": "node scripts/screen-inventory.mjs --check"
+    "docs:check": "node scripts/screen-inventory.mjs --check",
+    "help": "node scripts/build-help.mjs",
+    "help:check": "node scripts/build-help.mjs --check"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
