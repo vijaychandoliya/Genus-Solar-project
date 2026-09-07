@@ -1,0 +1,258 @@
+---
+route: /admin/design-tokens
+page: src/pages/design-tokens.jsx
+title: Administration — Design Tokens
+status: reviewed
+updated: 2026-08-24
+aliases: [token editor, theme editor, colours, design system, fine-tune the design, styling]
+dataModules: [src/lib/token-resolve.js]
+relatedScreens: [/admin/appearance, /gallery]
+---
+
+# Administration — Design Tokens
+
+> The expert tool. **Every token in the product, editable live** — and every edit repaints
+> the product immediately.
+
+**Evidence marks:** **[C]** confirmed · **[I]** inferred · **[U]** unknown.
+
+> ⚠️ **Most people want [Appearance](/admin/appearance) instead.** This screen assumes you
+> know which colours must contrast with which.
+
+---
+
+## 1. Overview
+
+**The preview IS the build output. [C]**
+
+> *"Every edit repaints the product immediately: the store resolves the draft through the
+> SAME function `scripts/build-tokens.mjs` uses, hands the result to `getTheme()`, and the
+> theme rebuild propagates. So the preview is not an approximation of the build output, it
+> is the build output."*
+
+**The editor and CI cannot disagree. [C]**
+
+> *"Contrast is judged live against `src/tokens/contracts.json` — the same contract the
+> build gate scores, with the same maths."*
+
+That matters: an editor laxer than CI is worse than no editor, because it teaches you the
+change was fine.
+
+**Nothing is written to disk. [C]** A draft is a sparse override patch in `localStorage`.
+Landing a change means **Export → merge into `scripts/figma-tokens.json` → `npm run
+tokens`**, so the reviewed JSON stays the source of truth and every change is a readable
+diff.
+
+**When you would come here.** Changing one specific colour, size or radius. Auditing
+contrast. Exporting a token set. **Not** for picking an overall appearance — that is
+[Appearance](/admin/appearance).
+
+## 2. Who Uses This Screen
+
+| Role | Why |
+|---|---|
+| **Designer / design-system owner** | Author and audit tokens |
+| **Developer** | Inspect what a component resolves to |
+| **Admin / Super Admin** | Rarely — Appearance is the right tool |
+
+> **Roles are designed, not enforced. [C]** See [README](README.md#3--roles-are-designed-but-not-enforced).
+
+## 3. How to Access It
+
+| | |
+|---|---|
+| **Route** | `/admin/design-tokens` **[C]** |
+| **Navigation** | Rail → Administration → Design tokens |
+| **Also from** | [Appearance](/admin/appearance) → *Fine-tune the design* **[C]** |
+
+## 4. Screen Layout
+
+```
+Title / subtitle   Design tokens — "…nothing is written to disk until you export."
+Draft bar          what you have changed · undo/redo · review · reset · export
+Tabs               Primitives · Semantic roles · Components · Type ·
+                   Spacing & scale · Schemes · Audit
+```
+
+## 5. Component-by-Component Guide
+
+### Tab — Primitives (tier 1)
+
+Raw values — the colour ramps. Everything else aliases these **[C]**.
+
+### Tab — Semantic roles (tier 2)
+
+| | |
+|---|---|
+| **What** | 29 contextual roles — `surface/canvas`, `text/primary`, `action/primary/rest`… **[C]** |
+| **Why it matters** | This is the layer that knows about light and dark. Components alias here, never to a primitive **[C]** |
+
+### Tab — Components (tier 3)
+
+292 component slots across 16 components — a button's fill is one value per variant per
+state **[C]**.
+
+### Tab — Type · Spacing & scale
+
+Type styles, spacing, radius, shadow, motion, layout **[C]**.
+
+### Tab — Schemes
+
+The nine accent colours. **A scheme changes the brand hue only** — neutrals, surfaces, text
+and status ramps never change, so an accent choice cannot break contrast or restyle a
+warning **[C]**.
+
+### Tab — Audit
+
+| | |
+|---|---|
+| **What** | Every declared colour pair, scored |
+| **Scale** | 145 pairs × 9 schemes × 2 modes **[C]** |
+| **Authority** | The **same** contract and maths the build gate uses **[C]** |
+
+### Draft bar
+
+| | |
+|---|---|
+| **Shows** | Every change with its original value and a way back **[C]** |
+| **Reversibility** | Every edit is reversible **at the scope the mistake happened at** — one slot, one state, one variant, one component, one tier, or the whole draft **[C]** |
+| **Export** | Produces the patch to merge into the source **[C]** |
+
+## 6. Data Sources and Data Flow
+
+```
+scripts/figma-tokens.json        the reviewed source of truth
+  └─> resolveTokens(source, yourDraft)      ← the SAME function the build uses
+       ├─> getTheme() → the product repaints
+       └─> audit against src/tokens/contracts.json   ← the SAME contract CI scores
+
+your draft → localStorage only.  Landing it: Export → merge → npm run tokens
+```
+
+| Displayed value | Source | Mark |
+|---|---|---|
+| Every token | `figma-tokens.json` + your draft | **[C]** |
+| Audit verdicts | `contracts.json`, live | **[C]** |
+| API / database | — | **[U] / not applicable** |
+
+**Generated files are never edited here. [C]** `src/tokens.css` and `src/lib/tokens.js`
+carry a DO-NOT-EDIT banner and are regenerated by `npm run tokens`.
+
+## 7. Charts, Metrics, and Dashboards
+
+The **Audit** tab is the metric surface — pass, fail, exempt and unknown counts across
+every scheme and mode **[C]**.
+
+## 8. Available Actions
+
+### Edit any token
+
+| | |
+|---|---|
+| **Expected result** | The product repaints immediately; the audit rescores |
+| **Data affected** | Appearance only. **No business data** **[C]** |
+| **Persistence** | `localStorage` draft. **Nothing is written to disk** **[C]** |
+
+### Undo / redo / reset · Review changes · Export
+
+| | |
+|---|---|
+| **Review changes** | Lists every edit with its original value **[C]** |
+| **Reset** | Reversible — pushes the previous draft onto the undo stack **[C]** |
+| **Export** | The patch to merge into `figma-tokens.json` **[C]** |
+
+## 9. Use Cases
+
+### "Change one specific colour."
+Semantic roles → edit → watch the audit.
+
+### "Why is this text hard to read?"
+**Audit** tab — it names the pair and the shortfall.
+
+### "Make the whole product look different."
+Wrong screen. Use [Appearance](/admin/appearance).
+
+### "Land my change permanently."
+Export → merge into `figma-tokens.json` → `npm run tokens`.
+
+## 10. Triggers and System Behavior
+
+| Trigger | What changes | Immediate? |
+|---|---|---|
+| Edit a token | Product repaints; audit rescores | Yes **[C]** |
+| Reset | Draft cleared, pushed to undo | Yes **[C]** |
+| Reload | Draft restored from `localStorage` **[C]** | Yes |
+| Export | A patch file **[C]** | Yes |
+| Anything here | **Never writes to disk** | **[C]** |
+
+## 11. Navigation
+
+**Reached from:** rail → Administration → Design tokens; Appearance's fine-tune link.
+**Leads to:** [Gallery](/gallery) to see components in every state.
+
+## 12. Roles and Permissions
+
+**Not permission-gated. [C]** Anyone can change any token.
+
+**[I]** Alongside [Alarm rules](alarms-rules.md), a strong candidate for the first real
+permission check — though its blast radius is appearance, not judgement.
+
+## 13. Screen States
+
+| State | When | What the user sees |
+|---|---|---|
+| **Clean** | No draft | Shipped values |
+| **Draft** | After editing | Change count in the draft bar **[C]** |
+| **Audit failing** | An edit breaks a pair | The pair and the shortfall **[C]** |
+| **Known defects** | Always | 134 pre-existing, tracked **[C]** |
+
+## 14. Common Questions
+
+**Q. Does editing here change the real product?**
+A. It repaints your browser immediately, but **nothing is written to disk**. To land it:
+Export → merge into `figma-tokens.json` → `npm run tokens`. **[C]**
+
+**Q. Is the preview accurate?**
+A. It is not a preview — it **is** the build output. The editor resolves through the same
+function the build uses. **[C]**
+
+**Q. Can the editor say something passes that CI then rejects?**
+A. No. Same contract, same maths. An editor laxer than CI would be worse than none. **[C]**
+
+**Q. What is the difference between this and Appearance?**
+A. Appearance offers six complete, pre-checked appearances. This edits individual tokens
+and assumes you know which colours must contrast with which. **[C]**
+
+**Q. What are the 134 known defects?**
+A. Pre-existing contrast shortfalls, tracked so the count can only go down. **[C]**
+
+**Q. Can I undo?**
+A. Yes — at the scope the mistake happened at: one slot, one state, one variant, one
+component, one tier, or the whole draft. **[C]**
+
+## 15. Troubleshooting
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| Change vanished on another machine | Draft is per-browser | Export and merge **[C]** |
+| Audit shows failures | Your edit broke a pair | Read the pair; undo **[C]** |
+| A Look ignores my edit | Overrides win over Looks | Expected — see [Appearance](appearance.md) **[C]** |
+| Edited `tokens.css` and nothing happened | It is generated | Edit the source and regenerate **[C]** |
+
+## 16. AI Assistant Questions
+
+- "What is the difference between Design tokens and Appearance?"
+- "Does editing a token change the real product?"
+- "How do I make a token change permanent?"
+- "Why is this text failing contrast?"
+- "What are the three token tiers?"
+- "Can I undo a token change?"
+- "What are the 134 known defects?"
+
+## 17. Known Unknowns
+
+| Unknown | Why | What would resolve it |
+|---|---|---|
+| Whether this will be permission-gated | No enforcement exists | The RBAC decision |
+| Whether drafts will ever be server-side | token-engine-architecture.md §5.1, open | Product decision |
+| API / database | No backend | Not applicable |
