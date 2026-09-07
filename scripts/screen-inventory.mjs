@@ -162,7 +162,10 @@ if (process.argv.includes("--json")) {
     ? JSON.parse(readFileSync(baselineFile, "utf8"))
     : { documented: 0 };
 
-  const covered = documented.filter((g) => g.routes.some((r) => screens.some((s) => s.path === r)));
+  /* Count covered ROUTES, not guide FILES. One guide can legitimately cover two
+     routes — /account/profile and /account/support render the same page — and
+     counting files would have reported 21 of 22 for a fully documented set. */
+  const covered = screens.filter((s) => byRoute[s.path]);
 
   for (const g of orphaned) console.error(`  ORPHANED   ${g.routes.join(", ") || "(no route:)"} → ${g.file}`);
 
@@ -192,7 +195,7 @@ if (process.argv.includes("--json")) {
 
   const remaining = missing.map((s) => s.path);
   console.log(
-    `screen guides OK — ${covered.length} of ${screens.length} routes documented, none orphaned` +
+    `screen guides OK — ${covered.length} of ${screens.length} routes documented in ${documented.length} guides, none orphaned` +
       (remaining.length ? `\n  still to write: ${remaining.join(", ")}` : ""),
   );
 } else {
