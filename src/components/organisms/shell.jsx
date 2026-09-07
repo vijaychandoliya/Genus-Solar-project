@@ -49,6 +49,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -60,6 +61,7 @@ import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import { HelpPanel } from "../help/help-panel.jsx";
 import { useSettings } from "../../lib/settings.jsx";
 import { useHierarchy, LEVEL_LABEL } from "../../lib/hierarchy.jsx";
 import { layout } from "../../lib/tokens.js";
@@ -631,6 +633,7 @@ export function WsShell({ children }) {
   const [navOpen, setNavOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [account, setAccount] = useState(null);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [scopeAnchor, setScopeAnchor] = useState(null);
   const [live, setLive] = useState("");
   const liveRef = useRef(null);
@@ -854,6 +857,15 @@ export function WsShell({ children }) {
               </IconButton>
             </Tooltip>
 
+            {/* Help sits with the other screen-level affordances, in the same
+                place on every screen, because a reader looking for it is
+                already confused and should not have to hunt. */}
+            <Tooltip title="Guide for this screen">
+              <IconButton onClick={() => setHelpOpen(true)} aria-label="Open the guide for this screen">
+                <HelpOutlineIcon />
+              </IconButton>
+            </Tooltip>
+
             <Tooltip title="Settings">
               <IconButton onClick={() => setSettingsOpen(true)} aria-label="Open settings">
                 <SettingsOutlinedIcon />
@@ -911,6 +923,7 @@ export function WsShell({ children }) {
       </Box>
 
       <ThemeCustomizer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <HelpPanel open={helpOpen} onClose={() => setHelpOpen(false)} />
     </Box>
   );
 }
