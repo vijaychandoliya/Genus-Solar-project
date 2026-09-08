@@ -12,9 +12,29 @@
  *   · A malformed frame threw inside setOption — it is wrapped, and a bad frame
  *     is skipped rather than blanking the panel.
  */
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { Box, useTheme } from "@mui/material";
-import * as echarts from "echarts";
+/* ── the chart engine is loaded on demand ────────────────────────────────
+   Trimmed to the series and components actually used, ECharts is still ~540 kB
+   — more than the rest of the application put together. A static import would
+   put all of it in front of first paint on Overview, the landing screen, before
+   a single KPI tile appeared. So it is fetched when a chart first mounts: the
+   tiles and tables paint immediately and the plots draw a moment later.
+
+   `charts.engine.js` holds the registration and explains why it is a file of
+   its own rather than an inline `await import("echarts/charts")` — the short
+   version is that a dynamic import of a barrel cannot be tree-shaken, and
+   doing it that way shipped twice the bytes.
+
+   The promise is cached at module scope, so eight charts on one screen fetch
+   the engine once. */
+let enginePromise = null;
+
+function loadEngine() {
+  enginePromise ??= import("./charts.engine.js").then((m) => m.default);
+  return enginePromise;
+}
+
 import { Panel } from "./molecules.jsx";
 import { EmptyState } from "./atoms.jsx";
 import { truncateName, exInt } from "../lib/format.js";
@@ -81,17 +101,36 @@ export function EChart({ option, height = 260, ariaLabel, onEvents }) {
   const boxRef = useRef(null);
   const instRef = useRef(null);
 
+  // null until the engine chunk lands. Everything below waits for it rather
+  // than rendering a broken instance in the meantime.
+  const [echarts, setECharts] = useState(enginePromise ? undefined : null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadEngine().then(
+      (mod) => !cancelled && setECharts(mod),
+      // A chart that cannot load its engine leaves an empty labelled box. The
+      // screen around it — tiles, tables, the numbers that matter — is
+      // unaffected, which is the point of not blanking the panel.
+      (err) => !cancelled && console.warn("EChart could not load the chart engine", err),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // A new registered theme name per (mode, direction) so ECharts genuinely
   // rebuilds rather than reusing a cached theme.
   const themeName = useMemo(() => {
+    if (!echarts) return null;
     const name = `genus-${t.palette.mode}-${(themeSeq += 1)}`;
     echarts.registerTheme(name, chartTheme(t));
     return name;
-  }, [t]);
+  }, [echarts, t]);
 
   useEffect(() => {
     const el = boxRef.current;
-    if (!el) return undefined;
+    if (!el || !echarts || !themeName) return undefined;
 
     let disposed = false;
 
@@ -122,7 +161,7 @@ export function EChart({ option, height = 260, ariaLabel, onEvents }) {
       instRef.current?.dispose();
       instRef.current = null;
     };
-  }, [themeName, onEvents]);
+  }, [echarts, themeName, onEvents]);
 
   useEffect(() => {
     const inst = instRef.current;
@@ -133,7 +172,7 @@ export function EChart({ option, height = 260, ariaLabel, onEvents }) {
       // A bad frame is skipped, never allowed to blank the panel.
       console.warn("EChart setOption skipped a malformed frame", err);
     }
-  }, [option]);
+  }, [option, echarts, themeName]);
 
   return (
     <Box

@@ -5,8 +5,8 @@
  * projection of the documentation, and hand-editing here would create exactly
  * the drift between the product and its docs that the projection prevents.
  *
- * Emitted 2026-09-07 from 21 guides
- * covering 22 routes.
+ * Emitted 2026-09-08 from 21 guides
+ * covering 24 routes.
  */
 
 /** Panel sections, in the order the panel renders them. */
@@ -9607,13 +9607,15 @@ export const HELP_BY_ROUTE = {
  "/account/profile": {
   "routes": [
    "/account/profile",
-   "/account/support"
+   "/account/support",
+   "/telemetry/solar",
+   "/admin/audit"
   ],
-  "title": "Placeholder Routes — Profile & Support",
+  "title": "Placeholder Routes — the four blocked destinations",
   "summary": [
    {
     "t": "text",
-    "v": "Two nav destinations that resolve to a real screen explaining "
+    "v": "Four nav destinations that resolve to a real screen explaining "
    },
    {
     "t": "b",
@@ -9635,15 +9637,87 @@ export const HELP_BY_ROUTE = {
    "support tickets",
    "not built",
    "coming soon",
-   "empty screens"
+   "empty screens",
+   "solar",
+   "pv generation",
+   "specific yield",
+   "inverter",
+   "audit log",
+   "who changed what"
   ],
   "related": [
    "/admin/users",
+   "/admin/roles",
+   "/telemetry/meter",
+   "/data/health",
+   "/data/history",
    "/overview"
   ],
-  "updated": "2026-08-24",
+  "updated": "2026-09-08",
   "doc": "docs/screen-guides/placeholder-routes.md",
   "useCases": [
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where is the solar generation screen?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Blocked twice over, independently. No inverter object appears in any sample payload — the stream named \"GTI Data\" carries a net meter, not an inverter — so there is no generation figure. And "
+     },
+     {
+      "t": "code",
+      "v": "rated_kw"
+     },
+     {
+      "t": "text",
+      "v": " is absent from the device nameplate, so there is nothing for generation to be a fraction of. The nearest real data is "
+     },
+     {
+      "t": "link",
+      "v": "Meter telemetry",
+      "href": "/telemetry/meter"
+     },
+     {
+      "t": "text",
+      "v": ", which shows what the stream actually carries."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Who changed this threshold, and when?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not recorded. An audit entry is an event that has to have happened: there is no auth layer, so no action is attributable to anyone, and nothing in the product writes a change anywhere durable. "
+     },
+     {
+      "t": "link",
+      "v": "Batch history",
+      "href": "/data/history"
+     },
+     {
+      "t": "text",
+      "v": " is the closest thing to a log that real data supports."
+     }
+    ]
+   },
    {
     "type": "h",
     "text": [
@@ -9705,7 +9779,43 @@ export const HELP_BY_ROUTE = {
      },
      {
       "t": "text",
-      "v": " A. It is not empty — it explains what specifically blocks the screen. Profile needs an auth layer that does not exist; support tickets are an object that appears in no payload."
+      "v": " A. It is not empty — it explains what specifically blocks the screen, and what would lift the block."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is there no Solar screen when this is a solar programme?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Because the data for it does not exist yet, in two independent ways: no payload carries an inverter reading, and the nameplate carries no rated capacity. A screen built now would have to invent both numbers."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Is the audit log switched off, or missing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Missing, and deliberately. A log rendered today would be empty or fabricated, and an empty audit log is indistinguishable from a broken one."
      }
     ]
    },
@@ -9801,6 +9911,55 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "text",
+        "v": "Solar shows no chart"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No inverter object and no "
+       },
+       {
+        "t": "code",
+        "v": "rated_kw"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected — read the blocker"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Audit log lists nothing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer, no write path"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected; use "
+       },
+       {
+        "t": "link",
+        "v": "Batch history",
+        "href": "/data/history"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
         "v": "Nothing on Profile"
        }
       ],
@@ -9836,6 +9995,30 @@ export const HELP_BY_ROUTE = {
         "v": "Use your existing channel"
        }
       ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "\"No specification recorded\""
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "A nav item was added with no entry in the page's "
+       },
+       {
+        "t": "code",
+        "v": "SPEC"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Report it — this one is a defect"
+       }
+      ]
      ]
     ]
    }
@@ -9846,7 +10029,24 @@ export const HELP_BY_ROUTE = {
     "text": [
      {
       "t": "text",
-      "v": "One state: the explanation."
+      "v": "One state per route: the explanation. There is no loading state, no empty state and no error state, because nothing is fetched."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "A second state exists for a route that is in the nav but not in the page's "
+     },
+     {
+      "t": "code",
+      "v": "SPEC"
+     },
+     {
+      "t": "text",
+      "v": " — \"no specification recorded\". It is a defect message, not a normal state."
      }
     ]
    }
@@ -9857,7 +10057,7 @@ export const HELP_BY_ROUTE = {
     "text": [
      {
       "t": "text",
-      "v": "Anyone who clicks the nav item."
+      "v": "Anyone who clicks the nav item. Solar and Audit log are the two a programme reviewer is most likely to reach for, because both are standard in a DMS and their absence here is deliberate rather than accidental."
      }
     ]
    },
@@ -9911,6 +10111,22 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "code",
+        "v": "/telemetry/solar"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/admin/audit"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
         "v": "/account/profile"
        },
        {
@@ -9938,7 +10154,26 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "text",
-        "v": "Account menu / rail"
+        "v": "Telemetry → Solar · Administration → Audit log · account menu"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Registered"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Not written out one by one — every nav destination without a built screen becomes one of these routes automatically"
        }
       ]
      ]
@@ -9949,13 +10184,15 @@ export const HELP_BY_ROUTE = {
  "/account/support": {
   "routes": [
    "/account/profile",
-   "/account/support"
+   "/account/support",
+   "/telemetry/solar",
+   "/admin/audit"
   ],
-  "title": "Placeholder Routes — Profile & Support",
+  "title": "Placeholder Routes — the four blocked destinations",
   "summary": [
    {
     "t": "text",
-    "v": "Two nav destinations that resolve to a real screen explaining "
+    "v": "Four nav destinations that resolve to a real screen explaining "
    },
    {
     "t": "b",
@@ -9977,15 +10214,87 @@ export const HELP_BY_ROUTE = {
    "support tickets",
    "not built",
    "coming soon",
-   "empty screens"
+   "empty screens",
+   "solar",
+   "pv generation",
+   "specific yield",
+   "inverter",
+   "audit log",
+   "who changed what"
   ],
   "related": [
    "/admin/users",
+   "/admin/roles",
+   "/telemetry/meter",
+   "/data/health",
+   "/data/history",
    "/overview"
   ],
-  "updated": "2026-08-24",
+  "updated": "2026-09-08",
   "doc": "docs/screen-guides/placeholder-routes.md",
   "useCases": [
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where is the solar generation screen?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Blocked twice over, independently. No inverter object appears in any sample payload — the stream named \"GTI Data\" carries a net meter, not an inverter — so there is no generation figure. And "
+     },
+     {
+      "t": "code",
+      "v": "rated_kw"
+     },
+     {
+      "t": "text",
+      "v": " is absent from the device nameplate, so there is nothing for generation to be a fraction of. The nearest real data is "
+     },
+     {
+      "t": "link",
+      "v": "Meter telemetry",
+      "href": "/telemetry/meter"
+     },
+     {
+      "t": "text",
+      "v": ", which shows what the stream actually carries."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Who changed this threshold, and when?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not recorded. An audit entry is an event that has to have happened: there is no auth layer, so no action is attributable to anyone, and nothing in the product writes a change anywhere durable. "
+     },
+     {
+      "t": "link",
+      "v": "Batch history",
+      "href": "/data/history"
+     },
+     {
+      "t": "text",
+      "v": " is the closest thing to a log that real data supports."
+     }
+    ]
+   },
    {
     "type": "h",
     "text": [
@@ -10047,7 +10356,43 @@ export const HELP_BY_ROUTE = {
      },
      {
       "t": "text",
-      "v": " A. It is not empty — it explains what specifically blocks the screen. Profile needs an auth layer that does not exist; support tickets are an object that appears in no payload."
+      "v": " A. It is not empty — it explains what specifically blocks the screen, and what would lift the block."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is there no Solar screen when this is a solar programme?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Because the data for it does not exist yet, in two independent ways: no payload carries an inverter reading, and the nameplate carries no rated capacity. A screen built now would have to invent both numbers."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Is the audit log switched off, or missing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Missing, and deliberately. A log rendered today would be empty or fabricated, and an empty audit log is indistinguishable from a broken one."
      }
     ]
    },
@@ -10143,6 +10488,55 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "text",
+        "v": "Solar shows no chart"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No inverter object and no "
+       },
+       {
+        "t": "code",
+        "v": "rated_kw"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected — read the blocker"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Audit log lists nothing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer, no write path"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected; use "
+       },
+       {
+        "t": "link",
+        "v": "Batch history",
+        "href": "/data/history"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
         "v": "Nothing on Profile"
        }
       ],
@@ -10178,6 +10572,30 @@ export const HELP_BY_ROUTE = {
         "v": "Use your existing channel"
        }
       ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "\"No specification recorded\""
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "A nav item was added with no entry in the page's "
+       },
+       {
+        "t": "code",
+        "v": "SPEC"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Report it — this one is a defect"
+       }
+      ]
      ]
     ]
    }
@@ -10188,7 +10606,24 @@ export const HELP_BY_ROUTE = {
     "text": [
      {
       "t": "text",
-      "v": "One state: the explanation."
+      "v": "One state per route: the explanation. There is no loading state, no empty state and no error state, because nothing is fetched."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "A second state exists for a route that is in the nav but not in the page's "
+     },
+     {
+      "t": "code",
+      "v": "SPEC"
+     },
+     {
+      "t": "text",
+      "v": " — \"no specification recorded\". It is a defect message, not a normal state."
      }
     ]
    }
@@ -10199,7 +10634,7 @@ export const HELP_BY_ROUTE = {
     "text": [
      {
       "t": "text",
-      "v": "Anyone who clicks the nav item."
+      "v": "Anyone who clicks the nav item. Solar and Audit log are the two a programme reviewer is most likely to reach for, because both are standard in a DMS and their absence here is deliberate rather than accidental."
      }
     ]
    },
@@ -10253,6 +10688,22 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "code",
+        "v": "/telemetry/solar"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/admin/audit"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
         "v": "/account/profile"
        },
        {
@@ -10280,7 +10731,1180 @@ export const HELP_BY_ROUTE = {
       [
        {
         "t": "text",
-        "v": "Account menu / rail"
+        "v": "Telemetry → Solar · Administration → Audit log · account menu"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Registered"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Not written out one by one — every nav destination without a built screen becomes one of these routes automatically"
+       }
+      ]
+     ]
+    ]
+   }
+  ]
+ },
+ "/telemetry/solar": {
+  "routes": [
+   "/account/profile",
+   "/account/support",
+   "/telemetry/solar",
+   "/admin/audit"
+  ],
+  "title": "Placeholder Routes — the four blocked destinations",
+  "summary": [
+   {
+    "t": "text",
+    "v": "Four nav destinations that resolve to a real screen explaining "
+   },
+   {
+    "t": "b",
+    "parts": [
+     {
+      "t": "text",
+      "v": "what specifically is missing"
+     }
+    ]
+   },
+   {
+    "t": "text",
+    "v": " — not \"coming soon\"."
+   }
+  ],
+  "aliases": [
+   "profile",
+   "my account",
+   "support tickets",
+   "not built",
+   "coming soon",
+   "empty screens",
+   "solar",
+   "pv generation",
+   "specific yield",
+   "inverter",
+   "audit log",
+   "who changed what"
+  ],
+  "related": [
+   "/admin/users",
+   "/admin/roles",
+   "/telemetry/meter",
+   "/data/health",
+   "/data/history",
+   "/overview"
+  ],
+  "updated": "2026-09-08",
+  "doc": "docs/screen-guides/placeholder-routes.md",
+  "useCases": [
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where is the solar generation screen?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Blocked twice over, independently. No inverter object appears in any sample payload — the stream named \"GTI Data\" carries a net meter, not an inverter — so there is no generation figure. And "
+     },
+     {
+      "t": "code",
+      "v": "rated_kw"
+     },
+     {
+      "t": "text",
+      "v": " is absent from the device nameplate, so there is nothing for generation to be a fraction of. The nearest real data is "
+     },
+     {
+      "t": "link",
+      "v": "Meter telemetry",
+      "href": "/telemetry/meter"
+     },
+     {
+      "t": "text",
+      "v": ", which shows what the stream actually carries."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Who changed this threshold, and when?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not recorded. An audit entry is an event that has to have happened: there is no auth layer, so no action is attributable to anyone, and nothing in the product writes a change anywhere durable. "
+     },
+     {
+      "t": "link",
+      "v": "Batch history",
+      "href": "/data/history"
+     },
+     {
+      "t": "text",
+      "v": " is the closest thing to a log that real data supports."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where are my profile settings?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "There is no auth layer, so there is no profile to show. Appearance preferences live on "
+     },
+     {
+      "t": "link",
+      "v": "Appearance",
+      "href": "/admin/appearance"
+     },
+     {
+      "t": "text",
+      "v": " and are stored per browser."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"How do I raise a support ticket?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not in this product. Use your existing support channel."
+     }
+    ]
+   }
+  ],
+  "questions": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is this screen empty?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. It is not empty — it explains what specifically blocks the screen, and what would lift the block."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is there no Solar screen when this is a solar programme?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Because the data for it does not exist yet, in two independent ways: no payload carries an inverter reading, and the nameplate carries no rated capacity. A screen built now would have to invent both numbers."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Is the audit log switched off, or missing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Missing, and deliberately. A log rendered today would be empty or fabricated, and an empty audit log is indistinguishable from a broken one."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why does the nav link to a screen that does nothing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. So the rail is never a set of dead links. Every destination resolves to a real route."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. When will these be built?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. — not recorded. Each is waiting on something specific, not on effort."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Where do I change my settings then?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. "
+     },
+     {
+      "t": "link",
+      "v": "Appearance",
+      "href": "/admin/appearance"
+     },
+     {
+      "t": "text",
+      "v": " for how the product looks — stored in your browser. There is no user profile."
+     }
+    ]
+   }
+  ],
+  "troubleshooting": [
+   {
+    "type": "table",
+    "head": [
+     [
+      {
+       "t": "text",
+       "v": "Symptom"
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Likely cause"
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "What to do"
+      }
+     ]
+    ],
+    "rows": [
+     [
+      [
+       {
+        "t": "text",
+        "v": "Solar shows no chart"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No inverter object and no "
+       },
+       {
+        "t": "code",
+        "v": "rated_kw"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected — read the blocker"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Audit log lists nothing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer, no write path"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected; use "
+       },
+       {
+        "t": "link",
+        "v": "Batch history",
+        "href": "/data/history"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Nothing on Profile"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "No support ticketing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No such object exists"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Use your existing channel"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "\"No specification recorded\""
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "A nav item was added with no entry in the page's "
+       },
+       {
+        "t": "code",
+        "v": "SPEC"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Report it — this one is a defect"
+       }
+      ]
+     ]
+    ]
+   }
+  ],
+  "states": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "One state per route: the explanation. There is no loading state, no empty state and no error state, because nothing is fetched."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "A second state exists for a route that is in the nav but not in the page's "
+     },
+     {
+      "t": "code",
+      "v": "SPEC"
+     },
+     {
+      "t": "text",
+      "v": " — \"no specification recorded\". It is a defect message, not a normal state."
+     }
+    ]
+   }
+  ],
+  "audience": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Anyone who clicks the nav item. Solar and Audit log are the two a programme reviewer is most likely to reach for, because both are standard in a DMS and their absence here is deliberate rather than accidental."
+     }
+    ]
+   },
+   {
+    "type": "quote",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Roles are designed, not enforced."
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " See "
+     },
+     {
+      "t": "text",
+      "v": "README"
+     },
+     {
+      "t": "text",
+      "v": "."
+     }
+    ]
+   }
+  ],
+  "access": [
+   {
+    "type": "table",
+    "head": [
+     [],
+     []
+    ],
+    "rows": [
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Routes"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "code",
+        "v": "/telemetry/solar"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/admin/audit"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/account/profile"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/account/support"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Navigation"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Telemetry → Solar · Administration → Audit log · account menu"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Registered"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Not written out one by one — every nav destination without a built screen becomes one of these routes automatically"
+       }
+      ]
+     ]
+    ]
+   }
+  ]
+ },
+ "/admin/audit": {
+  "routes": [
+   "/account/profile",
+   "/account/support",
+   "/telemetry/solar",
+   "/admin/audit"
+  ],
+  "title": "Placeholder Routes — the four blocked destinations",
+  "summary": [
+   {
+    "t": "text",
+    "v": "Four nav destinations that resolve to a real screen explaining "
+   },
+   {
+    "t": "b",
+    "parts": [
+     {
+      "t": "text",
+      "v": "what specifically is missing"
+     }
+    ]
+   },
+   {
+    "t": "text",
+    "v": " — not \"coming soon\"."
+   }
+  ],
+  "aliases": [
+   "profile",
+   "my account",
+   "support tickets",
+   "not built",
+   "coming soon",
+   "empty screens",
+   "solar",
+   "pv generation",
+   "specific yield",
+   "inverter",
+   "audit log",
+   "who changed what"
+  ],
+  "related": [
+   "/admin/users",
+   "/admin/roles",
+   "/telemetry/meter",
+   "/data/health",
+   "/data/history",
+   "/overview"
+  ],
+  "updated": "2026-09-08",
+  "doc": "docs/screen-guides/placeholder-routes.md",
+  "useCases": [
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where is the solar generation screen?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Blocked twice over, independently. No inverter object appears in any sample payload — the stream named \"GTI Data\" carries a net meter, not an inverter — so there is no generation figure. And "
+     },
+     {
+      "t": "code",
+      "v": "rated_kw"
+     },
+     {
+      "t": "text",
+      "v": " is absent from the device nameplate, so there is nothing for generation to be a fraction of. The nearest real data is "
+     },
+     {
+      "t": "link",
+      "v": "Meter telemetry",
+      "href": "/telemetry/meter"
+     },
+     {
+      "t": "text",
+      "v": ", which shows what the stream actually carries."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Who changed this threshold, and when?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not recorded. An audit entry is an event that has to have happened: there is no auth layer, so no action is attributable to anyone, and nothing in the product writes a change anywhere durable. "
+     },
+     {
+      "t": "link",
+      "v": "Batch history",
+      "href": "/data/history"
+     },
+     {
+      "t": "text",
+      "v": " is the closest thing to a log that real data supports."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"Where are my profile settings?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "There is no auth layer, so there is no profile to show. Appearance preferences live on "
+     },
+     {
+      "t": "link",
+      "v": "Appearance",
+      "href": "/admin/appearance"
+     },
+     {
+      "t": "text",
+      "v": " and are stored per browser."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "text": [
+     {
+      "t": "text",
+      "v": "\"How do I raise a support ticket?\""
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Not in this product. Use your existing support channel."
+     }
+    ]
+   }
+  ],
+  "questions": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is this screen empty?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. It is not empty — it explains what specifically blocks the screen, and what would lift the block."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why is there no Solar screen when this is a solar programme?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Because the data for it does not exist yet, in two independent ways: no payload carries an inverter reading, and the nameplate carries no rated capacity. A screen built now would have to invent both numbers."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Is the audit log switched off, or missing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. Missing, and deliberately. A log rendered today would be empty or fabricated, and an empty audit log is indistinguishable from a broken one."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Why does the nav link to a screen that does nothing?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. So the rail is never a set of dead links. Every destination resolves to a real route."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. When will these be built?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. — not recorded. Each is waiting on something specific, not on effort."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Where do I change my settings then?"
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " A. "
+     },
+     {
+      "t": "link",
+      "v": "Appearance",
+      "href": "/admin/appearance"
+     },
+     {
+      "t": "text",
+      "v": " for how the product looks — stored in your browser. There is no user profile."
+     }
+    ]
+   }
+  ],
+  "troubleshooting": [
+   {
+    "type": "table",
+    "head": [
+     [
+      {
+       "t": "text",
+       "v": "Symptom"
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Likely cause"
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "What to do"
+      }
+     ]
+    ],
+    "rows": [
+     [
+      [
+       {
+        "t": "text",
+        "v": "Solar shows no chart"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No inverter object and no "
+       },
+       {
+        "t": "code",
+        "v": "rated_kw"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected — read the blocker"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Audit log lists nothing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer, no write path"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected; use "
+       },
+       {
+        "t": "link",
+        "v": "Batch history",
+        "href": "/data/history"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "Nothing on Profile"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No auth layer"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Expected"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "No support ticketing"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "No such object exists"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Use your existing channel"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "text",
+        "v": "\"No specification recorded\""
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "A nav item was added with no entry in the page's "
+       },
+       {
+        "t": "code",
+        "v": "SPEC"
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Report it — this one is a defect"
+       }
+      ]
+     ]
+    ]
+   }
+  ],
+  "states": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "One state per route: the explanation. There is no loading state, no empty state and no error state, because nothing is fetched."
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "A second state exists for a route that is in the nav but not in the page's "
+     },
+     {
+      "t": "code",
+      "v": "SPEC"
+     },
+     {
+      "t": "text",
+      "v": " — \"no specification recorded\". It is a defect message, not a normal state."
+     }
+    ]
+   }
+  ],
+  "audience": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "Anyone who clicks the nav item. Solar and Audit log are the two a programme reviewer is most likely to reach for, because both are standard in a DMS and their absence here is deliberate rather than accidental."
+     }
+    ]
+   },
+   {
+    "type": "quote",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Roles are designed, not enforced."
+       }
+      ]
+     },
+     {
+      "t": "text",
+      "v": " See "
+     },
+     {
+      "t": "text",
+      "v": "README"
+     },
+     {
+      "t": "text",
+      "v": "."
+     }
+    ]
+   }
+  ],
+  "access": [
+   {
+    "type": "table",
+    "head": [
+     [],
+     []
+    ],
+    "rows": [
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Routes"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "code",
+        "v": "/telemetry/solar"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/admin/audit"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/account/profile"
+       },
+       {
+        "t": "text",
+        "v": " · "
+       },
+       {
+        "t": "code",
+        "v": "/account/support"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Navigation"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Telemetry → Solar · Administration → Audit log · account menu"
+       }
+      ]
+     ],
+     [
+      [
+       {
+        "t": "b",
+        "parts": [
+         {
+          "t": "text",
+          "v": "Registered"
+         }
+        ]
+       }
+      ],
+      [
+       {
+        "t": "text",
+        "v": "Not written out one by one — every nav destination without a built screen becomes one of these routes automatically"
        }
       ]
      ]

@@ -38,10 +38,27 @@ const GUIDE_DIR = "../docs/screen-guides";
 function routes() {
   const src = read("../src/App.jsx");
 
-  // import Devices from "./pages/devices.jsx"  →  Devices: pages/devices.jsx
+  /* Component → page file. Both spellings, because App.jsx switched to route
+     level code splitting and this gate reported all 21 guides orphaned the
+     moment it did — it knew the eager form only. A parser tied to one syntax
+     is a gate with a fuse in it. */
   const files = {};
+  // import Devices from "./pages/devices.jsx"
   for (const m of src.matchAll(/import\s+(\w+)\s+from\s+"\.\/(pages\/[\w.-]+)"/g))
     files[m[1]] = m[2];
+  // const Devices = lazy(() => import("./pages/devices.jsx"))
+  for (const m of src.matchAll(/(?:const|let)\s+(\w+)\s*=\s*lazy\(\s*\(\)\s*=>\s*import\(\s*"\.\/(pages\/[\w.-]+)"/g))
+    files[m[1]] = m[2];
+
+  /* No pages at all means the syntax moved again and every route is about to
+     look like a screen with no file — which this script reports as "guide for a
+     route that no longer exists" for all 21 guides at once. Say the real thing
+     instead. */
+  if (!Object.keys(files).length)
+    throw new Error(
+      "screen-inventory: found no page imports in src/App.jsx — the import syntax changed " +
+        "and this parser needs to learn it. Every guide would otherwise report as orphaned.",
+    );
 
   const out = [];
   for (const m of src.matchAll(/<Route\s+path="([^"]+)"\s+element=\{<(\w+)([^>]*)\/?>/g)) {
@@ -51,7 +68,40 @@ function routes() {
     const redirect = component === "Navigate" ? /to="([^"]+)"/.exec(rest)?.[1] ?? "?" : null;
     out.push({ path, component, file: files[component] ?? null, redirect });
   }
+
+  /* The placeholder routes are registered dynamically — `{ROUTES.map(…)}` over
+     NAV minus BUILT — so no `<Route path="…">` literal exists for them and the
+     regex above is blind to them. That blindness shipped: /telemetry/solar and
+     /admin/audit were reachable from the rail with no guide behind them while
+     this gate reported full coverage, which is the one thing a coverage gate
+     must never do. */
+  for (const path of placeholderRoutes(src)) {
+    if (out.some((r) => r.path === path)) continue;
+    out.push({ path, component: "Placeholder", file: files.Placeholder ?? null, redirect: null });
+  }
+
   return out;
+}
+
+/**
+ * NAV (shell.jsx) minus BUILT (App.jsx) — the same set App.jsx turns into
+ * routes, derived the same way rather than listed again here.
+ *
+ * Both halves throw when they cannot be parsed. A silent empty result would
+ * restore exactly the blind spot this function exists to close, and a gate that
+ * has quietly stopped checking is worse than one that was never written.
+ */
+function placeholderRoutes(appSrc) {
+  const builtBlock = /const BUILT = new Set\(\[([\s\S]*?)\]\)/.exec(appSrc);
+  if (!builtBlock) throw new Error("screen-inventory: could not parse BUILT from src/App.jsx");
+  const built = new Set([...builtBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]));
+
+  const navBlock = /export const NAV = \[([\s\S]*?)\n\];/.exec(read("../src/components/organisms/shell.jsx"));
+  if (!navBlock) throw new Error("screen-inventory: could not parse NAV from src/components/organisms/shell.jsx");
+  const destinations = [...navBlock[1].matchAll(/\bto:\s*"([^"]+)"/g)].map((m) => m[1]);
+  if (!destinations.length) throw new Error("screen-inventory: NAV parsed but held no destinations");
+
+  return [...new Set(destinations)].filter((d) => !built.has(d));
 }
 
 /* ── what a page actually depends on ──────────────────────────────────────

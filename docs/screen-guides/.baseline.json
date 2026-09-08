@@ -2,14 +2,18 @@
   "$comment": [
     "How many routes currently have a screen guide.",
     "",
-    "A RATCHET, and it points both ways — the same discipline src/tokens/baseline.js",
+    "A RATCHET, and it points both ways \u2014 the same discipline src/tokens/baseline.js",
     "applies to contrast defects. Coverage may not fall: deleting a guide, or adding a",
     "route without one, fails the check. And when you DO write a guide, the check fails",
     "until you raise this number, so the count cannot quietly stay stale.",
     "",
-    "It is not 22 yet because writing 19 more guides at the standard the three reference",
-    "guides set is real work, and a gate nobody can pass is a gate everybody disables."
+    "24, not 22, since 2026-09-08. The two extra are not new screens: /telemetry/solar",
+    "and /admin/audit were always reachable from the rail, but they are registered from",
+    "NAV rather than written as <Route> literals, and the inventory only read literals.",
+    "So the gate reported 22 of 22 while two routes had no guide and the in-app Help",
+    "panel told a reader 'there is no guide for this screen yet'. The parser now derives",
+    "them the same way App.jsx does, and throws if it cannot."
   ],
-  "documented": 22,
-  "total": 22
+  "documented": 24,
+  "total": 24
 }

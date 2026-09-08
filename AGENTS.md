@@ -9,6 +9,7 @@ the app look machine-assembled.
 | Stack | React 19 · MUI v9 · TanStack Table v8 · ECharts 6 · Vite 8 |
 | Product | SBPDCL rooftop-solar rollout programme — see [docs/dashboard-ia.md](docs/dashboard-ia.md) |
 | Run | `npm run dev` (port 5173) · `npm run build` · `npm run tokens` |
+| Deploy | Static bundle behind nginx — [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Config is **build-time**: `VITE_*` is inlined into the bundle, so an image is not promotable between environments. |
 | Gallery | `/gallery` — every component in every state. There is no test suite; this is the substitute. |
 
 ---

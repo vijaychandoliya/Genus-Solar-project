@@ -1,0 +1,19 @@
+# Keep the build context small and the image reproducible. Anything the
+# production build does not read belongs here.
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+.github
+.claude
+.DS_Store
+**/.DS_Store
+.env
+.env.*
+!.env.example
+!.env.production.example
+Dockerfile
+.dockerignore
+*.log
+coverage

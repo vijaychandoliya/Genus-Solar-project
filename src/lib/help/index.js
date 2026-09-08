@@ -35,9 +35,14 @@ export function helpFor(byRoute, pathname) {
     if (pathname === route || pathname.startsWith(`${route}/`)) return byRoute[route];
 
   // Documented as `/telemetry/gti/:tab`, visited as `/telemetry/gti/data`.
+  //
+  // The base path itself counts too. `/telemetry/gti` redirects to its default
+  // tab today, so nobody sits on it for long — but a lookup that returns null
+  // for a path the router accepts is a bug waiting for the redirect to be
+  // removed, and this is the one place that knows how to resolve it.
   for (const route of Object.keys(byRoute).filter((r) => r.includes(":"))) {
     const base = route.slice(0, route.indexOf("/:"));
-    if (pathname.startsWith(`${base}/`)) return byRoute[route];
+    if (pathname === base || pathname.startsWith(`${base}/`)) return byRoute[route];
   }
 
   return null;

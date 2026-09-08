@@ -1,0 +1,33 @@
+# Smoke-test the production image locally, and a starting point for a single-host
+# deployment. Not the deployment topology — there is no TLS termination here.
+#
+#   docker compose -f deploy/docker-compose.yml up --build
+#   curl -i localhost:8080/healthz
+#   open http://localhost:8080/telemetry/gti     # proves the SPA fallback
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        # Build-time, not runtime: changing this needs a rebuild, not a restart.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api}
+        VITE_DATA_SOURCE: api
+        VITE_API_TIMEOUT: "15000"
+        VITE_ENABLE_LOGGING: "false"
+    image: genus-solar:local
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
