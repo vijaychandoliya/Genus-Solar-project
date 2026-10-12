@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { HierarchyProvider } from "./lib/hierarchy.jsx";
 import { WsShell } from "./components/organisms/shell.jsx";
 import { LoadingState } from "./components/feedback/states.tsx";
@@ -14,6 +14,7 @@ import { LoadingState } from "./components/feedback/states.tsx";
    appears. Same reason `Placeholder` is here rather than eager: it is a page
    like any other, and four routes reach it. */
 const Gallery = lazy(() => import("./pages/gallery.jsx"));
+const Authentication = lazy(() => import("./pages/authentication.tsx"));
 const Overview = lazy(() => import("./pages/overview.jsx"));
 const Alarms = lazy(() => import("./pages/alarms.jsx"));
 const AlarmsRules = lazy(() => import("./pages/alarms-rules.jsx"));
@@ -65,7 +66,7 @@ const ROUTES = NAV.flatMap((n) =>
   n.to ? [{ to: n.to, label: n.label }] : n.children.map((c) => ({ to: c.to, label: `${n.label} — ${c.label}` })),
 ).filter((r) => !BUILT.has(r.to));
 
-export default function App() {
+function WorkspaceLayout() {
   return (
     <HierarchyProvider>
       <WsShell>
@@ -73,7 +74,22 @@ export default function App() {
             fallback stands in for the page area while its chunk arrives, and the
             shell — rail, top bar, scope — stays put instead of flickering with it. */}
         <Suspense fallback={<LoadingState />}>
-          <Routes>
+          <Outlet />
+        </Suspense>
+      </WsShell>
+    </HierarchyProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Authentication view="login" />} />
+        <Route path="/forgot-password" element={<Authentication view="forgot" />} />
+        <Route path="/reset-password" element={<Authentication view="reset" />} />
+        <Route element={<WorkspaceLayout />}>
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/overview" element={<Overview />} />
             <Route path="/alarms" element={<Alarms />} />
@@ -101,9 +117,8 @@ export default function App() {
             <Route path="/account/profile" element={<Placeholder title="Profile" to="/account/profile" />} />
             <Route path="/account/support" element={<Placeholder title="Support tickets" to="/account/support" />} />
             <Route path="*" element={<Navigate to="/overview" replace />} />
-          </Routes>
-        </Suspense>
-      </WsShell>
-    </HierarchyProvider>
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }

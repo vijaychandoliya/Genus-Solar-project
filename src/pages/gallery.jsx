@@ -40,6 +40,8 @@ import { METRICS, bandFor, BAND_ORDER } from "../lib/bands.js";
 import { SURVEY_ROWS as SURVEY_ROWS_REAL } from "../lib/programme-data.js";
 import { panelBorder } from "../lib/theme.js";
 import { useState } from "react";
+import { AuthForm } from "../components/auth";
+import { UtilityHero } from "../components/utility-hero";
 
 /** A 48 V-class 15S LFP pack — enough nameplate to unlock the battery bands. */
 const NAMEPLATE = { chemistry: "LFP", series_count: 15, rated_capacity_ah: 100 };
@@ -106,6 +108,18 @@ function Section({ title, note, children }) {
       </Box>
     </Box>
   );
+}
+
+function AuthDemo() {
+  const [view, setView] = useState("login");
+  return <Stack sx={{ gap: 3 }}>
+    <Stack direction="row" sx={{ gap: 1, flexWrap: "wrap" }}>
+      {[["login", "Login"], ["forgot", "Forgot password"], ["sent", "Email confirmation"], ["reset", "Reset password"], ["complete", "Reset complete"]].map(([id, label]) => <Button key={id} variant={view === id ? "contained" : "outlined"} aria-pressed={view === id} onClick={() => setView(id)}>{label}</Button>)}
+    </Stack>
+    <Box sx={(t) => ({ maxWidth: t.spacing(52), width: "100%", mx: "auto" })}><AuthForm key={view} view={view} gallery /></Box>
+    <UtilityHero />
+    <Button href="/login">Open the full authentication flow</Button>
+  </Stack>;
 }
 
 function Swatch({ name, hex }) {
@@ -230,6 +244,10 @@ export default function Gallery() {
             </Box>
           ))}
         </Stack>
+      </Section>
+
+      <Section title="Authentication" note="All five form states and the shared solar, electricity, water and gas hero. UI preview: no credentials are stored and no reset email is sent.">
+        <AuthDemo />
       </Section>
 
       <Section

@@ -70,6 +70,7 @@ import { exInt } from "../../lib/format.js";
 import { SectionLabel } from "../atoms.jsx";
 import { GenusLockup, GenusMark } from "../brand.jsx";
 import { ThemeCustomizer } from "./theme-customizer.jsx";
+import { setAccessToken } from "../../services/auth/token-storage.ts";
 
 /* ── navigation ───────────────────────────────────────────────────────────
    Eight nodes. Order is deliberate — Serial Position Effect: Overview and
@@ -882,7 +883,10 @@ export function WsShell({ children }) {
                 Support tickets
               </MenuItem>
               <Divider />
-              <MenuItem dense onClick={() => setAccount(null)}>
+              <MenuItem dense component={NavLink} to="/login" replace onClick={() => {
+                setAccessToken(null);
+                setAccount(null);
+              }}>
                 Sign out
               </MenuItem>
             </Menu>

@@ -5,8 +5,8 @@
  * projection of the documentation, and hand-editing here would create exactly
  * the drift between the product and its docs that the projection prevents.
  *
- * Emitted 2026-09-08 from 21 guides
- * covering 24 routes.
+ * Emitted 2026-10-12 from 22 guides
+ * covering 27 routes.
  */
 
 /** Panel sections, in the order the panel renders them. */
@@ -4486,6 +4486,630 @@ export const HELP_BY_ROUTE = {
         "v": " screen"
        }
       ]
+     ]
+    ]
+   }
+  ]
+ },
+ "/login": {
+  "routes": [
+   "/login",
+   "/forgot-password",
+   "/reset-password"
+  ],
+  "title": "Authentication",
+  "summary": [
+   {
+    "t": "text",
+    "v": "Preview sign-in and password recovery shared by Genus solar, electricity, water and gas metering. No session, reset email or password change is created."
+   }
+  ],
+  "aliases": [
+   "login",
+   "sign in",
+   "forgot password",
+   "reset password"
+  ],
+  "related": [
+   "/overview",
+   "/gallery"
+  ],
+  "updated": "2026-10-12",
+  "doc": "docs/screen-guides/authentication.md",
+  "useCases": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Enter an email or username and password, and toggle password visibility. A hint appears under a password field while Caps Lock is on."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Hover a meter reading, or hover or select Solar, Electricity, Water or Gas under the illustration, to spotlight that supply and read what it covers. Select it again to show all four."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview the email-confirmation screen after submitting a valid email address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Use a different email without losing the previous address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview a password reset using matching passwords of at least 12 characters."
+      }
+     ]
+    ]
+   }
+  ],
+  "questions": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Was an email sent or my password changed?"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "No. These screens are UI previews until verified backend endpoints are connected."
+     }
+    ]
+   }
+  ],
+  "troubleshooting": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "If the reset form does not advance, use at least 12 characters in both password fields and make sure they match."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "A sign-in preview cannot grant access or validate credentials."
+      }
+     ]
+    ]
+   }
+  ],
+  "states": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "The gallery exposes all five states. Login submission displays an explicit disconnected-service message. Recovery and reset confirmation identify themselves as previews. Password mismatch appears beside the confirmation field. The illustration shows one home with four supplies, each through its own meter: rooftop solar, the electricity grid, water from a tower, gas from the street main. Each meter shows a counting reading — the solar meter counts energy generated and the electricity meter energy used, both in kWh; the water meter counts litres, the gas meter cubic metres. These are sample readings; they report no telemetry and are hidden from screen readers, which hear a description of the scene instead. Each supply has its own icon and line texture as well as colour. Flows, meter lights, the sun and the counters animate; the pause button stops all of them, and none run when reduced motion is requested. Desktop uses a split layout that fills the current viewport. Mobile hides the illustration and shows the form only. The page does not scroll; the form panel can scroll when unusually short viewports or enlarged text require it to keep controls accessible. All forms inherit theme and direction preferences."
+     }
+    ]
+   }
+  ],
+  "audience": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Users of any Genus metering product — solar, water or gas — returning to their dashboard."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Designers reviewing authentication states in the component gallery."
+      }
+     ]
+    ]
+   }
+  ],
+  "access": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Open "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ", "
+      },
+      {
+       "t": "code",
+       "v": "/forgot-password"
+      },
+      {
+       "t": "text",
+       "v": " or "
+      },
+      {
+       "t": "code",
+       "v": "/reset-password"
+      },
+      {
+       "t": "text",
+       "v": " directly."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "The root URL opens Login. Explore the dashboard opens "
+      },
+      {
+       "t": "code",
+       "v": "/overview"
+      },
+      {
+       "t": "text",
+       "v": "."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Account menu → Sign out clears the frontend access token and returns to "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ". No backend request is made."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Theme preferences carry through from the dashboard. The authentication page also offers a light/dark toggle."
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "/forgot-password": {
+  "routes": [
+   "/login",
+   "/forgot-password",
+   "/reset-password"
+  ],
+  "title": "Authentication",
+  "summary": [
+   {
+    "t": "text",
+    "v": "Preview sign-in and password recovery shared by Genus solar, electricity, water and gas metering. No session, reset email or password change is created."
+   }
+  ],
+  "aliases": [
+   "login",
+   "sign in",
+   "forgot password",
+   "reset password"
+  ],
+  "related": [
+   "/overview",
+   "/gallery"
+  ],
+  "updated": "2026-10-12",
+  "doc": "docs/screen-guides/authentication.md",
+  "useCases": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Enter an email or username and password, and toggle password visibility. A hint appears under a password field while Caps Lock is on."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Hover a meter reading, or hover or select Solar, Electricity, Water or Gas under the illustration, to spotlight that supply and read what it covers. Select it again to show all four."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview the email-confirmation screen after submitting a valid email address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Use a different email without losing the previous address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview a password reset using matching passwords of at least 12 characters."
+      }
+     ]
+    ]
+   }
+  ],
+  "questions": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Was an email sent or my password changed?"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "No. These screens are UI previews until verified backend endpoints are connected."
+     }
+    ]
+   }
+  ],
+  "troubleshooting": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "If the reset form does not advance, use at least 12 characters in both password fields and make sure they match."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "A sign-in preview cannot grant access or validate credentials."
+      }
+     ]
+    ]
+   }
+  ],
+  "states": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "The gallery exposes all five states. Login submission displays an explicit disconnected-service message. Recovery and reset confirmation identify themselves as previews. Password mismatch appears beside the confirmation field. The illustration shows one home with four supplies, each through its own meter: rooftop solar, the electricity grid, water from a tower, gas from the street main. Each meter shows a counting reading — the solar meter counts energy generated and the electricity meter energy used, both in kWh; the water meter counts litres, the gas meter cubic metres. These are sample readings; they report no telemetry and are hidden from screen readers, which hear a description of the scene instead. Each supply has its own icon and line texture as well as colour. Flows, meter lights, the sun and the counters animate; the pause button stops all of them, and none run when reduced motion is requested. Desktop uses a split layout that fills the current viewport. Mobile hides the illustration and shows the form only. The page does not scroll; the form panel can scroll when unusually short viewports or enlarged text require it to keep controls accessible. All forms inherit theme and direction preferences."
+     }
+    ]
+   }
+  ],
+  "audience": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Users of any Genus metering product — solar, water or gas — returning to their dashboard."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Designers reviewing authentication states in the component gallery."
+      }
+     ]
+    ]
+   }
+  ],
+  "access": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Open "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ", "
+      },
+      {
+       "t": "code",
+       "v": "/forgot-password"
+      },
+      {
+       "t": "text",
+       "v": " or "
+      },
+      {
+       "t": "code",
+       "v": "/reset-password"
+      },
+      {
+       "t": "text",
+       "v": " directly."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "The root URL opens Login. Explore the dashboard opens "
+      },
+      {
+       "t": "code",
+       "v": "/overview"
+      },
+      {
+       "t": "text",
+       "v": "."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Account menu → Sign out clears the frontend access token and returns to "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ". No backend request is made."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Theme preferences carry through from the dashboard. The authentication page also offers a light/dark toggle."
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "/reset-password": {
+  "routes": [
+   "/login",
+   "/forgot-password",
+   "/reset-password"
+  ],
+  "title": "Authentication",
+  "summary": [
+   {
+    "t": "text",
+    "v": "Preview sign-in and password recovery shared by Genus solar, electricity, water and gas metering. No session, reset email or password change is created."
+   }
+  ],
+  "aliases": [
+   "login",
+   "sign in",
+   "forgot password",
+   "reset password"
+  ],
+  "related": [
+   "/overview",
+   "/gallery"
+  ],
+  "updated": "2026-10-12",
+  "doc": "docs/screen-guides/authentication.md",
+  "useCases": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Enter an email or username and password, and toggle password visibility. A hint appears under a password field while Caps Lock is on."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Hover a meter reading, or hover or select Solar, Electricity, Water or Gas under the illustration, to spotlight that supply and read what it covers. Select it again to show all four."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview the email-confirmation screen after submitting a valid email address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Use a different email without losing the previous address."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Preview a password reset using matching passwords of at least 12 characters."
+      }
+     ]
+    ]
+   }
+  ],
+  "questions": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "b",
+      "parts": [
+       {
+        "t": "text",
+        "v": "Q. Was an email sent or my password changed?"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "No. These screens are UI previews until verified backend endpoints are connected."
+     }
+    ]
+   }
+  ],
+  "troubleshooting": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "If the reset form does not advance, use at least 12 characters in both password fields and make sure they match."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "A sign-in preview cannot grant access or validate credentials."
+      }
+     ]
+    ]
+   }
+  ],
+  "states": [
+   {
+    "type": "p",
+    "text": [
+     {
+      "t": "text",
+      "v": "The gallery exposes all five states. Login submission displays an explicit disconnected-service message. Recovery and reset confirmation identify themselves as previews. Password mismatch appears beside the confirmation field. The illustration shows one home with four supplies, each through its own meter: rooftop solar, the electricity grid, water from a tower, gas from the street main. Each meter shows a counting reading — the solar meter counts energy generated and the electricity meter energy used, both in kWh; the water meter counts litres, the gas meter cubic metres. These are sample readings; they report no telemetry and are hidden from screen readers, which hear a description of the scene instead. Each supply has its own icon and line texture as well as colour. Flows, meter lights, the sun and the counters animate; the pause button stops all of them, and none run when reduced motion is requested. Desktop uses a split layout that fills the current viewport. Mobile hides the illustration and shows the form only. The page does not scroll; the form panel can scroll when unusually short viewports or enlarged text require it to keep controls accessible. All forms inherit theme and direction preferences."
+     }
+    ]
+   }
+  ],
+  "audience": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Users of any Genus metering product — solar, water or gas — returning to their dashboard."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Designers reviewing authentication states in the component gallery."
+      }
+     ]
+    ]
+   }
+  ],
+  "access": [
+   {
+    "type": "list",
+    "items": [
+     [
+      {
+       "t": "text",
+       "v": "Open "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ", "
+      },
+      {
+       "t": "code",
+       "v": "/forgot-password"
+      },
+      {
+       "t": "text",
+       "v": " or "
+      },
+      {
+       "t": "code",
+       "v": "/reset-password"
+      },
+      {
+       "t": "text",
+       "v": " directly."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "The root URL opens Login. Explore the dashboard opens "
+      },
+      {
+       "t": "code",
+       "v": "/overview"
+      },
+      {
+       "t": "text",
+       "v": "."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Account menu → Sign out clears the frontend access token and returns to "
+      },
+      {
+       "t": "code",
+       "v": "/login"
+      },
+      {
+       "t": "text",
+       "v": ". No backend request is made."
+      }
+     ],
+     [
+      {
+       "t": "text",
+       "v": "Theme preferences carry through from the dashboard. The authentication page also offers a light/dark toggle."
+      }
      ]
     ]
    }
